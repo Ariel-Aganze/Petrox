@@ -1,0 +1,192 @@
+INFO 2026-01-16 21:25:33,838 autoreload 8100 8892 Watching for file changes with StatReloader
+WARNING 2026-01-16 21:25:39,439 log 8100 24528 Not Found: /accounts/users/
+WARNING 2026-01-16 21:25:39,440 basehttp 8100 24528 "GET /accounts/users/ HTTP/1.1" 404 3032
+INFO 2026-01-16 21:25:42,516 basehttp 8100 27120 "GET / HTTP/1.1" 302 0
+INFO 2026-01-16 21:25:42,640 basehttp 8100 27120 "GET /auth/login/ HTTP/1.1" 200 7210
+INFO 2026-01-16 21:27:25,533 autoreload 13196 4988 Watching for file changes with StatReloader
+INFO 2026-01-16 21:27:32,208 basehttp 13196 16604 "GET /auth/login/ HTTP/1.1" 200 7210
+INFO 2026-01-16 21:27:33,894 basehttp 13196 16604 "GET /auth/login/ HTTP/1.1" 200 7210
+INFO 2026-01-16 21:27:41,948 basehttp 13196 13308 "POST /auth/login/ HTTP/1.1" 200 7491
+INFO 2026-01-16 21:32:03,977 basehttp 13196 14004 "POST /auth/login/ HTTP/1.1" 200 7491
+INFO 2026-01-16 21:32:08,777 basehttp 13196 14004 "POST /auth/login/ HTTP/1.1" 200 7491
+INFO 2026-01-16 21:32:13,226 basehttp 13196 14004 "GET / HTTP/1.1" 302 0
+INFO 2026-01-16 21:32:13,235 basehttp 13196 14004 "GET /auth/login/ HTTP/1.1" 200 7210
+INFO 2026-01-16 21:32:22,083 basehttp 13196 14004 "POST /auth/login/ HTTP/1.1" 200 7491
+INFO 2026-01-16 21:34:51,411 autoreload 19156 21964 Watching for file changes with StatReloader
+INFO 2026-01-16 21:34:54,007 basehttp 19156 20636 "GET / HTTP/1.1" 302 0
+INFO 2026-01-16 21:34:54,019 basehttp 19156 20636 "GET /auth/login/ HTTP/1.1" 200 7210
+INFO 2026-01-16 21:35:03,097 basehttp 19156 20636 "POST /auth/login/ HTTP/1.1" 200 7491
+INFO 2026-01-16 21:35:15,536 basehttp 19156 20636 "POST /auth/login/ HTTP/1.1" 302 0
+ERROR 2026-01-16 21:35:16,074 log 19156 20636 Internal Server Error: /auth/login/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\utils\decorators.py", line 46, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\decorators\debug.py", line 92, in sensitive_post_parameters_wrapper
+    return view(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\utils\decorators.py", line 46, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\utils\decorators.py", line 134, in _wrapper_view
+    response = view_func(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\utils\decorators.py", line 46, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\decorators\cache.py", line 62, in _wrapper_view_func
+    response = view_func(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\views.py", line 85, in dispatch
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Redirection loop for authenticated user detected. Check that your LOGIN_REDIRECT_URL doesn't point to a login page.
+ERROR 2026-01-16 21:35:16,081 basehttp 19156 20636 "GET /auth/login/ HTTP/1.1" 500 110108
+INFO 2026-01-16 21:37:12,400 autoreload 19156 21964 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\authentication\views.py changed, reloading.
+INFO 2026-01-16 21:37:13,978 autoreload 18572 26696 Watching for file changes with StatReloader
+INFO 2026-01-16 21:37:53,597 autoreload 18572 26696 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\authentication\views.py changed, reloading.
+INFO 2026-01-16 21:37:54,834 autoreload 3136 22216 Watching for file changes with StatReloader
+INFO 2026-01-16 21:38:07,480 autoreload 17372 23576 Watching for file changes with StatReloader
+INFO 2026-01-16 21:38:10,739 basehttp 17372 26056 "GET /auth/login/ HTTP/1.1" 200 7509
+INFO 2026-01-16 21:38:16,317 basehttp 17372 26056 "GET /auth/login/ HTTP/1.1" 200 7210
+INFO 2026-01-16 21:38:17,253 basehttp 17372 26056 "GET /auth/login/ HTTP/1.1" 200 7210
+INFO 2026-01-16 21:38:25,653 basehttp 17372 22848 "POST /auth/login/ HTTP/1.1" 200 7491
+INFO 2026-01-16 21:38:35,783 basehttp 17372 10596 "POST /auth/login/ HTTP/1.1" 200 7736
+INFO 2026-01-16 21:38:46,880 basehttp 17372 26720 "GET /admin/ HTTP/1.1" 302 0
+INFO 2026-01-16 21:38:47,269 basehttp 17372 26720 "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4259
+INFO 2026-01-16 21:38:47,598 basehttp 17372 4464 "GET /static/admin/css/login.css HTTP/1.1" 200 958
+INFO 2026-01-16 21:38:47,598 basehttp 17372 26720 "GET /static/admin/css/base.css HTTP/1.1" 200 21207
+INFO 2026-01-16 21:38:47,604 basehttp 17372 21476 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694
+INFO 2026-01-16 21:38:47,605 basehttp 17372 6600 "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+INFO 2026-01-16 21:38:47,609 basehttp 17372 21036 "GET /static/admin/css/responsive.css HTTP/1.1" 200 18533
+INFO 2026-01-16 21:38:47,654 basehttp 17372 3696 "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+INFO 2026-01-16 21:38:47,654 basehttp 17372 4464 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2026-01-16 21:38:58,782 basehttp 17372 22396 "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2026-01-16 21:38:58,883 basehttp 17372 22396 "GET /admin/ HTTP/1.1" 200 11710
+INFO 2026-01-16 21:38:58,933 basehttp 17372 22396 "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2026-01-16 21:38:58,959 basehttp 17372 25224 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+INFO 2026-01-16 21:38:58,959 basehttp 17372 22396 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2026-01-16 21:39:03,832 basehttp 17372 22396 "GET /admin/core/user/ HTTP/1.1" 200 16239
+INFO 2026-01-16 21:39:03,892 basehttp 17372 22396 "GET /static/admin/css/changelists.css HTTP/1.1" 200 6566
+INFO 2026-01-16 21:39:03,903 basehttp 17372 11116 "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2026-01-16 21:39:03,930 basehttp 17372 26212 "GET /static/admin/js/core.js HTTP/1.1" 200 5682
+INFO 2026-01-16 21:39:03,933 basehttp 17372 10152 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 8943
+INFO 2026-01-16 21:39:03,938 basehttp 17372 22396 "GET /static/admin/js/actions.js HTTP/1.1" 200 7872
+INFO 2026-01-16 21:39:03,954 basehttp 17372 11116 "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2026-01-16 21:39:03,971 basehttp 17372 22396 "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+INFO 2026-01-16 21:39:03,982 basehttp 17372 25224 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+INFO 2026-01-16 21:39:03,984 basehttp 17372 26212 "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2026-01-16 21:39:03,984 basehttp 17372 11116 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+INFO 2026-01-16 21:39:04,032 basehttp 17372 7256 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 292458
+INFO 2026-01-16 21:39:04,071 basehttp 17372 7256 "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2026-01-16 21:39:04,073 basehttp 17372 10152 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 232381
+INFO 2026-01-16 21:39:04,106 basehttp 17372 10152 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2026-01-16 21:39:04,110 basehttp 17372 7256 "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+INFO 2026-01-16 21:39:08,589 basehttp 17372 25948 "GET /admin/core/user/2/change/ HTTP/1.1" 200 37389
+INFO 2026-01-16 21:39:08,640 basehttp 17372 25948 "GET /static/admin/css/forms.css HTTP/1.1" 200 9047
+INFO 2026-01-16 21:39:08,656 basehttp 17372 25948 "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+INFO 2026-01-16 21:39:08,664 basehttp 17372 4772 "GET /static/admin/js/calendar.js HTTP/1.1" 200 8466
+INFO 2026-01-16 21:39:08,665 basehttp 17372 23344 "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+INFO 2026-01-16 21:39:08,669 basehttp 17372 21412 "GET /static/admin/js/SelectFilter2.js HTTP/1.1" 200 15292
+INFO 2026-01-16 21:39:08,681 basehttp 17372 21800 "GET /static/admin/js/SelectBox.js HTTP/1.1" 200 4530
+INFO 2026-01-16 21:39:08,682 basehttp 17372 25948 "GET /static/admin/css/widgets.css HTTP/1.1" 200 11900
+INFO 2026-01-16 21:39:08,688 basehttp 17372 4772 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+INFO 2026-01-16 21:39:08,702 basehttp 17372 19828 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+INFO 2026-01-16 21:39:08,703 basehttp 17372 23344 "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+INFO 2026-01-16 21:39:08,731 basehttp 17372 23344 "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+INFO 2026-01-16 21:39:08,815 basehttp 17372 21800 "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+INFO 2026-01-16 21:39:08,815 basehttp 17372 4772 "GET /static/admin/img/icon-unknown-alt.svg HTTP/1.1" 200 655
+INFO 2026-01-16 21:39:08,815 basehttp 17372 23344 "GET /static/admin/img/icon-unknown.svg HTTP/1.1" 200 655
+INFO 2026-01-16 21:39:08,821 basehttp 17372 19828 "GET /static/admin/img/selector-icons.svg HTTP/1.1" 200 3291
+INFO 2026-01-16 21:39:08,823 basehttp 17372 25948 "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+INFO 2026-01-16 21:39:26,495 basehttp 17372 17264 "POST /admin/core/user/2/change/ HTTP/1.1" 200 37722
+INFO 2026-01-16 21:39:26,571 basehttp 17372 17264 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+INFO 2026-01-16 21:39:38,922 basehttp 17372 11068 "POST /admin/core/user/2/change/ HTTP/1.1" 302 0
+INFO 2026-01-16 21:39:39,092 basehttp 17372 11068 "GET /admin/core/user/ HTTP/1.1" 200 16500
+INFO 2026-01-16 21:39:39,279 basehttp 17372 11068 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+WARNING 2026-01-16 21:39:43,004 log 17372 11068 Forbidden (CSRF token from POST incorrect.): /auth/login/
+WARNING 2026-01-16 21:39:43,005 basehttp 17372 11068 "POST /auth/login/ HTTP/1.1" 403 2541
+WARNING 2026-01-16 21:39:48,155 log 17372 11068 Forbidden (CSRF token from POST incorrect.): /auth/login/
+WARNING 2026-01-16 21:39:48,156 basehttp 17372 11068 "POST /auth/login/ HTTP/1.1" 403 2541
+INFO 2026-01-16 21:40:05,484 autoreload 1048 7936 Watching for file changes with StatReloader
+INFO 2026-01-16 21:40:11,758 basehttp 1048 24848 "GET / HTTP/1.1" 302 0
+INFO 2026-01-16 21:40:11,864 basehttp 1048 24848 "GET /auth/login/ HTTP/1.1" 302 0
+INFO 2026-01-16 21:40:11,925 basehttp 1048 24848 "GET /dashboard/ HTTP/1.1" 200 0
+INFO 2026-01-16 21:42:28,189 basehttp 1048 22524 "GET /admin/core/user/2/change/ HTTP/1.1" 200 37524
+INFO 2026-01-16 21:42:28,424 basehttp 1048 22524 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+INFO 2026-01-16 21:42:35,866 basehttp 1048 22524 "POST /admin/core/user/2/change/ HTTP/1.1" 302 0
+INFO 2026-01-16 21:42:35,975 basehttp 1048 22524 "GET /admin/core/user/ HTTP/1.1" 200 16496
+INFO 2026-01-16 21:42:36,190 basehttp 1048 22524 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+WARNING 2026-01-16 21:42:38,947 log 1048 10084 Forbidden (Permission denied): /dashboard/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 134, in dispatch
+    return self.handle_no_permission()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 48, in handle_no_permission
+    raise PermissionDenied(self.get_permission_denied_message())
+django.core.exceptions.PermissionDenied
+WARNING 2026-01-16 21:42:38,955 basehttp 1048 10084 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2026-01-16 21:42:57,577 autoreload 20036 1368 Watching for file changes with StatReloader
+INFO 2026-01-16 21:43:03,355 basehttp 20036 22340 "GET / HTTP/1.1" 302 0
+INFO 2026-01-16 21:43:03,421 basehttp 20036 22340 "GET /auth/login/ HTTP/1.1" 302 0
+WARNING 2026-01-16 21:43:03,478 log 20036 22340 Forbidden (Permission denied): /manager/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 134, in dispatch
+    return self.handle_no_permission()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 48, in handle_no_permission
+    raise PermissionDenied(self.get_permission_denied_message())
+django.core.exceptions.PermissionDenied
+WARNING 2026-01-16 21:43:03,483 basehttp 20036 22340 "GET /manager/ HTTP/1.1" 403 135
+INFO 2026-01-16 21:43:10,021 basehttp 20036 17504 "GET /admin/core/user/2/change/ HTTP/1.1" 200 37518
+INFO 2026-01-16 21:43:10,244 basehttp 20036 17504 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+INFO 2026-01-16 21:43:18,017 basehttp 20036 27448 "POST /admin/core/user/2/change/ HTTP/1.1" 302 0
+INFO 2026-01-16 21:43:18,215 basehttp 20036 27448 "GET /admin/core/user/ HTTP/1.1" 200 16500
+INFO 2026-01-16 21:43:18,403 basehttp 20036 27448 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+WARNING 2026-01-16 21:43:20,784 log 20036 27448 Forbidden (Permission denied): /manager/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 134, in dispatch
+    return self.handle_no_permission()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 48, in handle_no_permission
+    raise PermissionDenied(self.get_permission_denied_message())
+django.core.exceptions.PermissionDenied
+WARNING 2026-01-16 21:43:20,787 basehttp 20036 27448 "GET /manager/ HTTP/1.1" 403 135
+INFO 2026-01-16 21:43:23,001 basehttp 20036 27448 "GET / HTTP/1.1" 302 0
+INFO 2026-01-16 21:43:23,180 basehttp 20036 27448 "GET /auth/login/ HTTP/1.1" 302 0
+INFO 2026-01-16 21:43:23,230 basehttp 20036 27448 "GET /dashboard/ HTTP/1.1" 200 0
+INFO 2026-01-16 21:45:38,580 basehttp 20036 16552 "GET /dashboard/ HTTP/1.1" 200 47146
+INFO 2026-01-16 21:45:39,054 basehttp 20036 16552 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 21:46:05,855 basehttp 20036 472 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 21:46:06,875 basehttp 20036 472 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 21:46:16,731 basehttp 20036 11888 "GET /dashboard/ HTTP/1.1" 200 47146
+INFO 2026-01-16 21:46:16,944 basehttp 20036 11888 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 21:46:30,676 basehttp 20036 11408 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 21:46:31,675 basehttp 20036 11408 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 22:50:38,517 basehttp 20036 19120 "GET /dashboard/ HTTP/1.1" 200 47146
+INFO 2026-01-16 22:50:39,043 basehttp 20036 19120 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 22:50:56,094 basehttp 20036 15236 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2026-01-16 22:50:56,423 basehttp 20036 15236 "GET /auth/login/ HTTP/1.1" 200 7507
