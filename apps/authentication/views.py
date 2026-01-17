@@ -10,7 +10,7 @@ from apps.core.models import User
 
 
 class LoginView(DjangoLoginView):
-    template_name = 'auth/login.html'
+    template_name = 'authentication/login.html'
     redirect_authenticated_user = True
     
     def get_success_url(self):

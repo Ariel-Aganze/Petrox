@@ -1,3 +1,6 @@
+# apps/core/admin.py - FINAL CORRECTED VERSION
+# This matches your ACTUAL current model structure
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
@@ -61,8 +64,9 @@ class PompisteAdmin(admin.ModelAdmin):
 
 @admin.register(CategorieDepense)
 class CategorieDepenseAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'created_by', 'is_active', 'created_at')
-    list_filter = ('is_active', 'created_by', 'created_at')
+    # FINAL FIX: Use only the fields that ACTUALLY exist in your current model
+    list_display = ('nom', 'description', 'is_active')  # Removed created_at
+    list_filter = ('is_active',)  # Removed created_at and created_by
     search_fields = ('nom', 'description')
     ordering = ('nom',)
 
@@ -97,12 +101,12 @@ class AbonneAdmin(admin.ModelAdmin):
 
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('branche', 'type_carburant', 'quantite_actuelle', 'capacite_max', 'seuil_alerte', 'niveau_alerte', 'pourcentage_rempli')
+    list_display = ('branche', 'type_carburant', 'quantite_actuelle', 'capacite_max', 'seuil_alerte', 'niveau_alerte_display', 'pourcentage_rempli_display')
     list_filter = ('branche', 'type_carburant', 'updated_at')
     search_fields = ('branche__nom', 'type_carburant__nom')
     ordering = ('branche', 'type_carburant')
     
-    def niveau_alerte(self, obj):
+    def niveau_alerte_display(self, obj):
         niveau = obj.niveau_alerte
         colors = {
             'critique': 'red',
@@ -110,12 +114,12 @@ class StockAdmin(admin.ModelAdmin):
             'normal': 'green'
         }
         return f'<span style="color: {colors.get(niveau, "black")};">{niveau.title()}</span>'
-    niveau_alerte.allow_tags = True
-    niveau_alerte.short_description = 'Niveau'
+    niveau_alerte_display.allow_tags = True
+    niveau_alerte_display.short_description = 'Niveau'
     
-    def pourcentage_rempli(self, obj):
+    def pourcentage_rempli_display(self, obj):
         return f"{obj.pourcentage_rempli:.1f}%"
-    pourcentage_rempli.short_description = 'Remplissage'
+    pourcentage_rempli_display.short_description = 'Remplissage'
 
 
 @admin.register(Vente)
@@ -176,40 +180,24 @@ class LivraisonAdmin(admin.ModelAdmin):
 
 @admin.register(ConsommationAbonne)
 class ConsommationAbonneAdmin(admin.ModelAdmin):
-    list_display = ('abonne', 'branche', 'get_type_carburant', 'get_quantite', 'get_montant', 'get_date')
-    list_filter = ('branche', 'vente__type_carburant', 'vente__created_at')
+    list_display = ('abonne', 'branche', 'type_carburant', 'quantite', 'montant', 'devise', 'created_at')
+    list_filter = ('branche', 'type_carburant', 'devise', 'created_at')
     search_fields = ('abonne__nom_entreprise', 'abonne__code_client')
-    ordering = ('-vente__created_at',)
-    
-    def get_type_carburant(self, obj):
-        return obj.vente.type_carburant.nom
-    get_type_carburant.short_description = 'Carburant'
-    
-    def get_quantite(self, obj):
-        return f"{obj.vente.quantite} L"
-    get_quantite.short_description = 'Quantité'
-    
-    def get_montant(self, obj):
-        return f"${obj.vente.montant_usd} / {obj.vente.montant_fc} FC"
-    get_montant.short_description = 'Montant'
-    
-    def get_date(self, obj):
-        return obj.vente.created_at
-    get_date.short_description = 'Date'
+    ordering = ('-created_at',)
 
 
 @admin.register(PaiementSalaire)
 class PaiementSalaireAdmin(admin.ModelAdmin):
-    list_display = ('get_employe', 'branche', 'montant', 'devise', 'periode', 'caissier', 'created_at')
-    list_filter = ('branche', 'devise', 'created_at', 'caissier')
-    search_fields = ('employe_user__username', 'employe_pompiste__nom', 'periode')
-    ordering = ('-created_at',)
-    date_hierarchy = 'created_at'
+    list_display = ('get_pompiste', 'branche', 'montant_paye', 'devise_paiement', 'get_mois_paiement', 'caissier', 'date_paiement')
+    list_filter = ('branche', 'devise_paiement', 'statut', 'date_paiement')
+    search_fields = ('pompiste__nom', 'pompiste__prenom', 'notes')
+    ordering = ('-date_paiement',)
+    date_hierarchy = 'date_paiement'
     
-    def get_employe(self, obj):
-        if obj.employe_user:
-            return f"{obj.employe_user.get_full_name()} (Utilisateur)"
-        elif obj.employe_pompiste:
-            return f"{obj.employe_pompiste.get_full_name()} (Pompiste)"
-        return "N/A"
-    get_employe.short_description = 'Employé'
+    def get_pompiste(self, obj):
+        return obj.pompiste.get_full_name()
+    get_pompiste.short_description = 'Pompiste'
+    
+    def get_mois_paiement(self, obj):
+        return obj.mois_paiement.strftime('%m/%Y')
+    get_mois_paiement.short_description = 'Mois'

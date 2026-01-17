@@ -202,3 +202,125 @@ INFO 2026-01-16 23:00:41,131 basehttp 3588 3296 "GET /dashboard/ HTTP/1.1" 200 4
 INFO 2026-01-16 23:00:41,354 basehttp 3588 3296 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
 INFO 2026-01-16 23:21:04,932 autoreload 3588 19940 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
 INFO 2026-01-16 23:21:05,961 autoreload 6876 26960 Watching for file changes with StatReloader
+INFO 2026-01-17 23:15:12,280 autoreload 14360 23004 Watching for file changes with StatReloader
+INFO 2026-01-17 23:15:16,785 basehttp 14360 3132 "GET /dashboard/ HTTP/1.1" 200 47146
+ERROR 2026-01-17 23:15:17,766 log 14360 3132 Internal Server Error: /dashboard/api/stats/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py", line 117, in get
+    quantite_actuelle__lte=models.F('seuil_alerte')
+                           ^^^^^^^^
+AttributeError: module 'apps.admin_module.models' has no attribute 'F'
+ERROR 2026-01-17 23:15:17,771 basehttp 14360 3132 "GET /dashboard/api/stats/ HTTP/1.1" 500 91165
+ERROR 2026-01-17 23:15:20,751 log 14360 26632 Internal Server Error: /dashboard/api/stats/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py", line 117, in get
+    quantite_actuelle__lte=models.F('seuil_alerte')
+                           ^^^^^^^^
+AttributeError: module 'apps.admin_module.models' has no attribute 'F'
+ERROR 2026-01-17 23:15:20,755 basehttp 14360 26632 "GET /dashboard/api/stats/ HTTP/1.1" 500 91165
+INFO 2026-01-17 23:15:27,239 basehttp 14360 26632 "GET /admin/core/user/ HTTP/1.1" 200 16235
+INFO 2026-01-17 23:15:27,364 basehttp 14360 26632 "GET /admin/jsi18n/ HTTP/1.1" 200 8621
+INFO 2026-01-17 23:15:59,863 basehttp 14360 23256 "GET /auth/logout/ HTTP/1.1" 302 0
+ERROR 2026-01-17 23:15:59,985 log 14360 23256 Internal Server Error: /auth/login/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader.py", line 47, in select_template
+    raise TemplateDoesNotExist(", ".join(template_name_list), chain=chain)
+django.template.exceptions.TemplateDoesNotExist: auth/login.html
+ERROR 2026-01-17 23:15:59,990 basehttp 14360 23256 "GET /auth/login/ HTTP/1.1" 500 89115
+INFO 2026-01-17 23:18:14,766 autoreload 14360 23004 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\authentication\views.py changed, reloading.
+INFO 2026-01-17 23:18:15,600 autoreload 21640 12472 Watching for file changes with StatReloader
+INFO 2026-01-17 23:18:17,652 basehttp 21640 26344 "GET /auth/login/ HTTP/1.1" 200 7524
+INFO 2026-01-17 23:18:33,318 basehttp 21640 26804 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2026-01-17 23:18:33,498 basehttp 21640 26804 "GET /dashboard/ HTTP/1.1" 200 47146
+ERROR 2026-01-17 23:18:33,999 log 21640 26804 Internal Server Error: /dashboard/api/stats/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py", line 117, in get
+    quantite_actuelle__lte=models.F('seuil_alerte')
+                           ^^^^^^^^
+AttributeError: module 'apps.admin_module.models' has no attribute 'F'
+ERROR 2026-01-17 23:18:34,004 basehttp 21640 26804 "GET /dashboard/api/stats/ HTTP/1.1" 500 91471
+ERROR 2026-01-17 23:18:40,478 log 21640 26804 Internal Server Error: /dashboard/api/stats/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py", line 117, in get
+    quantite_actuelle__lte=models.F('seuil_alerte')
+                           ^^^^^^^^
+AttributeError: module 'apps.admin_module.models' has no attribute 'F'
+ERROR 2026-01-17 23:18:40,481 basehttp 21640 26804 "GET /dashboard/api/stats/ HTTP/1.1" 500 91471
+ERROR 2026-01-17 23:18:40,930 log 21640 26804 Internal Server Error: /dashboard/api/stats/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py", line 117, in get
+    quantite_actuelle__lte=models.F('seuil_alerte')
+                           ^^^^^^^^
+AttributeError: module 'apps.admin_module.models' has no attribute 'F'
+ERROR 2026-01-17 23:18:40,934 basehttp 21640 26804 "GET /dashboard/api/stats/ HTTP/1.1" 500 91471

@@ -13,6 +13,22 @@ from apps.core.models import (
 )
 from decimal import Decimal
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import TemplateView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.contrib import messages
+from django.views import View
+from django.db.models import Sum, Q, F
+from django.utils import timezone
+from datetime import datetime, timedelta
+from apps.core.models import (
+    User, Branche, TauxChange, TypeCarburant, Vente, Stock, 
+    Pompiste, Livraison, MoyenPaiement, Abonne, ConsommationAbonne,
+    PlanningShift
+)
+from decimal import Decimal
+import json
 
 
 class ManagerRequiredMixin(UserPassesTestMixin):
@@ -427,4 +443,495 @@ class ConfirmDeliveryView(ManagerRequiredMixin, View):
             return JsonResponse({
                 'success': False,
                 'message': f'Erreur lors de la confirmation: {str(e)}'
+            })
+        
+
+class SaleDetailsView(ManagerRequiredMixin, View):
+    def get(self, request, sale_id):
+        try:
+            sale = Vente.objects.select_related(
+                'pompiste', 'manager', 'caissier', 'type_carburant', 'moyen_paiement', 'abonne'
+            ).get(id=sale_id, branche=request.user.branche)
+        except Vente.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Vente introuvable'})
+        
+        sale_details = {
+            'id': sale.id,
+            'pompiste': {
+                'id': sale.pompiste.id,
+                'nom': sale.pompiste.get_full_name(),
+                'quart': sale.pompiste.get_quart_display()
+            },
+            'manager': {
+                'id': sale.manager.id,
+                'nom': sale.manager.get_full_name()
+            },
+            'caissier': {
+                'id': sale.caissier.id,
+                'nom': sale.caissier.get_full_name()
+            } if sale.caissier else None,
+            'abonne': {
+                'id': sale.abonne.id,
+                'nom_entreprise': sale.abonne.nom_entreprise,
+                'code_client': sale.abonne.code_client
+            } if sale.abonne else None,
+            'type_carburant': {
+                'id': sale.type_carburant.id,
+                'nom': sale.type_carburant.nom,
+                'couleur': sale.type_carburant.couleur_hex
+            },
+            'quantite': str(sale.quantite),
+            'moyen_paiement': {
+                'id': sale.moyen_paiement.id,
+                'nom': sale.moyen_paiement.nom
+            },
+            'montant_usd': str(sale.montant_usd),
+            'montant_fc': str(sale.montant_fc),
+            'taux_change': str(sale.taux_change),
+            'statut': sale.statut,
+            'statut_display': sale.get_statut_display(),
+            'manquant_usd': str(sale.manquant_usd) if sale.manquant_usd else None,
+            'manquant_fc': str(sale.manquant_fc) if sale.manquant_fc else None,
+            'raison_manquant': sale.raison_manquant,
+            'observations': sale.observations,
+            'created_at': sale.created_at.strftime('%d/%m/%Y %H:%M'),
+            'validated_at': sale.validated_at.strftime('%d/%m/%Y %H:%M') if sale.validated_at else None
+        }
+        
+        return JsonResponse({'sale': sale_details})
+
+
+class StockHistoryView(ManagerRequiredMixin, View):
+    def get(self, request):
+        branche = request.user.branche
+        
+        # Get date range
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+        type_carburant_id = request.GET.get('type_carburant_id')
+        
+        if not date_start or not date_end:
+            today = timezone.now().date()
+            date_start = today - timedelta(days=30)
+            date_end = today
+        else:
+            date_start = datetime.strptime(date_start, '%Y-%m-%d').date()
+            date_end = datetime.strptime(date_end, '%Y-%m-%d').date()
+        
+        # Get deliveries (stock increases)
+        deliveries = Livraison.objects.filter(
+            branche=branche,
+            date_livraison__date__gte=date_start,
+            date_livraison__date__lte=date_end
+        ).select_related('type_carburant')
+        
+        if type_carburant_id:
+            deliveries = deliveries.filter(type_carburant_id=type_carburant_id)
+        
+        # Get sales (stock decreases)
+        sales = Vente.objects.filter(
+            branche=branche,
+            created_at__date__gte=date_start,
+            created_at__date__lte=date_end,
+            statut__in=['validee', 'en_attente']  # Include pending sales as they reduce stock
+        ).select_related('type_carburant', 'pompiste')
+        
+        if type_carburant_id:
+            sales = sales.filter(type_carburant_id=type_carburant_id)
+        
+        # Combine and sort history
+        history = []
+        
+        # Add deliveries
+        for delivery in deliveries:
+            history.append({
+                'date': delivery.date_livraison.strftime('%d/%m/%Y %H:%M'),
+                'type': 'delivery',
+                'type_carburant': delivery.type_carburant.nom,
+                'quantite': str(delivery.quantite),
+                'operation': 'Livraison',
+                'details': f"Fournisseur: {delivery.fournisseur}",
+                'reference': delivery.reference_document,
+                'impact': '+' + str(delivery.quantite) + 'L'
+            })
+        
+        # Add sales
+        for sale in sales:
+            history.append({
+                'date': sale.created_at.strftime('%d/%m/%Y %H:%M'),
+                'type': 'sale',
+                'type_carburant': sale.type_carburant.nom,
+                'quantite': str(sale.quantite),
+                'operation': 'Vente',
+                'details': f"Pompiste: {sale.pompiste.get_full_name()}",
+                'reference': f"Vente #{sale.id}",
+                'impact': '-' + str(sale.quantite) + 'L',
+                'statut': sale.get_statut_display()
+            })
+        
+        # Sort by date (most recent first)
+        history.sort(key=lambda x: datetime.strptime(x['date'], '%d/%m/%Y %H:%M'), reverse=True)
+        
+        return JsonResponse({
+            'period': {
+                'start': date_start.strftime('%Y-%m-%d'),
+                'end': date_end.strftime('%Y-%m-%d')
+            },
+            'history': history[:100]  # Limit to 100 most recent entries
+        })
+
+
+class PompistesPlanningView(ManagerRequiredMixin, View):
+    def get(self, request):
+        branche = request.user.branche
+        
+        # Get date range (default: current week)
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+        
+        if not date_start or not date_end:
+            today = timezone.now().date()
+            # Get current week (Monday to Sunday)
+            start_of_week = today - timedelta(days=today.weekday())
+            date_start = start_of_week
+            date_end = start_of_week + timedelta(days=6)
+        else:
+            date_start = datetime.strptime(date_start, '%Y-%m-%d').date()
+            date_end = datetime.strptime(date_end, '%Y-%m-%d').date()
+        
+        # Get all pompistes for this branch
+        pompistes = Pompiste.objects.filter(branche=branche, is_active=True)
+        
+        # Get planning for the period
+        planning = PlanningShift.objects.filter(
+            branche=branche,
+            date_shift__gte=date_start,
+            date_shift__lte=date_end
+        ).select_related('pompiste')
+        
+        # Organize planning by pompiste and date
+        planning_data = {}
+        
+        for pompiste in pompistes:
+            pompiste_planning = []
+            current_date = date_start
+            
+            while current_date <= date_end:
+                # Get shifts for this pompiste on this date
+                day_shifts = planning.filter(
+                    pompiste=pompiste,
+                    date_shift=current_date
+                )
+                
+                day_data = {
+                    'date': current_date.strftime('%Y-%m-%d'),
+                    'day_name': current_date.strftime('%A'),
+                    'shifts': []
+                }
+                
+                for shift in day_shifts:
+                    day_data['shifts'].append({
+                        'id': shift.id,
+                        'type_shift': shift.type_shift,
+                        'type_shift_display': shift.get_type_shift_display(),
+                        'heure_debut': shift.heure_debut.strftime('%H:%M'),
+                        'heure_fin': shift.heure_fin.strftime('%H:%M'),
+                        'statut': shift.statut,
+                        'statut_display': shift.get_statut_display(),
+                        'notes': shift.notes
+                    })
+                
+                pompiste_planning.append(day_data)
+                current_date += timedelta(days=1)
+            
+            planning_data[pompiste.id] = {
+                'pompiste': {
+                    'id': pompiste.id,
+                    'nom': pompiste.get_full_name(),
+                    'quart_preference': pompiste.get_quart_display()
+                },
+                'planning': pompiste_planning
+            }
+        
+        return JsonResponse({
+            'period': {
+                'start': date_start.strftime('%Y-%m-%d'),
+                'end': date_end.strftime('%Y-%m-%d')
+            },
+            'planning': planning_data
+        })
+
+
+class BranchePompistesView(ManagerRequiredMixin, View):
+    def get(self, request):
+        branche = request.user.branche
+        
+        pompistes = Pompiste.objects.filter(branche=branche).order_by('prenom', 'nom')
+        
+        pompistes_data = []
+        for pompiste in pompistes:
+            # Get recent performance data
+            recent_sales = Vente.objects.filter(
+                pompiste=pompiste,
+                created_at__gte=timezone.now() - timedelta(days=30)
+            )
+            
+            total_sales = recent_sales.count()
+            missing_sales = recent_sales.filter(statut='manquant').count()
+            
+            pompistes_data.append({
+                'id': pompiste.id,
+                'prenom': pompiste.prenom,
+                'nom': pompiste.nom,
+                'full_name': pompiste.get_full_name(),
+                'telephone': pompiste.telephone,
+                'quart': pompiste.quart,
+                'quart_display': pompiste.get_quart_display(),
+                'salaire': str(pompiste.salaire),
+                'devise_salaire': pompiste.devise_salaire,
+                'is_active': pompiste.is_active,
+                'performance': {
+                    'total_sales_30d': total_sales,
+                    'missing_sales_30d': missing_sales,
+                    'success_rate': round((total_sales - missing_sales) / total_sales * 100, 1) if total_sales > 0 else 100
+                },
+                'created_at': pompiste.created_at.strftime('%d/%m/%Y')
+            })
+        
+        return JsonResponse({'pompistes': pompistes_data})
+
+
+class CreatePompisteView(ManagerRequiredMixin, View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            required_fields = ['prenom', 'nom', 'telephone', 'quart', 'salaire', 'devise_salaire']
+            for field in required_fields:
+                if not data.get(field):
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Le champ {field} est requis'
+                    })
+            
+            # Check if pompiste already exists (same name in same branch)
+            if Pompiste.objects.filter(
+                branche=request.user.branche,
+                prenom=data['prenom'],
+                nom=data['nom']
+            ).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Un pompiste avec ce nom existe déjà dans cette branche'
+                })
+            
+            # Create pompiste
+            pompiste = Pompiste.objects.create(
+                prenom=data['prenom'],
+                nom=data['nom'],
+                telephone=data['telephone'],
+                adresse=data.get('adresse', ''),
+                branche=request.user.branche,
+                quart=data['quart'],
+                salaire=Decimal(str(data['salaire'])),
+                devise_salaire=data['devise_salaire']
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Pompiste créé avec succès',
+                'pompiste': {
+                    'id': pompiste.id,
+                    'nom': pompiste.get_full_name(),
+                    'quart': pompiste.get_quart_display(),
+                    'salaire': str(pompiste.salaire) + ' ' + pompiste.devise_salaire
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la création: {str(e)}'
+            })
+
+
+class BrancheAbonnesView(ManagerRequiredMixin, View):
+    def get(self, request):
+        branche = request.user.branche
+        
+        # Get all active abonnés
+        abonnes = Abonne.objects.filter(is_active=True).order_by('nom_entreprise')
+        
+        # Apply search filter
+        search = request.GET.get('search')
+        if search:
+            abonnes = abonnes.filter(
+                Q(nom_entreprise__icontains=search) |
+                Q(code_client__icontains=search) |
+                Q(contact_nom__icontains=search)
+            )
+        
+        abonnes_data = []
+        for abonne in abonnes:
+            # Get consumption for this branch in current month
+            current_month_start = timezone.now().replace(day=1).date()
+            
+            branch_consumption = ConsommationAbonne.objects.filter(
+                abonne=abonne,
+                branche=branche,
+                created_at__date__gte=current_month_start
+            )
+            
+            total_consumption_usd = branch_consumption.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0
+            total_consumption_fc = branch_consumption.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0
+            
+            # Get last consumption date for this branch
+            last_consumption = branch_consumption.order_by('-created_at').first()
+            
+            abonnes_data.append({
+                'id': abonne.id,
+                'nom_entreprise': abonne.nom_entreprise,
+                'code_client': abonne.code_client,
+                'contact_nom': abonne.contact_nom,
+                'contact_telephone': abonne.contact_telephone,
+                'type_abonnement': abonne.type_abonnement,
+                'type_abonnement_display': abonne.get_type_abonnement_display(),
+                'solde_usd': str(abonne.solde_usd),
+                'solde_fc': str(abonne.solde_fc),
+                'limite_credit': str(abonne.limite_credit),
+                'branch_consumption': {
+                    'current_month_usd': str(total_consumption_usd),
+                    'current_month_fc': str(total_consumption_fc),
+                    'last_consumption': last_consumption.created_at.strftime('%d/%m/%Y') if last_consumption else None,
+                    'transactions_count': branch_consumption.count()
+                },
+                'can_consume': abonne.peut_consommer(Decimal('100'), 'USD'),  # Test with 100 USD
+                'status': 'active' if abonne.solde_usd >= 0 and abonne.solde_fc >= 0 else 'debt'
+            })
+        
+        return JsonResponse({
+            'abonnes': abonnes_data,
+            'branch_info': {
+                'nom': branche.nom,
+                'code': branche.code
+            }
+        })
+
+
+class RegisterAbonneConsumptionView(ManagerRequiredMixin, View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            required_fields = ['abonne_id', 'type_carburant_id', 'quantite', 'montant', 'devise']
+            for field in required_fields:
+                if not data.get(field):
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Le champ {field} est requis'
+                    })
+            
+            # Get abonne
+            try:
+                abonne = Abonne.objects.get(id=data['abonne_id'], is_active=True)
+            except Abonne.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Abonné introuvable'
+                })
+            
+            # Get type carburant
+            try:
+                type_carburant = TypeCarburant.objects.get(
+                    id=data['type_carburant_id'],
+                    is_active=True
+                )
+            except TypeCarburant.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Type de carburant introuvable'
+                })
+            
+            # Convert to decimals
+            try:
+                quantite = Decimal(str(data['quantite']))
+                montant = Decimal(str(data['montant']))
+            except (ValueError, TypeError):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Quantité et montant invalides'
+                })
+            
+            # Check if abonné can consume this amount
+            if not abonne.peut_consommer(montant, data['devise']):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Solde insuffisant ou limite de crédit dépassée'
+                })
+            
+            # Check stock availability
+            try:
+                stock = Stock.objects.get(
+                    branche=request.user.branche,
+                    type_carburant=type_carburant
+                )
+                
+                if stock.quantite_actuelle < quantite:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Stock insuffisant. Disponible: {stock.quantite_actuelle}L'
+                    })
+            except Stock.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Stock non configuré pour ce carburant'
+                })
+            
+            # Create consumption record
+            consumption = ConsommationAbonne.objects.create(
+                abonne=abonne,
+                branche=request.user.branche,
+                type_carburant=type_carburant,
+                quantite=quantite,
+                montant=montant,
+                devise=data['devise']
+            )
+            
+            # Update abonné balance
+            abonne.update_solde_with_consumption(montant, data['devise'], 'consommation')
+            
+            # Update stock
+            stock.quantite_actuelle -= quantite
+            stock.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Consommation enregistrée pour {abonne.nom_entreprise}',
+                'consumption': {
+                    'id': consumption.id,
+                    'quantite': str(quantite),
+                    'montant': str(montant),
+                    'devise': data['devise'],
+                    'nouveau_solde_usd': str(abonne.solde_usd),
+                    'nouveau_solde_fc': str(abonne.solde_fc),
+                    'nouveau_stock': str(stock.quantite_actuelle)
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de l\'enregistrement: {str(e)}'
             })

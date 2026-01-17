@@ -14,7 +14,24 @@ from apps.core.models import (
 )
 from decimal import Decimal
 import json
-
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import TemplateView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from django.contrib import messages
+from django.views import View
+from django.db.models import Sum, Q, Count, F
+from django.utils import timezone
+from django.core.paginator import Paginator
+from datetime import datetime, timedelta
+from apps.core.models import (
+    User, Branche, TauxChange, TypeCarburant, CategorieDepense,
+    Vente, Depense, Stock, Pompiste, Abonne, ConsommationAbonne,
+    Document, DocumentCategory, Notification
+)
+from decimal import Decimal
+import json
+import csv
 
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -536,3 +553,1014 @@ class CreateCategorieDepenseView(AdminRequiredMixin, View):
                 'success': False, 
                 'message': f'Erreur lors de la création: {str(e)}'
             })
+
+
+class UpdateUserView(AdminRequiredMixin, View):
+    def post(self, request, user_id):
+        try:
+            data = json.loads(request.body)
+            
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Utilisateur introuvable'
+                })
+            
+            # Update user fields
+            user.prenom = data.get('prenom', user.prenom)
+            user.nom = data.get('nom', user.nom)
+            user.email = data.get('email', user.email)
+            user.telephone = data.get('telephone', user.telephone)
+            user.role = data.get('role', user.role)
+            
+            if data.get('salaire'):
+                user.salaire = Decimal(str(data['salaire']))
+            
+            user.devise_salaire = data.get('devise_salaire', user.devise_salaire)
+            
+            # Update branch if role is not admin
+            if data.get('branche') and user.role != 'admin':
+                try:
+                    branche = Branche.objects.get(id=data['branche'])
+                    user.branche = branche
+                except Branche.DoesNotExist:
+                    pass
+            
+            user.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Utilisateur mis à jour avec succès',
+                'user': {
+                    'id': user.id,
+                    'name': user.get_full_name(),
+                    'role': user.get_role_display(),
+                    'branche': user.branche.nom if user.branche else None
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la mise à jour: {str(e)}'
+            })
+
+
+class DeactivateUserView(AdminRequiredMixin, View):
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            user.is_active = False
+            user.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Utilisateur {user.get_full_name()} désactivé'
+            })
+            
+        except User.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Utilisateur introuvable'
+            })
+
+
+class UpdateBrancheView(AdminRequiredMixin, View):
+    def post(self, request, branche_id):
+        try:
+            data = json.loads(request.body)
+            
+            try:
+                branche = Branche.objects.get(id=branche_id)
+            except Branche.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Branche introuvable'
+                })
+            
+            # Update branche fields
+            branche.nom = data.get('nom', branche.nom)
+            branche.adresse = data.get('adresse', branche.adresse)
+            branche.ville = data.get('ville', branche.ville)
+            branche.province = data.get('province', branche.province)
+            
+            if data.get('responsable'):
+                try:
+                    responsable = User.objects.get(
+                        id=data['responsable'],
+                        role='manager'
+                    )
+                    branche.responsable = responsable
+                except User.DoesNotExist:
+                    pass
+            
+            branche.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Branche mise à jour avec succès'
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la mise à jour: {str(e)}'
+            })
+
+
+class BranchePerformanceView(AdminRequiredMixin, View):
+    def get(self, request, branche_id):
+        try:
+            branche = Branche.objects.get(id=branche_id)
+        except Branche.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Branche introuvable'})
+        
+        # Get date range
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+        
+        if not date_start or not date_end:
+            today = timezone.now().date()
+            date_start = today - timedelta(days=30)
+            date_end = today
+        else:
+            date_start = datetime.strptime(date_start, '%Y-%m-%d').date()
+            date_end = datetime.strptime(date_end, '%Y-%m-%d').date()
+        
+        # Calculate performance metrics
+        ventes = Vente.objects.filter(
+            branche=branche,
+            created_at__date__gte=date_start,
+            created_at__date__lte=date_end,
+            statut='validee'
+        )
+        
+        depenses = Depense.objects.filter(
+            branche=branche,
+            created_at__date__gte=date_start,
+            created_at__date__lte=date_end,
+            statut='approuvee'
+        )
+        
+        total_ventes_usd = ventes.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+        total_ventes_fc = ventes.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+        
+        total_depenses_usd = depenses.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0
+        total_depenses_fc = depenses.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0
+        
+        manquants_count = Vente.objects.filter(
+            branche=branche,
+            created_at__date__gte=date_start,
+            created_at__date__lte=date_end,
+            statut='manquant'
+        ).count()
+        
+        performance_data = {
+            'branche': {
+                'id': branche.id,
+                'nom': branche.nom,
+                'code': branche.code,
+                'ville': branche.ville
+            },
+            'period': {
+                'start': date_start.strftime('%Y-%m-%d'),
+                'end': date_end.strftime('%Y-%m-%d')
+            },
+            'metrics': {
+                'total_ventes_usd': str(total_ventes_usd),
+                'total_ventes_fc': str(total_ventes_fc),
+                'total_depenses_usd': str(total_depenses_usd),
+                'total_depenses_fc': str(total_depenses_fc),
+                'profit_usd': str(total_ventes_usd - total_depenses_usd),
+                'profit_fc': str(total_ventes_fc - total_depenses_fc),
+                'manquants_count': manquants_count,
+                'transactions_count': ventes.count()
+            }
+        }
+        
+        return JsonResponse(performance_data)
+
+
+class UpdateTypeCarburantView(AdminRequiredMixin, View):
+    def post(self, request, carburant_id):
+        try:
+            data = json.loads(request.body)
+            
+            try:
+                carburant = TypeCarburant.objects.get(id=carburant_id)
+            except TypeCarburant.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Type de carburant introuvable'
+                })
+            
+            carburant.nom = data.get('nom', carburant.nom)
+            carburant.couleur_hex = data.get('couleur_hex', carburant.couleur_hex)
+            carburant.is_active = data.get('is_active', carburant.is_active)
+            carburant.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Type de carburant mis à jour avec succès'
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la mise à jour: {str(e)}'
+            })
+
+
+class AdminSalesListView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get filters
+        branche_id = request.GET.get('branche_id')
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+        statut = request.GET.get('statut')
+        pompiste_id = request.GET.get('pompiste_id')
+        devise = request.GET.get('devise')
+        
+        # Base query
+        sales = Vente.objects.select_related(
+            'branche', 'pompiste', 'manager', 'caissier', 'type_carburant'
+        )
+        
+        # Apply filters
+        if branche_id and branche_id != 'all':
+            sales = sales.filter(branche_id=branche_id)
+        
+        if date_start:
+            try:
+                start_date = datetime.strptime(date_start, '%Y-%m-%d').date()
+                sales = sales.filter(created_at__date__gte=start_date)
+            except ValueError:
+                pass
+        
+        if date_end:
+            try:
+                end_date = datetime.strptime(date_end, '%Y-%m-%d').date()
+                sales = sales.filter(created_at__date__lte=end_date)
+            except ValueError:
+                pass
+        
+        if statut:
+            sales = sales.filter(statut=statut)
+        
+        if pompiste_id:
+            sales = sales.filter(pompiste_id=pompiste_id)
+        
+        # Order and paginate
+        sales = sales.order_by('-created_at')
+        paginator = Paginator(sales, 50)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+        
+        sales_data = []
+        for sale in page_obj:
+            sales_data.append({
+                'id': sale.id,
+                'branche': sale.branche.nom,
+                'branche_code': sale.branche.code,
+                'pompiste': sale.pompiste.get_full_name(),
+                'manager': sale.manager.get_full_name(),
+                'caissier': sale.caissier.get_full_name() if sale.caissier else None,
+                'type_carburant': sale.type_carburant.nom,
+                'quantite': str(sale.quantite),
+                'montant_usd': str(sale.montant_usd),
+                'montant_fc': str(sale.montant_fc),
+                'statut': sale.statut,
+                'statut_display': sale.get_statut_display(),
+                'manquant_usd': str(sale.manquant_usd) if sale.manquant_usd else None,
+                'manquant_fc': str(sale.manquant_fc) if sale.manquant_fc else None,
+                'raison_manquant': sale.raison_manquant,
+                'created_at': sale.created_at.strftime('%d/%m/%Y %H:%M'),
+                'validated_at': sale.validated_at.strftime('%d/%m/%Y %H:%M') if sale.validated_at else None
+            })
+        
+        return JsonResponse({
+            'sales': sales_data,
+            'pagination': {
+                'current_page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'has_next': page_obj.has_next(),
+                'has_previous': page_obj.has_previous(),
+                'total_count': paginator.count
+            }
+        })
+
+
+class MissingSalesReportView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get filters
+        branche_id = request.GET.get('branche_id')
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+        
+        # Base query for missing sales
+        missing_sales = Vente.objects.filter(statut='manquant').select_related(
+            'branche', 'pompiste', 'manager', 'caissier', 'type_carburant'
+        )
+        
+        # Apply filters
+        if branche_id and branche_id != 'all':
+            missing_sales = missing_sales.filter(branche_id=branche_id)
+        
+        if date_start:
+            try:
+                start_date = datetime.strptime(date_start, '%Y-%m-%d').date()
+                missing_sales = missing_sales.filter(created_at__date__gte=start_date)
+            except ValueError:
+                pass
+        
+        if date_end:
+            try:
+                end_date = datetime.strptime(date_end, '%Y-%m-%d').date()
+                missing_sales = missing_sales.filter(created_at__date__lte=end_date)
+            except ValueError:
+                pass
+        
+        # Calculate totals
+        total_manquant_usd = missing_sales.aggregate(Sum('manquant_usd'))['manquant_usd__sum'] or 0
+        total_manquant_fc = missing_sales.aggregate(Sum('manquant_fc'))['manquant_fc__sum'] or 0
+        
+        # Group by branch
+        branches_summary = {}
+        for sale in missing_sales:
+            branch_code = sale.branche.code
+            if branch_code not in branches_summary:
+                branches_summary[branch_code] = {
+                    'branche_nom': sale.branche.nom,
+                    'count': 0,
+                    'total_usd': 0,
+                    'total_fc': 0
+                }
+            branches_summary[branch_code]['count'] += 1
+            branches_summary[branch_code]['total_usd'] += float(sale.manquant_usd)
+            branches_summary[branch_code]['total_fc'] += float(sale.manquant_fc)
+        
+        # Get detailed list
+        missing_sales = missing_sales.order_by('-created_at')[:100]
+        missing_data = []
+        
+        for sale in missing_sales:
+            missing_data.append({
+                'id': sale.id,
+                'branche': sale.branche.nom,
+                'pompiste': sale.pompiste.get_full_name(),
+                'manager': sale.manager.get_full_name(),
+                'caissier': sale.caissier.get_full_name() if sale.caissier else None,
+                'type_carburant': sale.type_carburant.nom,
+                'montant_usd': str(sale.montant_usd),
+                'montant_fc': str(sale.montant_fc),
+                'manquant_usd': str(sale.manquant_usd),
+                'manquant_fc': str(sale.manquant_fc),
+                'raison_manquant': sale.raison_manquant,
+                'created_at': sale.created_at.strftime('%d/%m/%Y %H:%M'),
+                'validated_at': sale.validated_at.strftime('%d/%m/%Y %H:%M') if sale.validated_at else None
+            })
+        
+        return JsonResponse({
+            'summary': {
+                'total_count': missing_sales.count(),
+                'total_manquant_usd': str(total_manquant_usd),
+                'total_manquant_fc': str(total_manquant_fc),
+                'branches_summary': branches_summary
+            },
+            'missing_sales': missing_data
+        })
+
+
+class GlobalStockView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get all stock items
+        stock_items = Stock.objects.select_related(
+            'branche', 'type_carburant'
+        ).order_by('branche__nom', 'type_carburant__nom')
+        
+        # Group by fuel type for summary
+        fuel_summary = {}
+        branch_summary = {}
+        
+        total_stock = 0
+        alert_count = 0
+        
+        stock_data = []
+        
+        for stock in stock_items:
+            # Individual stock item
+            is_alert = stock.quantite_actuelle <= stock.seuil_alerte
+            if is_alert:
+                alert_count += 1
+            
+            total_stock += float(stock.quantite_actuelle)
+            
+            stock_data.append({
+                'id': stock.id,
+                'branche': stock.branche.nom,
+                'branche_code': stock.branche.code,
+                'type_carburant': stock.type_carburant.nom,
+                'carburant_couleur': stock.type_carburant.couleur_hex,
+                'quantite_actuelle': str(stock.quantite_actuelle),
+                'capacite_max': str(stock.capacite_max),
+                'seuil_alerte': str(stock.seuil_alerte),
+                'pourcentage_rempli': round(stock.pourcentage_rempli, 1),
+                'niveau_alerte': stock.niveau_alerte,
+                'is_alert': is_alert,
+                'prix_achat': str(stock.prix_achat) if stock.prix_achat else None,
+                'updated_at': stock.updated_at.strftime('%d/%m/%Y %H:%M')
+            })
+            
+            # Fuel type summary
+            fuel_name = stock.type_carburant.nom
+            if fuel_name not in fuel_summary:
+                fuel_summary[fuel_name] = {
+                    'total_quantity': 0,
+                    'total_capacity': 0,
+                    'branches_count': 0,
+                    'alert_branches': 0
+                }
+            
+            fuel_summary[fuel_name]['total_quantity'] += float(stock.quantite_actuelle)
+            fuel_summary[fuel_name]['total_capacity'] += float(stock.capacite_max)
+            fuel_summary[fuel_name]['branches_count'] += 1
+            if is_alert:
+                fuel_summary[fuel_name]['alert_branches'] += 1
+            
+            # Branch summary
+            branch_name = stock.branche.nom
+            if branch_name not in branch_summary:
+                branch_summary[branch_name] = {
+                    'total_quantity': 0,
+                    'fuel_types': 0,
+                    'alerts': 0
+                }
+            
+            branch_summary[branch_name]['total_quantity'] += float(stock.quantite_actuelle)
+            branch_summary[branch_name]['fuel_types'] += 1
+            if is_alert:
+                branch_summary[branch_name]['alerts'] += 1
+        
+        return JsonResponse({
+            'summary': {
+                'total_stock': total_stock,
+                'total_branches': len(branch_summary),
+                'total_fuel_types': len(fuel_summary),
+                'alert_count': alert_count
+            },
+            'fuel_summary': fuel_summary,
+            'branch_summary': branch_summary,
+            'stock_items': stock_data
+        })
+
+
+class StockAlertsView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get stock items with alerts
+        alert_stocks = Stock.objects.filter(
+            quantite_actuelle__lte=F('seuil_alerte')
+        ).select_related('branche', 'type_carburant').order_by('quantite_actuelle')
+        
+        alerts_data = []
+        for stock in alert_stocks:
+            severity = 'critical' if stock.quantite_actuelle <= (stock.seuil_alerte * 0.5) else 'warning'
+            
+            alerts_data.append({
+                'id': stock.id,
+                'branche': stock.branche.nom,
+                'branche_code': stock.branche.code,
+                'type_carburant': stock.type_carburant.nom,
+                'quantite_actuelle': str(stock.quantite_actuelle),
+                'seuil_alerte': str(stock.seuil_alerte),
+                'capacite_max': str(stock.capacite_max),
+                'pourcentage_rempli': round(stock.pourcentage_rempli, 1),
+                'severity': severity,
+                'updated_at': stock.updated_at.strftime('%d/%m/%Y %H:%M')
+            })
+        
+        return JsonResponse({
+            'alerts_count': len(alerts_data),
+            'alerts': alerts_data
+        })
+
+
+class CreateAbonneView(AdminRequiredMixin, View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            required_fields = ['nom_entreprise', 'code_client', 'contact_nom', 'contact_telephone', 'type_abonnement']
+            for field in required_fields:
+                if not data.get(field):
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Le champ {field} est requis'
+                    })
+            
+            # Check if code_client already exists
+            if Abonne.objects.filter(code_client=data['code_client']).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Ce code client existe déjà'
+                })
+            
+            # Create abonne
+            abonne = Abonne.objects.create(
+                nom_entreprise=data['nom_entreprise'],
+                code_client=data['code_client'],
+                contact_nom=data['contact_nom'],
+                contact_telephone=data['contact_telephone'],
+                contact_email=data.get('contact_email', ''),
+                adresse=data.get('adresse', ''),
+                type_abonnement=data['type_abonnement'],
+                solde_usd=Decimal(str(data.get('solde_usd', 0))),
+                solde_fc=Decimal(str(data.get('solde_fc', 0))),
+                limite_credit=Decimal(str(data.get('limite_credit', 0)))
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Abonné créé avec succès',
+                'abonne': {
+                    'id': abonne.id,
+                    'nom_entreprise': abonne.nom_entreprise,
+                    'code_client': abonne.code_client,
+                    'type_abonnement': abonne.get_type_abonnement_display()
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la création: {str(e)}'
+            })
+
+
+class UpdateAbonneView(AdminRequiredMixin, View):
+    def post(self, request, abonne_id):
+        try:
+            data = json.loads(request.body)
+            
+            try:
+                abonne = Abonne.objects.get(id=abonne_id)
+            except Abonne.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Abonné introuvable'
+                })
+            
+            # Update fields
+            abonne.nom_entreprise = data.get('nom_entreprise', abonne.nom_entreprise)
+            abonne.contact_nom = data.get('contact_nom', abonne.contact_nom)
+            abonne.contact_telephone = data.get('contact_telephone', abonne.contact_telephone)
+            abonne.contact_email = data.get('contact_email', abonne.contact_email)
+            abonne.adresse = data.get('adresse', abonne.adresse)
+            abonne.type_abonnement = data.get('type_abonnement', abonne.type_abonnement)
+            
+            if data.get('limite_credit') is not None:
+                abonne.limite_credit = Decimal(str(data['limite_credit']))
+            
+            abonne.is_active = data.get('is_active', abonne.is_active)
+            abonne.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Abonné mis à jour avec succès'
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la mise à jour: {str(e)}'
+            })
+
+
+class AbonneGlobalHistoryView(AdminRequiredMixin, View):
+    def get(self, request, abonne_id):
+        try:
+            abonne = Abonne.objects.get(id=abonne_id)
+        except Abonne.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Abonné introuvable'})
+        
+        # Get consumption history across all branches
+        consumptions = ConsommationAbonne.objects.filter(
+            abonne=abonne
+        ).select_related('branche', 'type_carburant').order_by('-created_at')[:100]
+        
+        history_data = []
+        for consumption in consumptions:
+            history_data.append({
+                'id': consumption.id,
+                'branche': consumption.branche.nom,
+                'type_carburant': consumption.type_carburant.nom,
+                'quantite': str(consumption.quantite),
+                'montant': str(consumption.montant),
+                'devise': consumption.devise,
+                'created_at': consumption.created_at.strftime('%d/%m/%Y %H:%M')
+            })
+        
+        # Calculate summary by branch
+        branch_summary = {}
+        for consumption in consumptions:
+            branch_name = consumption.branche.nom
+            if branch_name not in branch_summary:
+                branch_summary[branch_name] = {
+                    'count': 0,
+                    'total_usd': 0,
+                    'total_fc': 0
+                }
+            
+            branch_summary[branch_name]['count'] += 1
+            if consumption.devise == 'USD':
+                branch_summary[branch_name]['total_usd'] += float(consumption.montant)
+            else:
+                branch_summary[branch_name]['total_fc'] += float(consumption.montant)
+        
+        return JsonResponse({
+            'abonne': {
+                'id': abonne.id,
+                'nom_entreprise': abonne.nom_entreprise,
+                'code_client': abonne.code_client,
+                'type_abonnement': abonne.get_type_abonnement_display(),
+                'solde_usd': str(abonne.solde_usd),
+                'solde_fc': str(abonne.solde_fc)
+            },
+            'branch_summary': branch_summary,
+            'history': history_data
+        })
+
+
+class CreateDocumentCategoryView(AdminRequiredMixin, View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            if not data.get('nom'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Le nom de la catégorie est requis'
+                })
+            
+            # Check if category already exists
+            if DocumentCategory.objects.filter(nom=data['nom']).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cette catégorie existe déjà'
+                })
+            
+            category = DocumentCategory.objects.create(
+                nom=data['nom'],
+                description=data.get('description', ''),
+                created_by=request.user
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Catégorie créée avec succès',
+                'category': {
+                    'id': category.id,
+                    'nom': category.nom,
+                    'description': category.description
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la création: {str(e)}'
+            })
+
+
+class UpdateDocumentVisibilityView(AdminRequiredMixin, View):
+    def post(self, request, document_id):
+        try:
+            data = json.loads(request.body)
+            
+            try:
+                document = Document.objects.get(id=document_id)
+            except Document.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Document introuvable'
+                })
+            
+            document.visibilite = data.get('visibilite', document.visibilite)
+            document.save()
+            
+            # Handle branch permissions
+            if data.get('branches_autorisees'):
+                document.branches_autorisees.clear()
+                for branch_id in data['branches_autorisees']:
+                    try:
+                        branche = Branche.objects.get(id=branch_id)
+                        document.branches_autorisees.add(branche)
+                    except Branche.DoesNotExist:
+                        continue
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Visibilité du document mise à jour'
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la mise à jour: {str(e)}'
+            })
+
+
+class SystemSettingsView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get current system settings
+        current_rate = TauxChange.objects.filter(is_active=True).first()
+        
+        settings_data = {
+            'exchange_rate': str(current_rate.taux_usd_fc) if current_rate else '2800.00',
+            'total_branches': Branche.objects.filter(is_active=True).count(),
+            'total_users': User.objects.filter(is_active=True).count(),
+            'total_fuel_types': TypeCarburant.objects.filter(is_active=True).count(),
+            'total_expense_categories': CategorieDepense.objects.filter(is_active=True).count(),
+            'system_status': 'operational'
+        }
+        
+        return JsonResponse({'settings': settings_data})
+
+
+class UpdateSystemSettingsView(AdminRequiredMixin, View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # This would handle system-wide settings updates
+            # For now, we'll just return success
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Paramètres système mis à jour'
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la mise à jour: {str(e)}'
+            })
+
+
+class FinancialReportView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get date range
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+        branche_id = request.GET.get('branche_id')
+        
+        if not date_start or not date_end:
+            today = timezone.now().date()
+            date_start = today.replace(day=1)  # First day of current month
+            date_end = today
+        else:
+            date_start = datetime.strptime(date_start, '%Y-%m-%d').date()
+            date_end = datetime.strptime(date_end, '%Y-%m-%d').date()
+        
+        # Base filters
+        vente_filters = {
+            'created_at__date__gte': date_start,
+            'created_at__date__lte': date_end,
+            'statut': 'validee'
+        }
+        
+        depense_filters = {
+            'created_at__date__gte': date_start,
+            'created_at__date__lte': date_end,
+            'statut': 'approuvee'
+        }
+        
+        if branche_id and branche_id != 'all':
+            vente_filters['branche_id'] = branche_id
+            depense_filters['branche_id'] = branche_id
+        
+        # Calculate financial metrics
+        ventes = Vente.objects.filter(**vente_filters)
+        depenses = Depense.objects.filter(**depense_filters)
+        
+        total_revenue_usd = ventes.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+        total_revenue_fc = ventes.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+        
+        total_expenses_usd = depenses.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0
+        total_expenses_fc = depenses.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0
+        
+        profit_usd = total_revenue_usd - total_expenses_usd
+        profit_fc = total_revenue_fc - total_expenses_fc
+        
+        # Calculate missing amounts
+        missing_sales = Vente.objects.filter(
+            created_at__date__gte=date_start,
+            created_at__date__lte=date_end,
+            statut='manquant'
+        )
+        
+        total_missing_usd = missing_sales.aggregate(Sum('manquant_usd'))['manquant_usd__sum'] or 0
+        total_missing_fc = missing_sales.aggregate(Sum('manquant_fc'))['manquant_fc__sum'] or 0
+        
+        financial_report = {
+            'period': {
+                'start': date_start.strftime('%Y-%m-%d'),
+                'end': date_end.strftime('%Y-%m-%d')
+            },
+            'revenue': {
+                'usd': str(total_revenue_usd),
+                'fc': str(total_revenue_fc)
+            },
+            'expenses': {
+                'usd': str(total_expenses_usd),
+                'fc': str(total_expenses_fc)
+            },
+            'profit': {
+                'usd': str(profit_usd),
+                'fc': str(profit_fc)
+            },
+            'missing_amounts': {
+                'usd': str(total_missing_usd),
+                'fc': str(total_missing_fc)
+            },
+            'transactions': {
+                'sales_count': ventes.count(),
+                'expenses_count': depenses.count(),
+                'missing_count': missing_sales.count()
+            }
+        }
+        
+        return JsonResponse(financial_report)
+
+
+class PerformanceReportView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get date range
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+        
+        if not date_start or not date_end:
+            today = timezone.now().date()
+            date_start = today - timedelta(days=30)
+            date_end = today
+        else:
+            date_start = datetime.strptime(date_start, '%Y-%m-%d').date()
+            date_end = datetime.strptime(date_end, '%Y-%m-%d').date()
+        
+        # Branch performance
+        branches = Branche.objects.filter(is_active=True)
+        branch_performance = []
+        
+        for branche in branches:
+            ventes = Vente.objects.filter(
+                branche=branche,
+                created_at__date__gte=date_start,
+                created_at__date__lte=date_end,
+                statut='validee'
+            )
+            
+            revenue_usd = ventes.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+            revenue_fc = ventes.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+            transactions = ventes.count()
+            
+            missing_count = Vente.objects.filter(
+                branche=branche,
+                created_at__date__gte=date_start,
+                created_at__date__lte=date_end,
+                statut='manquant'
+            ).count()
+            
+            branch_performance.append({
+                'branche': branche.nom,
+                'code': branche.code,
+                'revenue_usd': str(revenue_usd),
+                'revenue_fc': str(revenue_fc),
+                'transactions': transactions,
+                'missing_count': missing_count,
+                'efficiency': round((transactions / (transactions + missing_count) * 100), 2) if (transactions + missing_count) > 0 else 100
+            })
+        
+        # Sort by revenue
+        branch_performance.sort(key=lambda x: float(x['revenue_usd']), reverse=True)
+        
+        return JsonResponse({
+            'period': {
+                'start': date_start.strftime('%Y-%m-%d'),
+                'end': date_end.strftime('%Y-%m-%d')
+            },
+            'branch_performance': branch_performance
+        })
+
+
+class AuditReportView(AdminRequiredMixin, View):
+    def get(self, request):
+        # Get recent activity for audit
+        date_start = request.GET.get('date_start')
+        if not date_start:
+            date_start = timezone.now().date() - timedelta(days=7)
+        else:
+            date_start = datetime.strptime(date_start, '%Y-%m-%d').date()
+        
+        # Recent sales
+        recent_sales = Vente.objects.filter(
+            created_at__date__gte=date_start
+        ).select_related(
+            'branche', 'manager', 'caissier', 'pompiste'
+        ).order_by('-created_at')[:50]
+        
+        # Recent user activity
+        recent_users = User.objects.filter(
+            last_login__date__gte=date_start
+        ).order_by('-last_login')[:20]
+        
+        # Recent missing reports
+        recent_missing = Vente.objects.filter(
+            validated_at__date__gte=date_start,
+            statut='manquant'
+        ).select_related('branche', 'caissier', 'pompiste')[:20]
+        
+        sales_data = []
+        for sale in recent_sales:
+            sales_data.append({
+                'id': sale.id,
+                'branche': sale.branche.nom,
+                'manager': sale.manager.get_full_name(),
+                'caissier': sale.caissier.get_full_name() if sale.caissier else 'En attente',
+                'pompiste': sale.pompiste.get_full_name(),
+                'montant_usd': str(sale.montant_usd),
+                'montant_fc': str(sale.montant_fc),
+                'statut': sale.get_statut_display(),
+                'created_at': sale.created_at.strftime('%d/%m/%Y %H:%M')
+            })
+        
+        users_data = []
+        for user in recent_users:
+            users_data.append({
+                'id': user.id,
+                'name': user.get_full_name(),
+                'role': user.get_role_display(),
+                'branche': user.branche.nom if user.branche else 'Toutes',
+                'last_login': user.last_login.strftime('%d/%m/%Y %H:%M') if user.last_login else 'Jamais'
+            })
+        
+        missing_data = []
+        for sale in recent_missing:
+            missing_data.append({
+                'id': sale.id,
+                'branche': sale.branche.nom,
+                'pompiste': sale.pompiste.get_full_name(),
+                'caissier': sale.caissier.get_full_name() if sale.caissier else None,
+                'manquant_usd': str(sale.manquant_usd),
+                'manquant_fc': str(sale.manquant_fc),
+                'raison': sale.raison_manquant,
+                'validated_at': sale.validated_at.strftime('%d/%m/%Y %H:%M') if sale.validated_at else None
+            })
+        
+        return JsonResponse({
+            'period_start': date_start.strftime('%Y-%m-%d'),
+            'recent_sales': sales_data,
+            'recent_users': users_data,
+            'recent_missing': missing_data
+        })
