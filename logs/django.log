@@ -190,3 +190,15 @@ INFO 2026-01-16 22:50:38,517 basehttp 20036 19120 "GET /dashboard/ HTTP/1.1" 200
 INFO 2026-01-16 22:50:39,043 basehttp 20036 19120 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
 INFO 2026-01-16 22:50:56,094 basehttp 20036 15236 "GET /auth/logout/ HTTP/1.1" 302 0
 INFO 2026-01-16 22:50:56,423 basehttp 20036 15236 "GET /auth/login/ HTTP/1.1" 200 7507
+INFO 2026-01-16 22:59:11,140 autoreload 3588 19940 Watching for file changes with StatReloader
+INFO 2026-01-16 22:59:18,179 basehttp 3588 23792 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2026-01-16 22:59:18,646 basehttp 3588 23792 "GET /dashboard/ HTTP/1.1" 200 47146
+INFO 2026-01-16 22:59:19,242 basehttp 3588 23792 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 22:59:34,323 basehttp 3588 920 "GET /dashboard/ HTTP/1.1" 200 19382
+INFO 2026-01-16 22:59:57,953 basehttp 3588 23240 "GET /dashboard/ HTTP/1.1" 200 47146
+INFO 2026-01-16 22:59:58,311 basehttp 3588 23240 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 23:00:31,806 basehttp 3588 3296 "GET /dashboard/ HTTP/1.1" 200 19382
+INFO 2026-01-16 23:00:41,131 basehttp 3588 3296 "GET /dashboard/ HTTP/1.1" 200 47146
+INFO 2026-01-16 23:00:41,354 basehttp 3588 3296 "GET /dashboard/api/stats/ HTTP/1.1" 200 244
+INFO 2026-01-16 23:21:04,932 autoreload 3588 19940 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
+INFO 2026-01-16 23:21:05,961 autoreload 6876 26960 Watching for file changes with StatReloader
