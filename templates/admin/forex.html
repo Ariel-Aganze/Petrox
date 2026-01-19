@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+
+{% block title %}PETROX | Forex & Taux de Change{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
+<a href="{% url 'admin_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'admin_module:forex' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Forex</a>
+<a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg><span>Dashboard</span></a>
+<a href="{% url 'admin_module:forex' %}" class="mobile-nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span>Forex</span></a>
+<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg><span>Ventes</span></a>
+<a href="{% url 'admin_module:rapports' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><span>Rapports</span></a>
+<a href="#" onclick="openModal('update-rate-modal'); return false;" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg><span>Taux</span></a>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">Forex & Taux de Change</h2>
+        <p class="mt-1 text-sm text-gray-500">Gestion des taux et analyse de l'impact Forex</p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <button onclick="openModal('update-rate-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            Mettre à jour le taux
+        </button>
+    </div>
+</div>
+
+<!-- Current Rate Card -->
+<div class="bg-gradient-to-r from-petrox-red to-red-700 rounded-xl shadow-lg p-6 mb-8 text-white">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-red-200 text-sm font-medium">Taux actuel USD/FC</p>
+            <p class="text-4xl font-bold mt-2">1 USD = <span id="current-rate-display">{{ current_rate.taux_usd_fc|floatformat:2|default:"2800.00" }}</span> FC</p>
+            <p class="text-red-200 text-sm mt-2">
+                Depuis le {{ current_rate.date_effective|date:"d/m/Y à H:i"|default:"N/A" }}
+                {% if current_rate.created_by %} par {{ current_rate.created_by.get_full_name }}{% endif %}
+            </p>
+        </div>
+        <div class="hidden sm:block">
+            <svg class="h-24 w-24 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Forex Impact Analysis -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Impact by Fuel Type -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Impact Forex par Carburant</h3>
+        <div class="h-64">
+            <canvas id="forexByFuelChart"></canvas>
+        </div>
+        <div class="mt-4" id="forex-by-fuel-summary">
+            <div class="text-center text-gray-500 py-4">Chargement...</div>
+        </div>
+    </div>
+    
+    <!-- Impact Summary -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Résumé de l'Impact</h3>
+        <div class="space-y-4" id="forex-summary">
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Impact Total (ce mois)</span>
+                    <span class="text-xl font-bold" id="total-forex-impact">$0.00</span>
+                </div>
+            </div>
+            <div class="p-4 bg-green-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <span class="text-green-700">Gains</span>
+                    <span class="text-xl font-bold text-green-600" id="forex-gains">$0.00</span>
+                </div>
+            </div>
+            <div class="p-4 bg-red-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <span class="text-red-700">Pertes</span>
+                    <span class="text-xl font-bold text-red-600" id="forex-losses">$0.00</span>
+                </div>
+            </div>
+            <div class="p-4 bg-blue-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <span class="text-blue-700">Transactions analysées</span>
+                    <span class="text-xl font-bold text-blue-600" id="forex-transactions">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rate History -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900">Historique des Taux</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Taux (FC/USD)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variation</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Créé par</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for rate in rate_history %}
+                <tr class="hover:bg-gray-50 {% if rate.is_active %}bg-green-50{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rate.date_effective|date:"d/m/Y H:i" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ rate.taux_usd_fc|floatformat:2 }} FC</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {% if forloop.last %}
+                        <span class="text-gray-400">-</span>
+                        {% else %}
+                        {% with next_rate=rate_history|slice:"forloop.counter0:"|first %}
+                        {% if rate.taux_usd_fc > next_rate.taux_usd_fc %}
+                        <span class="text-green-600">▲ +{{ rate.taux_usd_fc|add:next_rate.taux_usd_fc|floatformat:2 }}</span>
+                        {% elif rate.taux_usd_fc < next_rate.taux_usd_fc %}
+                        <span class="text-red-600">▼ {{ rate.taux_usd_fc|add:next_rate.taux_usd_fc|floatformat:2 }}</span>
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                        {% endwith %}
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ rate.created_by.get_full_name|default:"Système" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if rate.is_active %}
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Actif</span>
+                        {% else %}
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Historique</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-500">Aucun historique de taux</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Update Rate Modal -->
+<div id="update-rate-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" onclick="closeModal('update-rate-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="update-rate-form" onsubmit="submitRateForm(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-center mb-4">
+                        <div class="h-10 w-10 rounded-full bg-petrox-red flex items-center justify-center mr-4">
+                            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900">Mettre à jour le Taux</h3>
+                            <p class="text-sm text-gray-500">Taux actuel: {{ current_rate.taux_usd_fc|floatformat:2|default:"2800.00" }} FC</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nouveau taux (FC pour 1 USD) *</label>
+                            <input type="number" name="taux_usd_fc" step="0.01" required min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="2850.00">
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                <div class="text-sm text-yellow-700">
+                                    <p class="font-medium">Attention</p>
+                                    <p>Le changement de taux n'affecte PAS les transactions passées. L'historique des taux est conservé pour audit.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">Mettre à jour</button>
+                    <button type="button" onclick="closeModal('update-rate-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let forexChart = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initForexChart();
+        loadForexAnalysis();
+    });
+    
+    function initForexChart() {
+        const ctx = document.getElementById('forexByFuelChart');
+        if (!ctx) return;
+        
+        forexChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Impact USD', data: [], backgroundColor: [] }] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+    
+    async function loadForexAnalysis() {
+        try {
+            const response = await fetch('/dashboard/api/forex/analysis/', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+            
+            // Update summary
+            document.getElementById('total-forex-impact').textContent = formatCurrency(data.summary?.total_impact_usd || 0, 'USD');
+            document.getElementById('forex-gains').textContent = formatCurrency(data.summary?.gains || 0, 'USD');
+            document.getElementById('forex-losses').textContent = formatCurrency(data.summary?.losses || 0, 'USD');
+            document.getElementById('forex-transactions').textContent = data.summary?.transactions_analyzed || 0;
+            
+            // Update chart
+            if (data.by_carburant && forexChart) {
+                forexChart.data.labels = data.by_carburant.map(f => f.carburant);
+                forexChart.data.datasets[0].data = data.by_carburant.map(f => Math.abs(parseFloat(f.impact_usd)));
+                forexChart.data.datasets[0].backgroundColor = data.by_carburant.map(f => 
+                    parseFloat(f.impact_usd) >= 0 ? '#16A34A' : '#DC2626'
+                );
+                forexChart.update();
+                
+                // Update summary list
+                document.getElementById('forex-by-fuel-summary').innerHTML = data.by_carburant.map(f => `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">${f.carburant}</span>
+                        <span class="text-sm font-semibold ${parseFloat(f.impact_usd) >= 0 ? 'text-green-600' : 'text-red-600'}">
+                            ${formatCurrency(f.impact_usd, 'USD')}
+                        </span>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading forex analysis:', error);
+        }
+    }
+    
+    async function submitRateForm(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        
+        try {
+            const response = await fetch('/dashboard/api/forex/update-rate/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taux_usd_fc: formData.get('taux_usd_fc') })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                showToast('Taux mis à jour avec succès', 'success');
+                closeModal('update-rate-modal');
+                location.reload();
+            } else {
+                showToast(data.message || 'Erreur', 'error');
+            }
+        } catch (error) {
+            showToast('Erreur de connexion', 'error');
+        }
+    }
+</script>
+{% endblock %}

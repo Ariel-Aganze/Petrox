@@ -1,0 +1,421 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PETROX{% endblock %}</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Configuration des couleurs PETROX -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        petrox: {
+                            red: '#DC2626',      
+                            hover: '#B91C1C',    
+                            dark: '#111827',     
+                            bg: '#F9FAFB',       
+                            green: '#16A34A',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; padding: 0.5rem; font-size: 0.75rem; color: #6B7280; }
+        .mobile-nav-item svg { width: 1.25rem; height: 1.25rem; margin-bottom: 0.25rem; }
+        .mobile-nav-item.active, .mobile-nav-active { color: #DC2626; }
+        
+        /* Loading spinner */
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #DC2626; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Toast notifications */
+        .toast { position: fixed; top: 1rem; right: 1rem; z-index: 9999; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transform: translateX(120%); transition: transform 0.3s ease; }
+        .toast.show { transform: translateX(0); }
+        .toast-success { background: #DEF7EC; color: #03543F; border-left: 4px solid #16A34A; }
+        .toast-error { background: #FDE8E8; color: #9B1C1C; border-left: 4px solid #DC2626; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-petrox-bg text-gray-800 antialiased font-sans">
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- ================= TOP NAVIGATION ================= -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <!-- Logo & Mobile Menu Button -->
+                <div class="flex items-center">
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-md text-gray-500 hover:text-petrox-red focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <div class="flex-shrink-0 flex items-center ml-2 lg:ml-0">
+                        <a href="{% url 'admin_module:dashboard' %}" class="text-2xl font-bold tracking-tight text-petrox-dark">
+                            PETRO<span class="text-petrox-red">X</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden lg:flex lg:items-center lg:space-x-1 ml-6 overflow-x-auto no-scrollbar flex-1">
+                    {% block desktop_nav %}{% endblock %}
+                </div>
+
+                <!-- Right Actions: Branch, Notifs, Profile -->
+                <div class="flex items-center space-x-4">
+                    
+                    <!-- Branch Selector (Admin only) -->
+                    {% if user.role == 'admin' %}
+                    <div class="hidden sm:block">
+                        <select id="branch-selector" class="block w-full pl-3 pr-10 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md shadow-sm text-gray-700 bg-gray-50" onchange="switchBranch(this.value)">
+                            <option value="all">Toutes les branches</option>
+                            {% for branch in all_branches %}
+                            <option value="{{ branch.id }}" {% if selected_branch_id == branch.id %}selected{% endif %}>{{ branch.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <!-- Notifications -->
+                    <button class="p-1 rounded-full text-gray-500 hover:text-petrox-red relative focus:outline-none" onclick="toggleNotifications()">
+                        <span id="notif-badge" class="{% if unread_notifications > 0 %}{% else %}hidden{% endif %} absolute top-0 right-0 block h-2 w-2 rounded-full bg-petrox-red ring-2 ring-white"></span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </button>
+
+                    <!-- Profile Dropdown -->
+                    <div class="relative ml-3">
+                        <div class="flex items-center cursor-pointer" id="user-menu-btn">
+                            {% if user.photo %}
+                            <img class="h-8 w-8 rounded-full border border-gray-200 object-cover" src="{{ user.photo.url }}" alt="{{ user.get_full_name }}">
+                            {% else %}
+                            <img class="h-8 w-8 rounded-full border border-gray-200" src="https://ui-avatars.com/api/?name={{ user.prenom|urlencode }}+{{ user.nom|urlencode }}&background=DC2626&color=fff" alt="{{ user.get_full_name }}">
+                            {% endif %}
+                            <span class="hidden md:block ml-2 text-sm font-medium text-gray-700">{{ user.prenom }}</span>
+                            <svg class="hidden md:block ml-1 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="px-4 py-2 border-b border-gray-100">
+                                <p class="text-sm font-medium text-gray-900">{{ user.get_full_name }}</p>
+                                <p class="text-xs text-gray-500">{{ user.get_role_display }}</p>
+                            </div>
+                            <a href="{% url 'shared:user_profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mon Profil</a>
+                            <a href="#" onclick="toggleModal('settings-modal')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Paramètres</a>
+                            <div class="border-t border-gray-100"></div>
+                            <a href="{% url 'authentication:logout' %}" class="block px-4 py-2 text-sm text-petrox-red hover:bg-gray-100 font-medium">Déconnexion</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-200 bg-white">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                {% block mobile_menu %}{% endblock %}
+            </div>
+            {% if user.role == 'admin' %}
+            <div class="px-3 py-2 border-t border-gray-200">
+                <label class="block text-sm font-medium text-gray-700">Branche Active</label>
+                <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md" onchange="switchBranch(this.value)">
+                    <option value="all">Toutes les branches</option>
+                    {% for branch in all_branches %}
+                    <option value="{{ branch.id }}" {% if selected_branch_id == branch.id %}selected{% endif %}>{{ branch.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 shadow-lg">
+        <div class="flex justify-around items-center h-16">
+            {% block mobile_bottom_nav %}{% endblock %}
+        </div>
+    </nav>
+
+    <!-- Notifications Panel -->
+    <div id="notifications-panel" class="hidden fixed inset-0 z-50 overflow-hidden">
+        <div class="absolute inset-0 bg-gray-500 bg-opacity-75" onclick="toggleNotifications()"></div>
+        <div class="fixed inset-y-0 right-0 max-w-full flex">
+            <div class="w-screen max-w-md">
+                <div class="h-full flex flex-col bg-white shadow-xl">
+                    <div class="px-4 py-6 bg-petrox-red sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-medium text-white">Notifications</h2>
+                            <button onclick="toggleNotifications()" class="text-white hover:text-gray-200">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto" id="notifications-list">
+                        <div class="p-4 text-center text-gray-500">Chargement...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 lg:pb-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ================= MODALS ================= -->
+    {% block modals %}{% endblock %}
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        // CSRF Token for AJAX
+        const csrfToken = '{{ csrf_token }}';
+        
+        // API Base URLs
+        const API_BASE = '/dashboard/api';
+        
+        // Current filters
+        let currentFilters = {
+            period: 'today',
+            branche_id: '{{ selected_branch_id|default:"all" }}',
+            devise: 'USD'
+        };
+        
+        // Toggle Profile Dropdown
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+
+        // Toggle Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Modal Functions
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.toggle('hidden');
+                document.body.style.overflow = modal.classList.contains('hidden') ? 'auto' : 'hidden';
+            }
+        }
+        
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg">&times;</button>
+                </div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+        
+        // Branch Switch
+        function switchBranch(brancheId) {
+            currentFilters.branche_id = brancheId;
+            if (typeof loadDashboardData === 'function') {
+                loadDashboardData();
+            }
+            // Update URL without reload
+            const url = new URL(window.location);
+            url.searchParams.set('branche_id', brancheId);
+            window.history.pushState({}, '', url);
+        }
+        
+        // Period Filter
+        function setPeriod(period, btn) {
+            // Update UI
+            document.querySelectorAll('.period-btn').forEach(b => {
+                b.classList.remove('bg-gray-100', 'text-gray-900', 'shadow-sm');
+                b.classList.add('text-gray-500');
+            });
+            btn.classList.add('bg-gray-100', 'text-gray-900', 'shadow-sm');
+            btn.classList.remove('text-gray-500');
+            
+            currentFilters.period = period;
+            if (typeof loadDashboardData === 'function') {
+                loadDashboardData();
+            }
+        }
+        
+        // Currency Toggle
+        function setCurrency(devise, btn) {
+            document.querySelectorAll('.currency-btn').forEach(b => {
+                b.classList.remove('bg-petrox-red', 'text-white');
+                b.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            btn.classList.add('bg-petrox-red', 'text-white');
+            btn.classList.remove('bg-gray-100', 'text-gray-700');
+            
+            currentFilters.devise = devise;
+            if (typeof loadDashboardData === 'function') {
+                loadDashboardData();
+            }
+        }
+        
+        // Notifications Panel
+        function toggleNotifications() {
+            const panel = document.getElementById('notifications-panel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                loadNotifications();
+            }
+        }
+        
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/shared/notifications/', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await response.json();
+                
+                const list = document.getElementById('notifications-list');
+                if (data.notifications.length === 0) {
+                    list.innerHTML = '<div class="p-4 text-center text-gray-500">Aucune notification</div>';
+                    return;
+                }
+                
+                list.innerHTML = data.notifications.map(n => `
+                    <div class="p-4 border-b border-gray-200 ${n.lu ? 'bg-white' : 'bg-blue-50'} hover:bg-gray-50 cursor-pointer" onclick="markNotificationRead(${n.id})">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full ${n.priorite === 'haute' ? 'bg-red-100' : 'bg-gray-100'}">
+                                    <svg class="h-4 w-4 ${n.priorite === 'haute' ? 'text-red-600' : 'text-gray-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <p class="text-sm font-medium text-gray-900">${n.titre}</p>
+                                <p class="text-sm text-gray-500">${n.message}</p>
+                                <p class="text-xs text-gray-400 mt-1">${n.created_at}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+        
+        async function markNotificationRead(notifId) {
+            try {
+                await fetch(`/shared/notifications/${notifId}/read/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                loadNotifications();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        // Generic API Call Helper
+        async function apiCall(url, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            };
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            
+            const response = await fetch(url, options);
+            return await response.json();
+        }
+        
+        // Format Currency
+        function formatCurrency(amount, devise = 'USD') {
+            const num = parseFloat(amount) || 0;
+            if (devise === 'USD') {
+                return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                return num.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' FC';
+            }
+        }
+        
+        // Format Number
+        function formatNumber(num) {
+            return parseFloat(num || 0).toLocaleString('fr-FR');
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

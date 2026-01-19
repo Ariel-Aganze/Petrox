@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% block title %}PETROX | Gestion des Ventes{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Ventes</a>
+<a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
+<a href="{% url 'admin_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'admin_module:forex' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Forex</a>
+<a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+    <span>Dashboard</span>
+</a>
+<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item active">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+    <span>Ventes</span>
+</a>
+<a href="{% url 'admin_module:depenses' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+    <span>Dépenses</span>
+</a>
+<a href="{% url 'admin_module:carburants' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+    <span>Stock</span>
+</a>
+<a href="#" onclick="exportSales(); return false;" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+    <span>Export</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Gestion des Ventes
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            {{ ventes_count }} vente{% if ventes_count > 1 %}s{% endif %} trouvée{% if ventes_count > 1 %}s{% endif %}
+        </p>
+    </div>
+    <div class="mt-4 flex gap-2 md:mt-0 md:ml-4">
+        <button onclick="exportSales('pdf')" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            PDF
+        </button>
+        <button onclick="exportSales('excel')" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Excel
+        </button>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total USD</p>
+                <p class="text-lg font-bold text-gray-900">${{ total_usd|floatformat:2|default:"0.00" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total FC</p>
+                <p class="text-lg font-bold text-gray-900">{{ total_fc|floatformat:0|default:"0" }} FC</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-yellow-100 flex items-center justify-center">
+                <svg class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Manquants</p>
+                <p class="text-lg font-bold text-yellow-600">{{ manquants_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
+                <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Manquant</p>
+                <p class="text-lg font-bold text-red-600">${{ total_manquant_usd|floatformat:2|default:"0.00" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
+    <form method="get" class="flex flex-wrap gap-4">
+        <!-- Branch Filter -->
+        <div class="w-full sm:w-auto flex-1 sm:flex-none">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Branche</label>
+            <select name="branche_id" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
+                <option value="all">Toutes les branches</option>
+                {% for branch in all_branches %}
+                <option value="{{ branch.id }}" {% if current_filters.branche_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Period Filter -->
+        <div class="w-full sm:w-auto">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Période</label>
+            <select name="period" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
+                <option value="today" {% if current_filters.period == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                <option value="week" {% if current_filters.period == 'week' %}selected{% endif %}>Cette semaine</option>
+                <option value="month" {% if current_filters.period == 'month' %}selected{% endif %}>Ce mois</option>
+                <option value="all" {% if current_filters.period == 'all' %}selected{% endif %}>Tout</option>
+            </select>
+        </div>
+        
+        <!-- Status Filter -->
+        <div class="w-full sm:w-auto">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Statut</label>
+            <select name="status" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
+                {% for value, label in statuts %}
+                <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Fuel Type Filter -->
+        <div class="w-full sm:w-auto">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Carburant</label>
+            <select name="carburant_id" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
+                <option value="all">Tous les carburants</option>
+                {% for carburant in types_carburant %}
+                <option value="{{ carburant.id }}" {% if current_filters.carburant_id == carburant.id|stringformat:"s" %}selected{% endif %}>{{ carburant.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Reset Filters -->
+        <div class="w-full sm:w-auto flex items-end">
+            <a href="{% url 'admin_module:ventes' %}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Réinitialiser
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Sales Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pompiste</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carburant</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for vente in ventes %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        #{{ vente.id }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ vente.created_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ vente.branche.nom|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-xs font-medium text-gray-600">
+                                    {{ vente.pompiste.prenom|slice:":1" }}{{ vente.pompiste.nom|slice:":1" }}
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">{{ vente.pompiste.get_full_name }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center">
+                            <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ vente.type_carburant.couleur_hex|default:'#6B7280' }}"></span>
+                            <span class="text-sm text-gray-900">{{ vente.type_carburant.nom }}</span>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ vente.quantite|floatformat:1 }} L
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">
+                            {% if vente.montant_usd %}
+                            <span class="font-medium text-gray-900">${{ vente.montant_usd|floatformat:2 }}</span>
+                            {% endif %}
+                            {% if vente.montant_fc %}
+                            <span class="text-gray-500 {% if vente.montant_usd %}ml-1{% endif %}">{{ vente.montant_fc|floatformat:0 }} FC</span>
+                            {% endif %}
+                        </div>
+                        {% if vente.statut == 'manquant' %}
+                        <div class="text-xs text-red-600 mt-1">
+                            Manquant: ${{ vente.manquant_usd|floatformat:2|default:"0" }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if vente.statut == 'validee' %}
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Validée
+                        </span>
+                        {% elif vente.statut == 'en_attente' %}
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            En attente
+                        </span>
+                        {% elif vente.statut == 'manquant' %}
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            Manquant
+                        </span>
+                        {% else %}
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            {{ vente.get_statut_display }}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button onclick="viewSaleDetails({{ vente.id }})" class="text-petrox-red hover:text-petrox-hover">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="px-6 py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune vente</h3>
+                        <p class="mt-1 text-sm text-gray-500">Aucune vente ne correspond aux critères sélectionnés.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if ventes %}
+    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                Affichage de <span class="font-medium">{{ ventes|length }}</span> vente{% if ventes|length > 1 %}s{% endif %}
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'admin_module:ventes' %}?{{ request.GET.urlencode }}&page=1" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+                    Voir plus
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Sale Detail Modal -->
+<div id="sale-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('sale-detail-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Détails de la Vente</h3>
+                    <button onclick="closeModal('sale-detail-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="sale-detail-content">
+                    <div class="text-center py-8">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-2 text-sm text-gray-500">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // View Sale Details
+    async function viewSaleDetails(saleId) {
+        openModal('sale-detail-modal');
+        
+        const content = document.getElementById('sale-detail-content');
+        content.innerHTML = '<div class="text-center py-8"><div class="spinner mx-auto"></div><p class="mt-2 text-sm text-gray-500">Chargement...</p></div>';
+        
+        try {
+            // In production, this would fetch from API
+            // For now, show placeholder
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">Vente #${saleId}</p>
+                        <p class="text-sm text-gray-500 mt-2">Détails complets disponibles via l'API.</p>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            content.innerHTML = '<p class="text-red-500">Erreur lors du chargement</p>';
+        }
+    }
+    
+    // Export Sales
+    function exportSales(format = 'pdf') {
+        const params = new URLSearchParams(window.location.search);
+        params.set('format', format);
+        
+        window.location.href = `/dashboard/api/export/${format}/sales/?${params.toString()}`;
+    }
+</script>
+{% endblock %}
