@@ -1,480 +1,324 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
 {% block title %}PETROX | Dashboard Administrateur{% endblock %}
 
 {% block desktop_nav %}
 <a href="{% url 'admin_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Dashboard</a>
-<a href="#" onclick="toggleModal('branches-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
-<a href="#" onclick="toggleModal('ventes-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
-<a href="#" onclick="toggleModal('depenses-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
-<a href="#" onclick="toggleModal('carburants-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
-<a href="#" onclick="toggleModal('abonnes-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
-<a href="#" onclick="toggleModal('utilisateurs-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
-<a href="#" onclick="toggleModal('documents-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
-<a href="#" onclick="toggleModal('forex-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Forex</a>
-<a href="#" onclick="toggleModal('rapports-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
+<a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
+<a href="{% url 'admin_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'admin_module:forex' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Forex</a>
+<a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
 {% endblock %}
 
-{% block mobile_nav %}
-<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item mobile-nav-active">
+{% block mobile_menu %}
+<a href="{% url 'admin_module:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-petrox-red">Dashboard</a>
+<a href="{% url 'admin_module:branches' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'admin_module:depenses' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:carburants' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item active">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
     </svg>
     <span>Dashboard</span>
 </a>
-<a href="#" onclick="toggleModal('branches-modal')" class="mobile-nav-item">
+<a href="{% url 'admin_module:branches' %}" class="mobile-nav-item">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
     <span>Branches</span>
 </a>
-<a href="#" onclick="toggleModal('ventes-modal')" class="mobile-nav-item">
+<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
     <span>Ventes</span>
 </a>
-<a href="#" onclick="toggleModal('depenses-modal')" class="mobile-nav-item">
+<a href="{% url 'admin_module:carburants' %}" class="mobile-nav-item">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
     </svg>
-    <span>Dépenses</span>
+    <span>Stock</span>
 </a>
-<a href="#" onclick="toggleModal('carburants-modal')" class="mobile-nav-item">
+<a href="#" onclick="toggleNotifications(); return false;" class="mobile-nav-item">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
     </svg>
-    <span>Carburants</span>
+    <span>Alertes</span>
 </a>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Header Section -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Vue d'ensemble
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Statistiques pour <span class="font-semibold text-gray-800" id="branch-label">{% if selected_branch %}{{ selected_branch.nom }}{% else %}Toutes les branches{% endif %}</span>
+        </p>
+    </div>
     
-    <!-- Header Section -->
-    <div class="md:flex md:items-center md:justify-between mb-8">
-        <div class="flex-1 min-w-0">
-            <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
-                Vue d'ensemble
-            </h2>
-            <p class="mt-1 text-sm text-gray-500">
-                Statistiques pour <span class="font-semibold text-gray-800" id="current-branch-name">Toutes les branches</span>
-            </p>
-        </div>
-        <div class="mt-4 flex md:mt-0 md:ml-4 bg-white rounded-lg p-1 shadow-sm border border-gray-200">
-            <button class="px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-900 shadow-sm" onclick="filterByPeriod('today')">Aujourd'hui</button>
-            <button class="px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900" onclick="filterByPeriod('week')">Semaine</button>
-            <button class="px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900" onclick="filterByPeriod('month')">Mois</button>
-            <button class="px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-petrox-red" onclick="toggleModal('periode-modal')">
-                <svg class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Filters -->
+    <div class="mt-4 flex flex-wrap gap-2 md:mt-0 md:ml-4">
+        <!-- Period Filter -->
+        <div class="bg-white rounded-lg p-1 shadow-sm border border-gray-200 flex">
+            <button onclick="setPeriod('today', this)" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-900 shadow-sm">Aujourd'hui</button>
+            <button onclick="setPeriod('week', this)" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900">Semaine</button>
+            <button onclick="setPeriod('month', this)" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900">Mois</button>
+            <button onclick="openCustomPeriodModal()" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-petrox-red">
+                <svg class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Période
             </button>
         </div>
-        <div class="mt-4 md:mt-0 md:ml-4">
-            <button onclick="toggleModal('user-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
-                + Nouvel Utilisateur
-            </button>
-        </div>
-    </div>
-
-    <!-- KPI Cards Grid -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <!-- Card 1: Total Ventes USD -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Ventes Totales (USD)</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="total-sales-usd">$0.00</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-petrox-green font-medium flex items-center" id="sales-usd-trend">
-                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-                        0%
-                    </span>
-                    <span class="text-gray-500"> vs hier</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 2: Ventes CDF -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-50 rounded-md p-3">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Ventes Totales (FC)</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="total-sales-fc">0 FC</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-petrox-green font-medium flex items-center" id="sales-fc-trend">
-                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-                        0%
-                    </span>
-                    <span class="text-gray-500"> vs hier</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 3: Stock Total -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-orange-50 rounded-md p-3">
-                        <svg class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Stock Total</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="total-stock">0 L</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm flex items-center justify-between">
-                    <span class="text-gray-600 font-medium" id="stock-status">Normal</span>
-                    <span class="text-gray-400 text-xs" id="stock-branches">0 branches</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 4: Impact Forex -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-green-50 rounded-md p-3">
-                        <svg class="h-6 w-6 text-petrox-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Impact Forex</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-petrox-green" id="forex-impact">+$0.00</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500">Taux Actuel: </span>
-                    <span class="font-medium text-gray-900" id="current-rate">0 FC</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts & Secondary Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         
-        <!-- Main Chart Area -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 lg:col-span-2 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Ventes vs Dépenses</h3>
-                <div class="flex space-x-2">
-                    <select id="chart-currency" class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red" onchange="updateChartCurrency()">
-                        <option value="USD">USD</option>
-                        <option value="FC">FC</option>
-                    </select>
-                    <select id="chart-period" class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red" onchange="updateChartPeriod()">
-                        <option value="week">Cette Semaine</option>
-                        <option value="month">Ce Mois</option>
-                    </select>
+        <!-- Currency Toggle -->
+        <div class="bg-white rounded-lg p-1 shadow-sm border border-gray-200 flex">
+            <button onclick="setCurrency('USD', this)" class="currency-btn px-3 py-1.5 text-sm font-medium rounded-md bg-petrox-red text-white">USD</button>
+            <button onclick="setCurrency('FC', this)" class="currency-btn px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-700">FC</button>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Total Ventes -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-petrox-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
-            </div>
-            
-            <!-- Simple Chart Visualization -->
-            <div class="relative h-64 w-full flex items-end justify-between space-x-2 px-2 border-b border-gray-200 border-l" id="chart-container">
-                <!-- Chart bars will be dynamically generated here -->
-                <div class="text-center text-gray-500 w-full">
-                    <p>Graphique des ventes vs dépenses</p>
-                    <div class="mt-4 flex justify-center space-x-4">
-                        <div class="h-32 w-8 bg-petrox-red opacity-70 rounded-t"></div>
-                        <div class="h-24 w-8 bg-gray-300 rounded-t"></div>
-                        <div class="h-40 w-8 bg-petrox-red opacity-70 rounded-t"></div>
-                        <div class="h-16 w-8 bg-gray-300 rounded-t"></div>
-                        <div class="h-48 w-8 bg-petrox-red opacity-70 rounded-t"></div>
-                        <div class="h-20 w-8 bg-gray-300 rounded-t"></div>
-                        <div class="h-36 w-8 bg-petrox-red opacity-70 rounded-t"></div>
-                    </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Ventes</dt>
+                        <dd>
+                            <div class="text-lg font-bold text-gray-900" id="total-sales">--</div>
+                        </dd>
+                    </dl>
                 </div>
-            </div>
-            
-            <div class="mt-4 flex items-center justify-center space-x-6 text-sm text-gray-500">
-                <div class="flex items-center"><span class="h-3 w-3 bg-petrox-red rounded-full mr-2"></span>Ventes</div>
-                <div class="flex items-center"><span class="h-3 w-3 bg-gray-300 rounded-full mr-2"></span>Dépenses</div>
             </div>
         </div>
-
-        <!-- Taux & Info Panel -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Taux & Prix</h3>
-                <button onclick="toggleModal('taux-modal')" class="text-petrox-red hover:text-petrox-hover text-sm font-medium">
-                    Modifier
-                </button>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm flex items-center" id="sales-trend">
+                <span class="text-gray-500">Chargement...</span>
             </div>
-            
-            <div class="space-y-4">
-                <!-- Forex Rates -->
-                <div class="p-3 bg-gray-50 rounded-lg">
-                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Taux de change</h4>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">USD</span>
-                        <span class="text-sm font-bold text-gray-900" id="current-exchange-rate-display">2,800 FC</span>
-                    </div>
-                </div>
-
-                <!-- Fuel Prices -->
-                <div>
-                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Prix carburant</h4>
-                    <div id="fuel-prices-list">
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg mb-2">
-                            <div class="flex items-center">
-                                <span class="h-2 w-2 rounded-full bg-yellow-500 mr-2"></span>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">Essence (1L)</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold text-gray-900">3,450 FC</p>
-                                <p class="text-xs text-gray-400">$1.23</p>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <div class="flex items-center">
-                                <span class="h-2 w-2 rounded-full bg-gray-800 mr-2"></span>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">Gasoil (1L)</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold text-gray-900">3,400 FC</p>
-                                <p class="text-xs text-gray-400">$1.21</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button onclick="updateRates()" class="w-full mt-6 bg-white border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md text-sm hover:bg-gray-50 shadow-sm">
-                Actualiser les données
-            </button>
         </div>
     </div>
 
-    <!-- Recent Transactions Table -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
-            <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
-            <button onclick="loadAllTransactions()" class="text-sm text-petrox-red hover:text-petrox-hover font-medium">Voir tout →</button>
+    <!-- Total Dépenses -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Dépenses</dt>
+                        <dd>
+                            <div class="text-lg font-bold text-gray-900" id="total-expenses">--</div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="transactions-table-body">
-                    <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                            Aucune transaction récente
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm text-gray-500" id="expenses-count">-- dépenses</div>
         </div>
+    </div>
+
+    <!-- Profit/Perte -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Profit / Perte</dt>
+                        <dd>
+                            <div class="text-lg font-bold" id="total-profit">--</div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm text-gray-500" id="profit-label">Bénéfice net</div>
+        </div>
+    </div>
+
+    <!-- Stock Alerts -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Alertes Stock</dt>
+                        <dd>
+                            <div class="text-lg font-bold text-gray-900" id="stock-alerts">--</div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm" id="stock-status">
+                <span class="text-gray-500">Chargement...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Main Chart: Sales vs Expenses -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Ventes vs Dépenses</h3>
+            <div class="flex items-center space-x-4 text-sm">
+                <span class="flex items-center">
+                    <span class="w-3 h-3 bg-petrox-green rounded-full mr-1"></span>
+                    Ventes
+                </span>
+                <span class="flex items-center">
+                    <span class="w-3 h-3 bg-petrox-red rounded-full mr-1"></span>
+                    Dépenses
+                </span>
+            </div>
+        </div>
+        <div class="h-80">
+            <canvas id="salesExpensesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Forex Impact -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Impact Forex</h3>
+            <span class="text-sm text-gray-500" id="current-rate">1 USD = -- FC</span>
+        </div>
+        <div class="h-64">
+            <canvas id="forexChart"></canvas>
+        </div>
+        <div class="mt-4 p-3 rounded-lg" id="forex-summary">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Impact Total:</span>
+                <span class="text-lg font-bold" id="forex-impact">$0.00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sales by Fuel Type & Branch Performance -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Sales by Fuel -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Ventes par Carburant</h3>
+        <div class="space-y-4" id="fuel-sales-list">
+            <div class="text-center text-gray-500 py-4">Chargement...</div>
+        </div>
+    </div>
+
+    <!-- Branch Performance -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance par Branche</h3>
+        <div class="space-y-4" id="branch-performance-list">
+            <div class="text-center text-gray-500 py-4">Chargement...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">Transactions Récentes</h3>
+        <div class="flex space-x-2">
+            <button onclick="filterTransactions('all')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">Toutes</button>
+            <button onclick="filterTransactions('sales')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Ventes</button>
+            <button onclick="filterTransactions('expenses')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Dépenses</button>
+            <button onclick="filterTransactions('missing')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Manquants</button>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Référence</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="transactions-tbody">
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Chargement...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="px-6 py-3 border-t border-gray-100 flex justify-between items-center">
+        <span class="text-sm text-gray-500" id="transactions-count">-- transactions</span>
+        <a href="{% url 'admin_module:ventes' %}" class="text-sm font-medium text-petrox-red hover:text-petrox-hover">
+            Voir tout →
+        </a>
     </div>
 </div>
 {% endblock %}
 
 {% block modals %}
-<!-- Nouvel Utilisateur Modal -->
-<div id="user-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+<!-- Custom Period Modal -->
+<div id="custom-period-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('user-modal')"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('custom-period-modal')"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="user-form" onsubmit="createUser(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Ajouter un utilisateur</h3>
-                            <div class="mt-4 space-y-4">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Prénom</label>
-                                        <input type="text" name="prenom" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Nom</label>
-                                        <input type="text" name="nom" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" name="email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Nom d'utilisateur</label>
-                                    <input type="text" name="username" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Téléphone</label>
-                                    <input type="tel" name="telephone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Rôle</label>
-                                    <select name="role" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                        <option value="">Sélectionner un rôle</option>
-                                        <option value="admin">Administrateur</option>
-                                        <option value="manager">Gestionnaire</option>
-                                        <option value="caissier">Caissier</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Branche Assignée</label>
-                                    <select name="branche" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                        <option value="">Sélectionner une branche</option>
-                                        {% for branche in all_branches %}
-                                            <option value="{{ branche.id }}">{{ branche.nom }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Salaire</label>
-                                        <input type="number" step="0.01" name="salaire" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Devise Salaire</label>
-                                        <select name="devise_salaire" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                            <option value="USD">USD</option>
-                                            <option value="FC">FC</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Période personnalisée</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Date de début</label>
+                        <input type="date" id="custom-start-date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Date de fin</label>
+                        <input type="date" id="custom-end-date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red sm:ml-3 sm:w-auto sm:text-sm">
-                        Enregistrer
-                    </button>
-                    <button type="button" onclick="closeModal('user-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Annuler
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Taux de Change Modal -->
-<div id="taux-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('taux-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
-            <form id="taux-form" onsubmit="updateExchangeRate(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Modifier Taux de Change</h3>
-                            <div class="mt-4">
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
-                                    <div class="flex">
-                                        <div class="flex-shrink-0">
-                                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm text-yellow-700">
-                                                Ce changement affectera uniquement les nouvelles transactions. Les transactions passées conservent leur taux historique.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Taux actuel</label>
-                                        <div class="mt-1 text-sm text-gray-500" id="current-exchange-rate">1 USD = 2,800 FC</div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Nouveau taux (1 USD = ? FC)</label>
-                                        <input type="number" step="0.01" name="nouveau_taux" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="2850.00">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Date d'entrée en vigueur</label>
-                                        <input type="datetime-local" name="date_effective" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red sm:ml-3 sm:w-auto sm:text-sm">
-                        Mettre à jour
-                    </button>
-                    <button type="button" onclick="closeModal('taux-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Annuler
-                    </button>
-                </div>
-            </form>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="applyCustomPeriod()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
+                    Appliquer
+                </button>
+                <button type="button" onclick="closeModal('custom-period-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Annuler
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -482,195 +326,329 @@
 
 {% block extra_js %}
 <script>
-// Admin Dashboard JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    loadAdminDashboard();
-    setupEventListeners();
-});
-
-function loadAdminDashboard() {
-    fetch('/dashboard/api/stats/')
-        .then(response => response.json())
-        .then(data => {
-            updateAdminKPIs(data);
-        })
-        .catch(error => {
-            console.error('Erreur chargement dashboard admin:', error);
-        });
-}
-
-function updateAdminKPIs(data) {
-    document.getElementById('total-sales-usd').textContent = `$${data.total_sales_usd || '0.00'}`;
-    document.getElementById('total-sales-fc').textContent = `${data.total_sales_fc || '0'} FC`;
-    document.getElementById('total-stock').textContent = `${data.total_stock || '0'} L`;
-    document.getElementById('forex-impact').textContent = `$${data.forex_impact || '0.00'}`;
-    document.getElementById('current-rate').textContent = `${data.current_rate || '2800'} FC`;
-    document.getElementById('current-exchange-rate-display').textContent = `${data.current_rate || '2800'} FC`;
-    document.getElementById('current-exchange-rate').textContent = `1 USD = ${data.current_rate || '2800'} FC`;
+    // Chart instances
+    let salesExpensesChart = null;
+    let forexChart = null;
     
-    // Update trends
-    updateTrend('sales-usd-trend', data.sales_usd_trend || 0);
-    updateTrend('sales-fc-trend', data.sales_fc_trend || 0);
-    
-    // Update stock status
-    document.getElementById('stock-status').textContent = data.stock_status || 'Normal';
-    document.getElementById('stock-branches').textContent = `${data.active_branches || 0} branches`;
-}
-
-function updateTrend(elementId, trend) {
-    const element = document.getElementById(elementId);
-    const isPositive = trend >= 0;
-    
-    element.className = `font-medium flex items-center ${isPositive ? 'text-petrox-green' : 'text-red-500'}`;
-    element.innerHTML = `
-        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isPositive ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'}" />
-        </svg>
-        ${Math.abs(trend)}%
-    `;
-}
-
-function createUser(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const userData = Object.fromEntries(formData);
-    
-    fetch('/dashboard/api/users/create/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(userData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal('user-modal');
-            showNotification('Utilisateur créé avec succès', 'success');
-            event.target.reset();
-        } else {
-            showNotification(data.message || 'Erreur lors de la création', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur création utilisateur:', error);
-        showNotification('Erreur lors de la création de l\'utilisateur', 'error');
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initCharts();
+        loadDashboardData();
     });
-}
-
-function updateExchangeRate(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const rateData = Object.fromEntries(formData);
     
-    fetch('/dashboard/api/taux/update/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(rateData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal('taux-modal');
-            showNotification('Taux de change mis à jour avec succès', 'success');
-            loadAdminDashboard();
-            event.target.reset();
-        } else {
-            showNotification(data.message || 'Erreur lors de la mise à jour', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur mise à jour taux:', error);
-        showNotification('Erreur lors de la mise à jour du taux', 'error');
-    });
-}
-
-function filterByPeriod(period) {
-    // Update active button
-    document.querySelectorAll('.bg-gray-100').forEach(btn => {
-        btn.className = btn.className.replace('bg-gray-100 text-gray-900', 'text-gray-500 hover:text-gray-900');
-    });
-    event.target.className = event.target.className.replace('text-gray-500 hover:text-gray-900', 'bg-gray-100 text-gray-900');
-    
-    // Reload data with new period
-    loadAdminDashboard();
-}
-
-function updateChartCurrency() {
-    const currency = document.getElementById('chart-currency').value;
-    console.log('Chart currency changed to:', currency);
-}
-
-function updateChartPeriod() {
-    const period = document.getElementById('chart-period').value;
-    console.log('Chart period changed to:', period);
-}
-
-function updateRates() {
-    loadAdminDashboard();
-    showNotification('Données actualisées', 'success');
-}
-
-function loadAllTransactions() {
-    showNotification('Chargement de toutes les transactions...', 'info');
-}
-
-function setupEventListeners() {
-    // Set current datetime for rate form
-    const now = new Date();
-    const dateTimeInput = document.querySelector('input[name="date_effective"]');
-    if (dateTimeInput) {
-        dateTimeInput.value = now.toISOString().slice(0, 16);
-    }
-    
-    // Branch selector change
-    const branchSelector = document.getElementById('branch-selector');
-    if (branchSelector) {
-        branchSelector.addEventListener('change', function() {
-            const selectedBranch = this.value;
-            if (selectedBranch) {
-                document.getElementById('current-branch-name').textContent = this.options[this.selectedIndex].text;
-            } else {
-                document.getElementById('current-branch-name').textContent = 'Toutes les branches';
+    // Initialize Charts
+    function initCharts() {
+        // Sales vs Expenses Chart
+        const salesCtx = document.getElementById('salesExpensesChart').getContext('2d');
+        salesExpensesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Ventes',
+                        data: [],
+                        borderColor: '#16A34A',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Dépenses',
+                        data: [],
+                        borderColor: '#DC2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
             }
-            loadAdminDashboard();
+        });
+        
+        // Forex Impact Chart
+        const forexCtx = document.getElementById('forexChart').getContext('2d');
+        forexChart = new Chart(forexCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: ['#DC2626', '#16A34A', '#F59E0B', '#3B82F6', '#8B5CF6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 15 }
+                    }
+                }
+            }
         });
     }
-}
-
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
-        type === 'info' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-        'bg-red-100 text-red-800 border border-red-200'
-    }`;
-    notification.textContent = message;
     
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+    // Load Dashboard Data
+    async function loadDashboardData() {
+        try {
+            // Build query params
+            const params = new URLSearchParams({
+                period: currentFilters.period,
+                branche_id: currentFilters.branche_id,
+                devise: currentFilters.devise
+            });
+            
+            if (currentFilters.start_date) params.append('start_date', currentFilters.start_date);
+            if (currentFilters.end_date) params.append('end_date', currentFilters.end_date);
+            
+            const response = await fetch(`/dashboard/api/stats/?${params}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+            
+            updateKPICards(data);
+            updateCharts(data);
+            updateFuelSales(data);
+            updateBranchPerformance(data);
+            loadRecentTransactions();
+            
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+            showToast('Erreur lors du chargement des données', 'error');
         }
     }
-    return cookieValue;
-}
+    
+    // Update KPI Cards
+    function updateKPICards(data) {
+        const devise = currentFilters.devise;
+        
+        // Total Sales
+        const totalSales = devise === 'USD' ? data.sales.total_usd : data.sales.total_fc;
+        document.getElementById('total-sales').textContent = formatCurrency(totalSales, devise);
+        
+        // Sales Trend
+        const trend = devise === 'USD' ? data.sales.trend_usd : data.sales.trend_fc;
+        const trendEl = document.getElementById('sales-trend');
+        if (trend.direction === 'up') {
+            trendEl.innerHTML = `<span class="text-green-600 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg> +${trend.value}%</span>`;
+        } else if (trend.direction === 'down') {
+            trendEl.innerHTML = `<span class="text-red-600 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg> -${trend.value}%</span>`;
+        } else {
+            trendEl.innerHTML = `<span class="text-gray-500">Stable</span>`;
+        }
+        
+        // Total Expenses
+        const totalExpenses = devise === 'USD' ? data.expenses.total_usd : data.expenses.total_fc;
+        document.getElementById('total-expenses').textContent = formatCurrency(totalExpenses, devise);
+        
+        // Profit
+        const profit = devise === 'USD' ? data.profit.usd : data.profit.fc;
+        const profitEl = document.getElementById('total-profit');
+        const profitNum = parseFloat(profit);
+        profitEl.textContent = formatCurrency(Math.abs(profit), devise);
+        profitEl.className = `text-lg font-bold ${profitNum >= 0 ? 'text-green-600' : 'text-red-600'}`;
+        document.getElementById('profit-label').textContent = profitNum >= 0 ? 'Bénéfice net' : 'Perte nette';
+        
+        // Stock Alerts
+        document.getElementById('stock-alerts').textContent = data.stock.alerts + ' alertes';
+        const stockStatus = document.getElementById('stock-status');
+        stockStatus.innerHTML = `<span class="${data.stock.alerts > 0 ? 'text-red-600' : 'text-green-600'}">${data.stock.status}</span>`;
+        
+        // Exchange Rate
+        document.getElementById('current-rate').textContent = `1 USD = ${formatNumber(data.exchange_rate.current)} FC`;
+    }
+    
+    // Update Charts
+    function updateCharts(data) {
+        const devise = currentFilters.devise;
+        
+        // Generate labels based on period
+        let labels = [];
+        let salesData = [];
+        let expensesData = [];
+        
+        // For now, use sample distribution - in production, this would come from daily breakdown API
+        if (currentFilters.period === 'today') {
+            labels = ['8h', '10h', '12h', '14h', '16h', '18h'];
+        } else if (currentFilters.period === 'week') {
+            labels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+        } else {
+            labels = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+        }
+        
+        // Distribute totals across periods for visualization
+        const totalSales = parseFloat(devise === 'USD' ? data.sales.total_usd : data.sales.total_fc);
+        const totalExpenses = parseFloat(devise === 'USD' ? data.expenses.total_usd : data.expenses.total_fc);
+        
+        labels.forEach((_, i) => {
+            const variance = 0.8 + Math.random() * 0.4;
+            salesData.push((totalSales / labels.length) * variance);
+            expensesData.push((totalExpenses / labels.length) * variance);
+        });
+        
+        salesExpensesChart.data.labels = labels;
+        salesExpensesChart.data.datasets[0].data = salesData;
+        salesExpensesChart.data.datasets[1].data = expensesData;
+        salesExpensesChart.update();
+        
+        // Forex Chart
+        if (data.forex && data.forex.by_carburant) {
+            const fuelLabels = data.forex.by_carburant.map(f => f.carburant);
+            const fuelImpacts = data.forex.by_carburant.map(f => Math.abs(parseFloat(f.impact_usd)));
+            
+            forexChart.data.labels = fuelLabels;
+            forexChart.data.datasets[0].data = fuelImpacts;
+            forexChart.update();
+            
+            // Update forex summary
+            const totalImpact = parseFloat(data.forex.total_gain_loss_usd);
+            const forexSummary = document.getElementById('forex-summary');
+            forexSummary.className = `mt-4 p-3 rounded-lg ${totalImpact >= 0 ? 'bg-green-50' : 'bg-red-50'}`;
+            document.getElementById('forex-impact').textContent = formatCurrency(totalImpact, 'USD');
+            document.getElementById('forex-impact').className = `text-lg font-bold ${totalImpact >= 0 ? 'text-green-600' : 'text-red-600'}`;
+        }
+    }
+    
+    // Update Fuel Sales List
+    function updateFuelSales(data) {
+        const container = document.getElementById('fuel-sales-list');
+        const devise = currentFilters.devise;
+        
+        if (!data.sales.by_fuel || data.sales.by_fuel.length === 0) {
+            container.innerHTML = '<div class="text-center text-gray-500 py-4">Aucune vente</div>';
+            return;
+        }
+        
+        container.innerHTML = data.sales.by_fuel.map(fuel => {
+            const total = devise === 'USD' ? fuel.total_usd : fuel.total_fc;
+            return `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full mr-3" style="background-color: ${fuel.type_carburant__couleur_hex || '#6B7280'}"></div>
+                        <div>
+                            <p class="font-medium text-gray-900">${fuel.type_carburant__nom}</p>
+                            <p class="text-sm text-gray-500">${formatNumber(fuel.total_quantity)} L • ${fuel.count} ventes</p>
+                        </div>
+                    </div>
+                    <span class="font-bold text-gray-900">${formatCurrency(total, devise)}</span>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Update Branch Performance
+    function updateBranchPerformance(data) {
+        const container = document.getElementById('branch-performance-list');
+        
+        // This would come from a separate API call in production
+        // For now, showing placeholder based on branch count
+        if (currentFilters.branche_id !== 'all') {
+            container.innerHTML = '<div class="text-center text-gray-500 py-4">Sélectionnez "Toutes les branches" pour voir la comparaison</div>';
+            return;
+        }
+        
+        container.innerHTML = `
+            <div class="text-center text-gray-500 py-4">
+                <p class="mb-2">${data.branches.active} branches actives</p>
+                <a href="{% url 'admin_module:branches' %}" class="text-petrox-red hover:underline text-sm">Voir les performances →</a>
+            </div>
+        `;
+    }
+    
+    // Load Recent Transactions
+    async function loadRecentTransactions() {
+        try {
+            const params = new URLSearchParams({
+                period: currentFilters.period,
+                branche_id: currentFilters.branche_id,
+                limit: 10
+            });
+            
+            // This would be a real API endpoint
+            const data = {
+                recent_transactions: [
+                    // Placeholder - replace with actual API call
+                ]
+            };
+            
+            const tbody = document.getElementById('transactions-tbody');
+            
+            if (!data.recent_transactions || data.recent_transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucune transaction récente</td></tr>';
+                return;
+            }
+            
+            // Render transactions...
+            
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+        }
+    }
+    
+    // Filter Transactions
+    function filterTransactions(type) {
+        document.querySelectorAll('.tx-filter-btn').forEach(btn => {
+            btn.classList.remove('bg-gray-100', 'text-gray-700');
+            btn.classList.add('text-gray-500');
+        });
+        event.target.classList.add('bg-gray-100', 'text-gray-700');
+        event.target.classList.remove('text-gray-500');
+        
+        // Reload with filter
+        loadRecentTransactions(type);
+    }
+    
+    // Custom Period Modal
+    function openCustomPeriodModal() {
+        // Set default dates
+        const today = new Date().toISOString().split('T')[0];
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        
+        document.getElementById('custom-start-date').value = weekAgo;
+        document.getElementById('custom-end-date').value = today;
+        
+        openModal('custom-period-modal');
+    }
+    
+    function applyCustomPeriod() {
+        const startDate = document.getElementById('custom-start-date').value;
+        const endDate = document.getElementById('custom-end-date').value;
+        
+        if (!startDate || !endDate) {
+            showToast('Veuillez sélectionner les deux dates', 'error');
+            return;
+        }
+        
+        currentFilters.period = 'custom';
+        currentFilters.start_date = startDate;
+        currentFilters.end_date = endDate;
+        
+        // Update UI
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.classList.remove('bg-gray-100', 'text-gray-900', 'shadow-sm');
+            btn.classList.add('text-gray-500');
+        });
+        
+        closeModal('custom-period-modal');
+        loadDashboardData();
+    }
 </script>
 {% endblock %}

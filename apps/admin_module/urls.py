@@ -1,54 +1,81 @@
 from django.urls import path
 from . import views
+from . import views_templates
 
 app_name = 'admin_module'
 
 urlpatterns = [
-    # Dashboard
-    path('', views.AdminDashboardView.as_view(), name='dashboard'),
+    # ============================================
+    # TEMPLATE-BASED VIEWS (HTML Pages)
+    # ============================================
     
-    # API Endpoints
+    # Dashboard
+    path('', views_templates.AdminDashboardView.as_view(), name='dashboard'),
+    
+    # Branches
+    path('branches/', views_templates.BranchesListView.as_view(), name='branches'),
+    path('branches/<int:branch_id>/', views_templates.BranchDetailView.as_view(), name='branch_detail'),
+    
+    # Ventes (Sales)
+    path('ventes/', views_templates.VentesListView.as_view(), name='ventes'),
+    
+    # Dépenses (Expenses)
+    path('depenses/', views_templates.DepensesListView.as_view(), name='depenses'),
+    
+    # Carburants (Fuel/Stock)
+    path('carburants/', views_templates.CarburantsListView.as_view(), name='carburants'),
+    
+    # Abonnés (Subscribers)
+    path('abonnes/', views_templates.AbonnesListView.as_view(), name='abonnes'),
+    path('abonnes/<int:abonne_id>/', views_templates.AbonneDetailView.as_view(), name='abonne_detail'),
+    
+    # Utilisateurs (Users)
+    path('utilisateurs/', views_templates.UtilisateursListView.as_view(), name='utilisateurs'),
+    
+    # Documents
+    path('documents/', views_templates.DocumentsListView.as_view(), name='documents'),
+    
+    # Forex
+    path('forex/', views_templates.ForexView.as_view(), name='forex'),
+    
+    # Rapports (Reports)
+    path('rapports/', views_templates.RapportsView.as_view(), name='rapports'),
+    
+    # Notifications
+    path('notifications/', views_templates.NotificationsView.as_view(), name='notifications_page'),
+    
+    # Salaires (Payroll)
+    path('salaires/', views_templates.SalairesView.as_view(), name='salaires'),
+    
+    # Paramètres (Settings)
+    path('parametres/', views_templates.ParametresView.as_view(), name='parametres'),
+    
+    # ============================================
+    # API ENDPOINTS (JSON responses)
+    # ============================================
+    
+    # Dashboard API
     path('api/stats/', views.DashboardStatsAPIView.as_view(), name='dashboard_stats'),
     
-    # Users Management
-    path('api/users/', views.UsersListView.as_view(), name='users_list'),
-    path('api/users/create/', views.CreateUserView.as_view(), name='create_user'),
-    path('api/users/<int:user_id>/update/', views.UpdateUserView.as_view(), name='update_user'),
-    path('api/users/<int:user_id>/deactivate/', views.DeactivateUserView.as_view(), name='deactivate_user'),
+    # Forex & Exchange Rate Management
+    path('api/forex/analysis/', views.ForexAnalysisView.as_view(), name='forex_analysis'),
+    path('api/forex/update-rate/', views.UpdateExchangeRateView.as_view(), name='update_exchange_rate'),
+    path('api/forex/history/', views.ExchangeRateHistoryView.as_view(), name='exchange_rate_history'),
     
-    # Branches Management  
-    path('api/branches/', views.BranchesListView.as_view(), name='branches_list'),
-    path('api/branches/create/', views.CreateBrancheView.as_view(), name='create_branche'),
-    path('api/branches/<int:branche_id>/update/', views.UpdateBrancheView.as_view(), name='update_branche'),
-    path('api/branches/<int:branche_id>/performance/', views.BranchePerformanceView.as_view(), name='branche_performance'),
+    # Sales Management
+    path('api/ventes/manquants/', views.MissingsSalesView.as_view(), name='missing_sales'),
     
-    # Exchange Rate Management
-    path('api/taux/update/', views.UpdateExchangeRateView.as_view(), name='update_exchange_rate'),
-    path('api/taux/history/', views.TauxChangeHistoryView.as_view(), name='taux_history'),
-    
-    # Fuel Types Management
-    path('api/carburants/', views.TypeCarburantListView.as_view(), name='carburants_list'),
-    path('api/carburants/create/', views.CreateTypeCarburantView.as_view(), name='create_carburant'),
-    path('api/carburants/<int:carburant_id>/update/', views.UpdateTypeCarburantView.as_view(), name='update_carburant'),
-    
-    # Expense Categories Management
-    path('api/categories-depense/', views.CategorieDepenseListView.as_view(), name='categories_depense_list'),
-    path('api/categories-depense/create/', views.CreateCategorieDepenseView.as_view(), name='create_categorie_depense'),
-    
-    # Sales Management (Admin view)
-    path('api/sales/', views.AdminSalesListView.as_view(), name='admin_sales_list'),
-    path('api/sales/missing/', views.MissingSalesReportView.as_view(), name='missing_sales_report'),
-    
-    # Stock Management (Global view)
-    path('api/stock/global/', views.GlobalStockView.as_view(), name='global_stock'),
+    # Stock Management
+    path('api/stock/', views.GlobalStockView.as_view(), name='global_stock'),
     path('api/stock/alerts/', views.StockAlertsView.as_view(), name='stock_alerts'),
     
-    # Abonnés Management (Admin)
+    # Abonnés API
+    path('api/abonnes/', views.AbonnesListView.as_view(), name='api_abonnes_list'),
     path('api/abonnes/create/', views.CreateAbonneView.as_view(), name='create_abonne'),
     path('api/abonnes/<int:abonne_id>/update/', views.UpdateAbonneView.as_view(), name='update_abonne'),
     path('api/abonnes/<int:abonne_id>/global-history/', views.AbonneGlobalHistoryView.as_view(), name='abonne_global_history'),
     
-    # Document Management (Admin)
+    # Document API
     path('api/documents/categories/create/', views.CreateDocumentCategoryView.as_view(), name='create_document_category'),
     path('api/documents/<int:document_id>/visibility/', views.UpdateDocumentVisibilityView.as_view(), name='update_document_visibility'),
     
@@ -56,8 +83,12 @@ urlpatterns = [
     path('api/settings/', views.SystemSettingsView.as_view(), name='system_settings'),
     path('api/settings/update/', views.UpdateSystemSettingsView.as_view(), name='update_settings'),
     
-    # Advanced Reports
+    # Reports API
     path('api/reports/financial/', views.FinancialReportView.as_view(), name='financial_report'),
     path('api/reports/performance/', views.PerformanceReportView.as_view(), name='performance_report'),
     path('api/reports/audit/', views.AuditReportView.as_view(), name='audit_report'),
+    
+    # Export
+    path('api/export/pdf/<str:report_type>/', views.ExportPDFReportView.as_view(), name='export_pdf'),
+    path('api/export/excel/<str:report_type>/', views.ExportExcelReportView.as_view(), name='export_excel'),
 ]
