@@ -128,7 +128,7 @@
                                 <p class="text-xs text-gray-500">{{ user.get_role_display }}</p>
                             </div>
                             <a href="{% url 'shared:user_profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mon Profil</a>
-                            <a href="#" onclick="toggleModal('settings-modal')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Paramètres</a>
+                            <a href="{% url 'admin_module:parametres' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Paramètres</a>
                             <div class="border-t border-gray-100"></div>
                             <a href="{% url 'authentication:logout' %}" class="block px-4 py-2 text-sm text-petrox-red hover:bg-gray-100 font-medium">Déconnexion</a>
                         </div>
@@ -214,24 +214,35 @@
         const userMenuBtn = document.getElementById('user-menu-btn');
         const userMenuDropdown = document.getElementById('user-menu-dropdown');
         
-        userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userMenuDropdown.classList.toggle('hidden');
-        });
+        if (userMenuBtn && userMenuDropdown) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenuDropdown.classList.toggle('hidden');
+            });
 
-        document.addEventListener('click', (e) => {
-            if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                userMenuDropdown.classList.add('hidden');
-            }
-        });
+            document.addEventListener('click', (e) => {
+                if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                    userMenuDropdown.classList.add('hidden');
+                }
+            });
+            
+            // Close dropdown when clicking links
+            userMenuDropdown.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    userMenuDropdown.classList.add('hidden');
+                });
+            });
+        }
 
         // Toggle Mobile Menu
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
 
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
 
         // Modal Functions
         function toggleModal(modalId) {

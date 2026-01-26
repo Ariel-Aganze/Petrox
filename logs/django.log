@@ -2602,3 +2602,452 @@ INFO 2026-01-24 01:54:34,334 basehttp 3324 3428 "GET /auth/login/ HTTP/1.1" 200 
 INFO 2026-01-24 01:55:11,914 basehttp 3324 3428 "GET /auth/login/ HTTP/1.1" 200 7219
 INFO 2026-01-24 01:55:18,962 basehttp 3324 18996 "GET /auth/login/ HTTP/1.1" 200 7219
 INFO 2026-01-24 12:03:55,507 basehttp 3324 19956 "GET /auth/login/ HTTP/1.1" 200 7219
+INFO 2026-01-26 13:24:48,985 autoreload 16952 16888 Watching for file changes with StatReloader
+INFO 2026-01-26 13:24:54,913 basehttp 16952 10732 "GET / HTTP/1.1" 302 0
+INFO 2026-01-26 13:24:55,147 basehttp 16952 10732 "GET /auth/login/ HTTP/1.1" 200 7219
+WARNING 2026-01-26 13:24:56,443 log 16952 10732 Not Found: /favicon.ico
+WARNING 2026-01-26 13:24:56,444 basehttp 16952 10732 "GET /favicon.ico HTTP/1.1" 404 3027
+INFO 2026-01-26 13:25:03,098 basehttp 16952 10732 "POST /auth/login/ HTTP/1.1" 200 7517
+INFO 2026-01-26 13:25:11,185 basehttp 16952 10732 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2026-01-26 13:25:11,618 basehttp 16952 10732 "GET /dashboard/ HTTP/1.1" 200 52092
+INFO 2026-01-26 13:25:12,002 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1033
+INFO 2026-01-26 13:25:16,641 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=today&devise=USD HTTP/1.1" 200 763
+INFO 2026-01-26 13:25:22,309 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=week&devise=USD HTTP/1.1" 200 690
+INFO 2026-01-26 13:25:32,097 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=week&devise=FC HTTP/1.1" 200 495
+INFO 2026-01-26 13:25:33,987 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=week&devise=USD HTTP/1.1" 200 690
+INFO 2026-01-26 13:25:35,119 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=week&devise=USD HTTP/1.1" 200 690
+INFO 2026-01-26 13:25:37,097 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=week&devise=FC HTTP/1.1" 200 495
+INFO 2026-01-26 13:25:37,743 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=week&devise=FC HTTP/1.1" 200 495
+INFO 2026-01-26 13:25:39,082 basehttp 16952 10732 "GET /dashboard/api/stats/?branche_id=all&period=week&devise=USD HTTP/1.1" 200 690
+INFO 2026-01-26 13:25:40,514 basehttp 16952 10732 "GET /dashboard/branches/ HTTP/1.1" 200 59613
+INFO 2026-01-26 13:25:40,951 basehttp 16952 10732 "GET /dashboard/api/users/?role=manager&assigned=false HTTP/1.1" 200 42
+INFO 2026-01-26 13:25:41,656 basehttp 16952 10732 "GET /dashboard/ventes/ HTTP/1.1" 200 43974
+INFO 2026-01-26 13:25:42,528 basehttp 16952 10732 "GET /dashboard/depenses/ HTTP/1.1" 200 63301
+INFO 2026-01-26 13:26:08,872 basehttp 16952 10732 "GET /dashboard/documents/ HTTP/1.1" 200 67626
+INFO 2026-01-26 13:26:13,796 basehttp 16952 10732 "GET /dashboard/api/documents/3/ HTTP/1.1" 200 240
+INFO 2026-01-26 13:26:23,700 basehttp 16952 10732 "GET /dashboard/api/documents/2/download/ HTTP/1.1" 200 174747
+INFO 2026-01-26 13:26:45,229 basehttp 16952 10732 "DELETE /dashboard/api/documents/2/delete/ HTTP/1.1" 200 71
+INFO 2026-01-26 13:26:46,438 basehttp 16952 10732 "GET /dashboard/documents/ HTTP/1.1" 200 63044
+INFO 2026-01-26 13:27:10,959 basehttp 16952 10732 "POST /dashboard/api/documents/upload/ HTTP/1.1" 200 120
+INFO 2026-01-26 13:27:12,053 basehttp 16952 10732 "GET /dashboard/documents/ HTTP/1.1" 200 67655
+INFO 2026-01-26 13:27:42,864 basehttp 16952 10732 "GET /dashboard/forex/ HTTP/1.1" 200 40919
+INFO 2026-01-26 13:27:45,352 basehttp 16952 10732 "GET /dashboard/rapports/ HTTP/1.1" 200 46669
+INFO 2026-01-26 13:27:45,711 basehttp 16952 10732 "GET /dashboard/api/stats/?period=month&currency=USD HTTP/1.1" 200 1033
+WARNING 2026-01-26 13:29:01,481 log 16952 10732 Not Found: /dashboard/api/export/pdf/financial/
+WARNING 2026-01-26 13:29:01,482 basehttp 16952 10732 "GET /dashboard/api/export/pdf/financial/?report_type=financial&branche_id=1&date_debut=2025-12-31&date_fin=2026-01-26&devise=USD&format=pdf&include_charts=on HTTP/1.1" 404 23730
+INFO 2026-01-26 13:33:50,773 basehttp 16952 16712 "GET /dashboard/rapports/ HTTP/1.1" 200 41653
+INFO 2026-01-26 13:38:42,274 autoreload 17276 12344 Watching for file changes with StatReloader
+INFO 2026-01-26 13:38:47,314 basehttp 17276 12500 "GET /dashboard/rapports/ HTTP/1.1" 200 41653
+INFO 2026-01-26 13:39:01,773 basehttp 17276 14496 "GET /dashboard/api/reports/financial/?period=month&branch_id=all&currency=both HTTP/1.1" 200 286
+INFO 2026-01-26 13:39:12,755 basehttp 17276 19300 "GET /dashboard/api/export/pdf/financial/?period=month&branch_id=all HTTP/1.1" 200 1948
+WARNING 2026-01-26 13:39:59,284 log 17276 19300 Not Found: /dashboard/api/reports/expenses/
+WARNING 2026-01-26 13:39:59,285 basehttp 17276 19300 "GET /dashboard/api/reports/expenses/?period=month&branch_id=all&currency=both HTTP/1.1" 404 24851
+INFO 2026-01-26 13:40:01,053 basehttp 17276 19300 "GET /dashboard/api/export/pdf/expenses/?period=month&branch_id=all HTTP/1.1" 200 1727
+WARNING 2026-01-26 13:41:05,579 log 17276 13220 Not Found: /dashboard/api/reports/expenses/
+WARNING 2026-01-26 13:41:05,579 basehttp 17276 13220 "GET /dashboard/api/reports/expenses/?period=month&branch_id=all&currency=both HTTP/1.1" 404 24851
+INFO 2026-01-26 13:41:50,314 basehttp 17276 13220 "GET /dashboard/api/reports/sales/?period=month&branch_id=all&currency=both HTTP/1.1" 200 224
+WARNING 2026-01-26 13:41:53,553 log 17276 13220 Not Found: /dashboard/api/reports/stock/
+WARNING 2026-01-26 13:41:53,553 basehttp 17276 13220 "GET /dashboard/api/reports/stock/?period=month&branch_id=all&currency=both HTTP/1.1" 404 24842
+INFO 2026-01-26 13:47:52,962 autoreload 17276 12344 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
+INFO 2026-01-26 13:47:53,858 autoreload 14628 9808 Watching for file changes with StatReloader
+INFO 2026-01-26 13:49:24,208 autoreload 14628 9808 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
+INFO 2026-01-26 13:49:25,049 autoreload 15844 292 Watching for file changes with StatReloader
+INFO 2026-01-26 13:49:38,801 autoreload 15844 292 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\urls.py changed, reloading.
+INFO 2026-01-26 13:49:39,598 autoreload 13708 3940 Watching for file changes with StatReloader
+INFO 2026-01-26 13:49:43,442 basehttp 13708 18208 "GET /dashboard/rapports/ HTTP/1.1" 200 41653
+INFO 2026-01-26 13:50:01,702 basehttp 13708 18208 "GET /dashboard/api/export/pdf/expenses/?period=month&branch_id=all HTTP/1.1" 200 1728
+INFO 2026-01-26 13:50:17,123 basehttp 13708 7288 "GET /dashboard/api/reports/expenses/?period=month&branch_id=all&currency=both HTTP/1.1" 200 390
+INFO 2026-01-26 13:50:31,677 basehttp 13708 7288 "GET /dashboard/api/export/pdf/expenses/?period=month&branch_id=all HTTP/1.1" 200 1728
+INFO 2026-01-26 13:50:50,275 basehttp 13708 9992 "GET /dashboard/api/export/excel/expenses/?period=month&branch_id=all HTTP/1.1" 200 4912
+INFO 2026-01-26 13:51:21,008 basehttp 13708 15920 "GET /dashboard/api/reports/expenses/?period=week&branch_id=all&currency=both HTTP/1.1" 200 390
+INFO 2026-01-26 13:51:35,253 basehttp 13708 19520 "GET /dashboard/api/export/pdf/expenses/?period=week&branch_id=all HTTP/1.1" 200 1729
+INFO 2026-01-26 13:51:50,201 basehttp 13708 21420 "GET /dashboard/api/reports/sales/?period=month&branch_id=all&currency=both HTTP/1.1" 200 224
+INFO 2026-01-26 13:51:57,328 basehttp 13708 21420 "GET /dashboard/api/reports/performance/?period=month&branch_id=all&currency=both HTTP/1.1" 200 259
+INFO 2026-01-26 13:52:44,558 basehttp 13708 21420 "GET /dashboard/forex/ HTTP/1.1" 200 40919
+INFO 2026-01-26 13:52:46,761 basehttp 13708 21420 "GET /dashboard/rapports/ HTTP/1.1" 200 41653
+INFO 2026-01-26 13:52:52,102 basehttp 13708 21420 "GET /dashboard/api/reports/forex/?period=month&branch_id=all&currency=both HTTP/1.1" 200 224
+INFO 2026-01-26 13:52:59,159 basehttp 13708 21420 "GET /dashboard/api/reports/sales/?period=month&branch_id=all&currency=both HTTP/1.1" 200 224
+INFO 2026-01-26 13:53:04,136 basehttp 13708 21420 "GET /dashboard/api/reports/stock/?period=month&branch_id=all&currency=both HTTP/1.1" 200 414
+WARNING 2026-01-26 13:53:21,950 log 13708 21420 Not Found: /shared/notifications/
+WARNING 2026-01-26 13:53:21,951 basehttp 13708 21420 "GET /shared/notifications/ HTTP/1.1" 404 3057
+INFO 2026-01-26 13:53:30,933 basehttp 13708 21420 "GET /api/shared/profile/ HTTP/1.1" 200 384
+INFO 2026-01-26 14:02:50,257 basehttp 13708 6024 "GET /dashboard/carburants/ HTTP/1.1" 200 80520
+ERROR 2026-01-26 14:02:56,228 log 13708 6024 Internal Server Error: /dashboard/salaires/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\engine.py", line 161, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 63, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base.html
+ERROR 2026-01-26 14:02:56,239 basehttp 13708 6024 "GET /dashboard/salaires/ HTTP/1.1" 500 140443
+INFO 2026-01-26 14:03:47,061 autoreload 13964 14028 Watching for file changes with StatReloader
+INFO 2026-01-26 14:03:53,976 basehttp 13964 3152 "GET /dashboard/salaires/ HTTP/1.1" 200 29575
+INFO 2026-01-26 14:04:05,419 basehttp 13964 13144 "GET /dashboard/salaires/?branche_id=1&period=month&search= HTTP/1.1" 200 29581
+INFO 2026-01-26 14:04:37,868 basehttp 13964 10296 "GET /dashboard/salaires/?branche_id=1&period=month&search= HTTP/1.1" 200 39119
+INFO 2026-01-26 14:04:47,864 basehttp 13964 8800 "GET /dashboard/salaires/?employee_type=system&period=month HTTP/1.1" 200 39129
+INFO 2026-01-26 14:05:43,124 autoreload 13964 14028 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
+INFO 2026-01-26 14:05:44,123 autoreload 14068 14344 Watching for file changes with StatReloader
+INFO 2026-01-26 14:06:09,403 autoreload 14068 14344 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
+INFO 2026-01-26 14:06:10,366 autoreload 9752 16232 Watching for file changes with StatReloader
+INFO 2026-01-26 14:08:19,551 autoreload 13068 9192 Watching for file changes with StatReloader
+INFO 2026-01-26 14:08:26,732 basehttp 13068 7476 "GET /dashboard/salaires/?employee_type=system&period=month HTTP/1.1" 200 39129
+INFO 2026-01-26 14:09:03,600 basehttp 13068 14468 "GET /dashboard/salaires/?employee_type=system&period=all HTTP/1.1" 200 39129
+INFO 2026-01-26 14:09:48,865 basehttp 13068 14468 "GET /dashboard/documents/ HTTP/1.1" 200 67655
+INFO 2026-01-26 14:12:07,503 basehttp 13068 14468 "GET /dashboard/ HTTP/1.1" 200 52210
+INFO 2026-01-26 14:12:08,023 basehttp 13068 14468 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1033
+INFO 2026-01-26 14:12:14,026 basehttp 13068 14468 "GET /dashboard/branches/ HTTP/1.1" 200 59731
+INFO 2026-01-26 14:12:14,260 basehttp 13068 14468 "GET /dashboard/api/users/?role=manager&assigned=false HTTP/1.1" 200 42
+INFO 2026-01-26 14:12:16,109 basehttp 13068 14468 "GET /dashboard/salaires/ HTTP/1.1" 200 39121
+INFO 2026-01-26 14:13:18,506 basehttp 13068 14468 "GET /dashboard/ventes/ HTTP/1.1" 200 44120
+INFO 2026-01-26 14:13:38,349 basehttp 13068 14468 "GET /dashboard/abonnes/ HTTP/1.1" 200 73883
+INFO 2026-01-26 14:15:02,838 basehttp 13068 14468 "GET /dashboard/abonnes/ HTTP/1.1" 200 73883
+INFO 2026-01-26 14:15:05,004 basehttp 13068 14468 "GET /dashboard/salaires/ HTTP/1.1" 200 39121
+INFO 2026-01-26 14:15:07,363 basehttp 13068 14468 "GET /dashboard/branches/ HTTP/1.1" 200 59759
+INFO 2026-01-26 14:15:07,563 basehttp 13068 14468 "GET /dashboard/api/users/?role=manager&assigned=false HTTP/1.1" 200 42
+INFO 2026-01-26 14:15:08,182 basehttp 13068 14468 "GET /dashboard/ventes/ HTTP/1.1" 200 44120
+INFO 2026-01-26 14:15:09,508 basehttp 13068 14468 "GET /dashboard/depenses/ HTTP/1.1" 200 63447
+INFO 2026-01-26 14:16:24,408 basehttp 13068 14468 "GET /dashboard/api/depenses/1/ HTTP/1.1" 200 333
+INFO 2026-01-26 14:24:22,873 autoreload 13068 9192 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
+INFO 2026-01-26 14:24:24,166 autoreload 12800 15732 Watching for file changes with StatReloader
+INFO 2026-01-26 14:24:54,596 autoreload 12800 15732 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\urls.py changed, reloading.
+INFO 2026-01-26 14:24:55,453 autoreload 11708 5488 Watching for file changes with StatReloader
+INFO 2026-01-26 14:24:59,354 basehttp 11708 13960 "GET /dashboard/depenses/ HTTP/1.1" 200 63447
+WARNING 2026-01-26 14:25:01,579 log 11708 10096 Not Found: /shared/notifications/
+WARNING 2026-01-26 14:25:01,580 basehttp 11708 10096 "GET /shared/notifications/ HTTP/1.1" 404 3057
+INFO 2026-01-26 14:25:25,743 basehttp 11708 15112 "GET /dashboard/carburants/ HTTP/1.1" 200 80666
+ERROR 2026-01-26 14:25:45,154 log 11708 15112 Internal Server Error: /dashboard/notifications/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 157, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 63, in render
+    result = block.nodelist.render(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\defaulttags.py", line 471, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\resolvers.py", line 828, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'notifications' not found. 'notifications' is not a valid view function or pattern name.
+ERROR 2026-01-26 14:25:45,166 basehttp 11708 15112 "GET /dashboard/notifications/ HTTP/1.1" 500 177071
+ERROR 2026-01-26 14:26:28,881 log 11708 15112 Internal Server Error: /dashboard/notifications/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 157, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 63, in render
+    result = block.nodelist.render(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\defaulttags.py", line 471, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\resolvers.py", line 828, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'notifications' not found. 'notifications' is not a valid view function or pattern name.
+ERROR 2026-01-26 14:26:28,890 basehttp 11708 15112 "GET /dashboard/notifications/ HTTP/1.1" 500 177238
+ERROR 2026-01-26 14:26:38,311 log 11708 15112 Internal Server Error: /dashboard/notifications/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 157, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 63, in render
+    result = block.nodelist.render(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\defaulttags.py", line 471, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\resolvers.py", line 828, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'notifications' not found. 'notifications' is not a valid view function or pattern name.
+ERROR 2026-01-26 14:26:38,322 basehttp 11708 15112 "GET /dashboard/notifications/ HTTP/1.1" 500 175220
+INFO 2026-01-26 14:28:06,827 autoreload 11708 5488 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\urls.py changed, reloading.
+INFO 2026-01-26 14:28:07,626 autoreload 13372 1540 Watching for file changes with StatReloader
+ERROR 2026-01-26 14:28:09,873 log 13372 1580 Internal Server Error: /dashboard/notifications/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 157, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 63, in render
+    result = block.nodelist.render(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\defaulttags.py", line 471, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\urls\resolvers.py", line 828, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'notifications' not found. 'notifications' is not a valid view function or pattern name.
+ERROR 2026-01-26 14:28:09,886 basehttp 13372 1580 "GET /dashboard/notifications/ HTTP/1.1" 500 177208
+INFO 2026-01-26 14:28:32,247 autoreload 13372 1540 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\urls.py changed, reloading.
+INFO 2026-01-26 14:28:33,198 autoreload 6296 20408 Watching for file changes with StatReloader
+INFO 2026-01-26 14:28:35,151 basehttp 6296 6828 "GET /dashboard/notifications/ HTTP/1.1" 200 33811
+INFO 2026-01-26 14:28:44,913 basehttp 6296 6828 "GET /dashboard/notifications/ HTTP/1.1" 200 33811
+WARNING 2026-01-26 14:28:50,539 log 6296 6828 Not Found: /shared/notifications/
+WARNING 2026-01-26 14:28:50,539 basehttp 6296 6828 "GET /shared/notifications/ HTTP/1.1" 404 3057
+WARNING 2026-01-26 14:29:24,849 log 6296 6828 Not Found: /dashboard/notifications/count/
+WARNING 2026-01-26 14:29:24,850 basehttp 6296 6828 "GET /dashboard/notifications/count/ HTTP/1.1" 404 27253
+INFO 2026-01-26 14:33:52,713 basehttp 6296 1408 "GET /dashboard/branches/ HTTP/1.1" 200 59759
+INFO 2026-01-26 14:33:53,057 basehttp 6296 1408 "GET /dashboard/api/users/?role=manager&assigned=false HTTP/1.1" 200 42
+INFO 2026-01-26 14:33:55,062 basehttp 6296 1408 "GET /dashboard/ventes/ HTTP/1.1" 200 44120
+INFO 2026-01-26 14:33:57,363 basehttp 6296 1408 "GET /dashboard/depenses/ HTTP/1.1" 200 63447
+INFO 2026-01-26 14:33:59,861 basehttp 6296 1408 "GET /dashboard/carburants/ HTTP/1.1" 200 80666
+INFO 2026-01-26 14:34:04,174 basehttp 6296 1408 "GET /dashboard/abonnes/ HTTP/1.1" 200 73883
+INFO 2026-01-26 14:34:07,717 basehttp 6296 1408 "GET /dashboard/utilisateurs/ HTTP/1.1" 200 113088
+INFO 2026-01-26 14:34:12,380 basehttp 6296 1408 "GET /dashboard/salaires/ HTTP/1.1" 200 39121
+INFO 2026-01-26 14:34:18,059 basehttp 6296 1408 "GET /dashboard/documents/ HTTP/1.1" 200 67801
+INFO 2026-01-26 14:34:25,511 basehttp 6296 1408 "GET /dashboard/forex/ HTTP/1.1" 200 41065
+INFO 2026-01-26 14:34:42,033 basehttp 6296 1408 "POST /dashboard/api/forex/update-rate/ HTTP/1.1" 200 172
+INFO 2026-01-26 14:34:43,275 basehttp 6296 1408 "GET /dashboard/forex/ HTTP/1.1" 200 41556
+INFO 2026-01-26 14:39:47,411 autoreload 6296 20408 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\shared\views.py changed, reloading.
+INFO 2026-01-26 14:39:48,170 autoreload 14188 5184 Watching for file changes with StatReloader
+INFO 2026-01-26 14:41:05,832 autoreload 14188 5184 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\shared\urls.py changed, reloading.
+INFO 2026-01-26 14:41:06,604 autoreload 16448 8648 Watching for file changes with StatReloader
+INFO 2026-01-26 14:42:15,270 autoreload 16448 8648 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\petrox_project\urls.py changed, reloading.
+INFO 2026-01-26 14:42:16,076 autoreload 18872 9932 Watching for file changes with StatReloader
+INFO 2026-01-26 14:42:21,774 basehttp 18872 12576 "GET /dashboard/forex/ HTTP/1.1" 200 41552
+INFO 2026-01-26 14:43:18,167 basehttp 18872 1256 "GET /shared/profile/ HTTP/1.1" 200 38290
+INFO 2026-01-26 14:44:36,123 basehttp 18872 2400 "POST /shared/api/profile/update/ HTTP/1.1" 200 168
+INFO 2026-01-26 14:44:37,701 basehttp 18872 2400 "GET /shared/profile/ HTTP/1.1" 200 38293
+INFO 2026-01-26 14:44:44,811 basehttp 18872 2400 "POST /shared/api/profile/photo/ HTTP/1.1" 200 136
+INFO 2026-01-26 14:44:46,514 basehttp 18872 2400 "GET /shared/profile/ HTTP/1.1" 200 38262
+INFO 2026-01-26 14:44:46,565 basehttp 18872 2400 "GET /media/users/photos/abraham-removebg-preview.png HTTP/1.1" 200 214900
+INFO 2026-01-26 14:46:12,417 basehttp 18872 8248 "POST /shared/api/password/change/ HTTP/1.1" 200 74
+INFO 2026-01-26 14:46:18,857 basehttp 18872 8248 "GET /shared/notifications/ HTTP/1.1" 200 40
+INFO 2026-01-26 14:46:24,452 basehttp 18872 8248 "GET /dashboard/forex/ HTTP/1.1" 200 41534
+INFO 2026-01-26 14:46:38,786 basehttp 18872 8248 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2026-01-26 14:46:38,795 basehttp 18872 8248 "GET /auth/login/ HTTP/1.1" 200 7766
+INFO 2026-01-26 14:46:51,139 basehttp 18872 8248 "POST /auth/login/ HTTP/1.1" 200 7517
+INFO 2026-01-26 14:47:08,641 basehttp 18872 8248 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2026-01-26 14:47:08,757 basehttp 18872 8248 "GET /dashboard/ HTTP/1.1" 200 52220
+INFO 2026-01-26 14:47:08,789 basehttp 18872 8248 "GET /media/users/photos/abraham-removebg-preview.png HTTP/1.1" 304 0
+INFO 2026-01-26 14:47:09,037 basehttp 18872 8248 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1033
+INFO 2026-01-26 14:55:56,803 autoreload 18872 9932 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views_templates.py changed, reloading.
+INFO 2026-01-26 14:55:58,157 autoreload 17432 6816 Watching for file changes with StatReloader
+INFO 2026-01-26 14:56:31,672 autoreload 17432 6816 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\urls.py changed, reloading.
+INFO 2026-01-26 14:56:32,438 autoreload 19436 17104 Watching for file changes with StatReloader
+INFO 2026-01-26 14:58:21,130 autoreload 19436 17104 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\admin_module\views.py changed, reloading.
+INFO 2026-01-26 14:58:21,938 autoreload 9504 10076 Watching for file changes with StatReloader
+INFO 2026-01-26 14:58:39,917 basehttp 9504 2908 "GET /dashboard/ HTTP/1.1" 200 52220
+INFO 2026-01-26 14:58:39,976 basehttp 9504 2908 "GET /media/users/photos/abraham-removebg-preview.png HTTP/1.1" 304 0
+INFO 2026-01-26 14:58:40,443 basehttp 9504 2908 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1033
+INFO 2026-01-26 15:05:46,763 basehttp 9504 13036 "GET /dashboard/ HTTP/1.1" 200 52644
+INFO 2026-01-26 15:05:46,814 basehttp 9504 13036 "GET /media/users/photos/abraham-removebg-preview.png HTTP/1.1" 304 0
+INFO 2026-01-26 15:05:47,260 basehttp 9504 13036 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1033
+INFO 2026-01-26 15:05:53,056 basehttp 9504 13036 "GET /dashboard/parametres/ HTTP/1.1" 200 45794
+INFO 2026-01-26 15:06:28,949 basehttp 9504 13036 "GET /dashboard/utilisateurs/ HTTP/1.1" 200 113394
+INFO 2026-01-26 15:06:32,459 basehttp 9504 13036 "GET /dashboard/parametres/ HTTP/1.1" 200 45794
+INFO 2026-01-26 15:07:10,365 basehttp 9504 13036 "POST /dashboard/api/settings/payment-methods/create/ HTTP/1.1" 200 147
+INFO 2026-01-26 15:07:11,985 basehttp 9504 13036 "GET /dashboard/parametres/ HTTP/1.1" 200 46199
+INFO 2026-01-26 15:07:59,866 basehttp 9504 13036 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2026-01-26 15:07:59,875 basehttp 9504 13036 "GET /auth/login/ HTTP/1.1" 200 7765
+INFO 2026-01-26 15:08:02,332 basehttp 9504 13036 "GET /auth/login/ HTTP/1.1" 200 7219

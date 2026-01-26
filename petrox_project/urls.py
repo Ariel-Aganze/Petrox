@@ -19,12 +19,16 @@ def home_redirect(request):
 urlpatterns = [
     # Admin interface
     path('admin/', admin.site.urls),
+
+    # Shared app URLs
+    path('shared/', include('apps.shared.urls')),
     
     # Root redirect
     path('', home_redirect, name='home'),
     
     # Authentication
     path('auth/', include('apps.authentication.urls')),
+    
     
     # Dashboard modules
     path('dashboard/', include('apps.admin_module.urls')),

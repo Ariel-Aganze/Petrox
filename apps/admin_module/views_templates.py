@@ -11,6 +11,8 @@ from apps.core.models import (
     Vente, Depense, Stock, Pompiste, Abonne, ConsommationAbonne,
     Document, DocumentCategory, Notification, PaiementSalaire
 )
+from apps.core.models import MoyenPaiement, CategorieDepense, TypeCarburant, TauxChange, Branche, User
+
 
 class AdminRequiredMixin(UserPassesTestMixin):
     """Mixin to restrict access to admin users only"""
@@ -1098,3 +1100,44 @@ class DocumentsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
             return f"{size_bytes / (1024 * 1024):.1f} MB"
         else:
             return f"{size_bytes / (1024 * 1024 * 1024):.1f} GB"
+        
+
+class ParametresView(AdminRequiredMixin, AdminContextMixin, TemplateView):
+    """System settings page"""
+    template_name = 'admin/parametres.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Fuel types
+        context['types_carburant'] = TypeCarburant.objects.all().order_by('nom')
+        context['fuel_types_count'] = context['types_carburant'].count()
+        
+        # Payment methods
+        context['moyens_paiement'] = MoyenPaiement.objects.all().order_by('nom')
+        context['payment_methods_count'] = context['moyens_paiement'].count()
+        
+        # Expense categories
+        context['categories_depense'] = CategorieDepense.objects.all().order_by('nom')
+        context['expense_categories_count'] = context['categories_depense'].count()
+        
+        # Current exchange rate
+        current_rate_obj = TauxChange.objects.filter(is_active=True).first()
+        if current_rate_obj:
+            context['current_rate'] = float(current_rate_obj.taux_usd_fc)
+            context['rate_updated_at'] = current_rate_obj.date_effective
+        else:
+            context['current_rate'] = 2800.00
+            context['rate_updated_at'] = timezone.now()
+        
+        # Branches stats
+        context['total_branches_count'] = Branche.objects.count()
+        context['active_branches_count'] = Branche.objects.filter(is_active=True).count()
+        
+        # Users stats
+        context['users_count'] = User.objects.count()
+        context['admin_count'] = User.objects.filter(role='admin').count()
+        context['manager_count'] = User.objects.filter(role='manager').count()
+        context['caissier_count'] = User.objects.filter(role='caissier').count()
+        
+        return context
