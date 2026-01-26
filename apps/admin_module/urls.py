@@ -193,28 +193,40 @@ urlpatterns = [
    path('api/documents/list/', views.DocumentsListAPIView.as_view(), name='documents_list_api'),
     
     # # ---------- Notifications APIs ----------
-    # path('api/notifications/', views.NotificationsListAPIView.as_view(), name='notifications_api'),
-    # path('api/notifications/<int:notification_id>/mark-read/', views.MarkNotificationReadView.as_view(), name='mark_notification_read'),
-    # path('api/notifications/mark-all-read/', views.MarkAllNotificationsReadView.as_view(), name='mark_all_notifications_read'),
-    # path('api/notifications/<int:notification_id>/delete/', views.DeleteNotificationView.as_view(), name='delete_notification'),
+    # Notifications URLs
+   path('notifications/', views.NotificationsView.as_view(), name='notifications'),
+   path('api/notifications/<str:notification_id>/read/', views.MarkNotificationReadView.as_view(), name='mark_notification_read'),
+   path('api/notifications/mark-all-read/', views.MarkAllNotificationsReadView.as_view(), name='mark_all_read'),
+   path('api/notifications/', views.NotificationsAPIView.as_view(), name='notifications_api'),
+   path('api/notifications/count/', views.NotificationCountAPIView.as_view(), name='notification_count'),
     
     # # ---------- Payroll (Salaires) APIs ----------
-    # path('api/salaires/', views.SalairesListAPIView.as_view(), name='salaires_api'),
-    # path('api/salaires/stats/', views.PayrollStatsView.as_view(), name='payroll_stats'),
-    # path('api/salaires/<int:payment_id>/', views.PaymentDetailAPIView.as_view(), name='payment_detail_api'),
+    # Salaires URLs
+   path('salaires/', views_templates.SalairesView.as_view(), name='salaires'),
+   path('api/payments/<int:payment_id>/', views.PaymentDetailAPIView.as_view(), name='payment_detail'),
+   path('api/payments/history/', views.SalaryHistoryAPIView.as_view(), name='salary_history'),
+   path('api/payments/report/', views.EmployeeSalaryReportAPIView.as_view(), name='employee_salary_report'),
     
     # # ---------- Reports APIs ----------
-    # path('api/reports/financial/', views.FinancialReportView.as_view(), name='financial_report'),
-    # path('api/reports/sales/', views.SalesReportView.as_view(), name='sales_report'),
-    # path('api/reports/stock/', views.StockReportView.as_view(), name='stock_report'),
-    # path('api/reports/performance/', views.PerformanceReportView.as_view(), name='performance_report'),
-    # path('api/reports/export/', views.ExportReportView.as_view(), name='export_report'),
+    # Reports URLs
+   path('rapports/', views_templates.RapportsView.as_view(), name='rapports'),
+
+   # Report APIs
+   path('api/reports/financial/', views.FinancialReportAPIView.as_view(), name='financial_report'),
+   path('api/reports/sales/', views.SalesReportAPIView.as_view(), name='sales_report'),
+   path('api/reports/performance/', views.PerformanceReportAPIView.as_view(), name='performance_report'),
+   path('api/reports/forex/', views.ForexImpactReportAPIView.as_view(), name='forex_report'),
+   path('api/reports/stock/', views.StockReportAPIView.as_view(), name='stock_report'),
+   path('api/reports/expenses/', views.ExpensesReportAPIView.as_view(), name='expenses_report'),
+
+   # Export URLs
+   path('api/export/pdf/<str:report_type>/', views.ExportPDFReportView.as_view(), name='export_pdf'),
+   path('api/export/excel/<str:report_type>/', views.ExportExcelReportView.as_view(), name='export_excel'),
     
     # # ---------- Settings APIs ----------
-    # path('api/settings/', views.SystemSettingsView.as_view(), name='system_settings'),
-    # path('api/settings/update/', views.UpdateSystemSettingsView.as_view(), name='update_system_settings'),
-    # path('api/payment-methods/', views.PaymentMethodsAPIView.as_view(), name='payment_methods_api'),
-    # path('api/payment-methods/create/', views.CreatePaymentMethodView.as_view(), name='create_payment_method'),
+   path('parametres/', views_templates.ParametresView.as_view(), name='parametres'),
+   path('api/settings/payment-methods/create/', views.CreatePaymentMethodView.as_view(), name='create_payment_method'),
+   path('api/settings/expense-categories/<int:category_id>/toggle/', views.ToggleExpenseCategoryStatusView.as_view(), name='toggle_expense_category'),
     
     # # ---------- Analytics & Stats APIs ----------
     # path('api/analytics/overview/', views.AnalyticsOverviewView.as_view(), name='analytics_overview'),

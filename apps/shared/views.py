@@ -39,6 +39,8 @@ from decimal import Decimal
 import json
 import csv
 import os
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class CurrentExchangeRateView(LoginRequiredMixin, View):
     def get(self, request):
@@ -1504,3 +1506,62 @@ class ExportReportView(LoginRequiredMixin, View):
             })
         
         return response
+    
+class UserProfilePageView(LoginRequiredMixin, TemplateView):
+    """User profile page"""
+    template_name = 'shared/profil.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # User is already in context from base template
+        return context
+
+
+class UploadProfilePhotoView(LoginRequiredMixin, View):
+    """Upload profile photo"""
+    
+    def post(self, request):
+        try:
+            photo = request.FILES.get('photo')
+            
+            if not photo:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune photo fournie'
+                }, status=400)
+            
+            # Validate file type
+            if not photo.content_type.startswith('image/'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Le fichier doit être une image'
+                }, status=400)
+            
+            # Validate file size (5MB max)
+            if photo.size > 5 * 1024 * 1024:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'La taille de l\'image ne doit pas dépasser 5MB'
+                }, status=400)
+            
+            # Delete old photo if exists
+            if request.user.photo:
+                old_photo_path = request.user.photo.path
+                if default_storage.exists(old_photo_path):
+                    default_storage.delete(old_photo_path)
+            
+            # Save new photo
+            request.user.photo = photo
+            request.user.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Photo mise à jour avec succès',
+                'photo_url': request.user.photo.url
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur: {str(e)}'
+            }, status=500)

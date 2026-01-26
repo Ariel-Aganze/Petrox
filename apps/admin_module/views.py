@@ -47,6 +47,22 @@ from django.core.files.storage import default_storage
 from django.http import HttpResponse, Http404
 from apps.core.models import Document, DocumentCategory
 
+import io
+from datetime import timedelta
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from django.db.models import Case, When, DecimalField
+
+from apps.core.models import PaiementSalaire, Pompiste
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 class AdminRequiredMixin(UserPassesTestMixin):
     """Mixin to restrict access to admin users only"""
     def test_func(self):
@@ -2338,20 +2354,16 @@ class DocumentsListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
 
     
 class RapportsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """Reports generation and export"""
+    """Reports page"""
     template_name = 'admin/rapports.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Available report types
-        context['report_types'] = [
-            {'id': 'financial', 'name': 'Rapport Financier', 'description': 'Ventes, dépenses et profit'},
-            {'id': 'sales', 'name': 'Rapport des Ventes', 'description': 'Détail des ventes par période'},
-            {'id': 'stock', 'name': 'Rapport de Stock', 'description': 'État du stock par branche'},
-            {'id': 'forex', 'name': 'Rapport Forex', 'description': 'Analyse de l\'impact des taux'},
-            {'id': 'performance', 'name': 'Rapport de Performance', 'description': 'Performance par branche'},
-        ]
+        # Get all active branches for filter
+        context['branches'] = Branche.objects.filter(is_active=True).order_by('nom')
+        
+        return context
         
         return context
     
@@ -6248,6 +6260,1087 @@ class UpdateDocumentView(AdminRequiredMixin, View):
                 'success': False,
                 'message': 'Données JSON invalides'
             }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur: {str(e)}'
+            }, status=500)
+
+
+# TEMPLATE VIEW
+class RapportsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
+    """Reports page"""
+    template_name = 'admin/rapports.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get all branches for filter
+        context['branches'] = Branche.objects.filter(is_active=True).order_by('nom')
+        
+        return context
+
+
+# REPORT API VIEWS
+class FinancialReportAPIView(AdminRequiredMixin, View):
+    """Financial report data"""
+    
+    def get(self, request):
+        try:
+            # Get parameters
+            period = request.GET.get('period', 'month')
+            branch_id = request.GET.get('branch_id', 'all')
+            currency = request.GET.get('currency', 'both')
+            
+            # Calculate date range
+            today = timezone.now().date()
+            start_date, end_date = self._get_date_range(period, request)
+            
+            # Build filters
+            filters = {
+                'created_at__date__gte': start_date,
+                'created_at__date__lte': end_date,
+                'statut': 'validee'
+            }
+            
+            if branch_id != 'all':
+                filters['branche_id'] = branch_id
+            
+            # Get sales
+            ventes = Vente.objects.filter(**filters)
+            total_sales_usd = float(ventes.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0)
+            total_sales_fc = float(ventes.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0)
+            
+            # Get expenses
+            exp_filters = {
+                'created_at__date__gte': start_date,
+                'created_at__date__lte': end_date,
+                'statut': 'approuvee'
+            }
+            if branch_id != 'all':
+                exp_filters['branche_id'] = branch_id
+            
+            depenses_usd = Depense.objects.filter(**exp_filters, devise='USD')
+            depenses_fc = Depense.objects.filter(**exp_filters, devise='FC')
+            
+            total_expenses_usd = float(depenses_usd.aggregate(Sum('montant'))['montant__sum'] or 0)
+            total_expenses_fc = float(depenses_fc.aggregate(Sum('montant'))['montant__sum'] or 0)
+            
+            # Calculate profit
+            profit_usd = total_sales_usd - total_expenses_usd
+            profit_fc = total_sales_fc - total_expenses_fc
+            
+            # Sales by branch
+            sales_by_branch = ventes.values('branche__nom').annotate(
+                total_usd=Sum('montant_usd'),
+                total_fc=Sum('montant_fc'),
+                count=Count('id')
+            ).order_by('-total_usd')
+            
+            return JsonResponse({
+                'success': True,
+                'period': {
+                    'start': start_date.strftime('%d/%m/%Y'),
+                    'end': end_date.strftime('%d/%m/%Y')
+                },
+                'summary': {
+                    'Ventes USD': f'${total_sales_usd:,.2f}',
+                    'Ventes FC': f'{total_sales_fc:,.2f} FC',
+                    'Dépenses USD': f'${total_expenses_usd:,.2f}',
+                    'Dépenses FC': f'{total_expenses_fc:,.2f} FC',
+                    'Profit USD': f'${profit_usd:,.2f}',
+                    'Profit FC': f'{profit_fc:,.2f} FC',
+                    'Transactions': ventes.count()
+                },
+                'sales_by_branch': list(sales_by_branch)
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+    
+    def _get_date_range(self, period, request):
+        today = timezone.now().date()
+        
+        if period == 'today':
+            return today, today
+        elif period == 'week':
+            return today - timedelta(days=7), today
+        elif period == 'month':
+            return today.replace(day=1), today
+        elif period == 'year':
+            return today.replace(month=1, day=1), today
+        elif period == 'custom':
+            start = request.GET.get('start_date')
+            end = request.GET.get('end_date')
+            if start and end:
+                from datetime import datetime
+                return datetime.strptime(start, '%Y-%m-%d').date(), datetime.strptime(end, '%Y-%m-%d').date()
+        
+        return today.replace(day=1), today
+
+
+class SalesReportAPIView(AdminRequiredMixin, View):
+    """Sales report data"""
+    
+    def get(self, request):
+        try:
+            period = request.GET.get('period', 'month')
+            branch_id = request.GET.get('branch_id', 'all')
+            
+            today = timezone.now().date()
+            start_date, end_date = FinancialReportAPIView()._get_date_range(period, request)
+            
+            filters = {
+                'created_at__date__gte': start_date,
+                'created_at__date__lte': end_date,
+                'statut': 'validee'
+            }
+            
+            if branch_id != 'all':
+                filters['branche_id'] = branch_id
+            
+            ventes = Vente.objects.filter(**filters)
+            
+            # By fuel type
+            by_fuel = ventes.values('type_carburant__nom').annotate(
+                quantity=Sum('quantite'),
+                total_usd=Sum('montant_usd'),
+                total_fc=Sum('montant_fc'),
+                count=Count('id')
+            ).order_by('-total_usd')
+            
+            # By pompiste
+            by_pompiste = ventes.values('pompiste__nom', 'pompiste__prenom').annotate(
+                total_usd=Sum('montant_usd'),
+                count=Count('id')
+            ).order_by('-total_usd')[:10]
+            
+            return JsonResponse({
+                'success': True,
+                'period': {
+                    'start': start_date.strftime('%d/%m/%Y'),
+                    'end': end_date.strftime('%d/%m/%Y')
+                },
+                'summary': {
+                    'Total transactions': ventes.count(),
+                    'Total USD': f'${float(ventes.aggregate(Sum("montant_usd"))["montant_usd__sum"] or 0):,.2f}',
+                    'Total FC': f'{float(ventes.aggregate(Sum("montant_fc"))["montant_fc__sum"] or 0):,.2f} FC',
+                    'Quantité totale': f'{float(ventes.aggregate(Sum("quantite"))["quantite__sum"] or 0):,.2f} L'
+                },
+                'by_fuel': list(by_fuel),
+                'by_pompiste': list(by_pompiste)
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class PerformanceReportAPIView(AdminRequiredMixin, View):
+    """Performance report by branch"""
+    
+    def get(self, request):
+        try:
+            period = request.GET.get('period', 'month')
+            
+            start_date, end_date = FinancialReportAPIView()._get_date_range(period, request)
+            
+            branches_data = []
+            
+            for branche in Branche.objects.filter(is_active=True):
+                ventes = Vente.objects.filter(
+                    branche=branche,
+                    created_at__date__gte=start_date,
+                    created_at__date__lte=end_date,
+                    statut='validee'
+                )
+                
+                sales_usd = float(ventes.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0)
+                
+                depenses = Depense.objects.filter(
+                    branche=branche,
+                    created_at__date__gte=start_date,
+                    created_at__date__lte=end_date,
+                    statut='approuvee',
+                    devise='USD'
+                ).aggregate(Sum('montant'))['montant__sum'] or 0
+                
+                branches_data.append({
+                    'branche': branche.nom,
+                    'sales_usd': sales_usd,
+                    'expenses_usd': float(depenses),
+                    'profit_usd': sales_usd - float(depenses),
+                    'transactions': ventes.count()
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'period': {
+                    'start': start_date.strftime('%d/%m/%Y'),
+                    'end': end_date.strftime('%d/%m/%Y')
+                },
+                'summary': {
+                    'Branches actives': len(branches_data),
+                    'Meilleure branche': max(branches_data, key=lambda x: x['profit_usd'])['branche'] if branches_data else 'N/A'
+                },
+                'branches': branches_data
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class ExportPDFReportView(AdminRequiredMixin, View):
+    """Export report as PDF"""
+    
+    def get(self, request, report_type):
+        try:
+            period = request.GET.get('period', 'month')
+            branch_id = request.GET.get('branch_id', 'all')
+            
+            start_date, end_date = FinancialReportAPIView()._get_date_range(period, request)
+            
+            # Generate PDF
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4)
+            
+            styles = getSampleStyleSheet()
+            elements = []
+            
+            # Title
+            title = Paragraph(f"RAPPORT {report_type.upper()} - PETROX", styles['Title'])
+            elements.append(title)
+            elements.append(Spacer(1, 20))
+            
+            # Period
+            period_text = Paragraph(
+                f"Période: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}",
+                styles['Normal']
+            )
+            elements.append(period_text)
+            elements.append(Spacer(1, 20))
+            
+            # Get data based on report type
+            if report_type == 'financial':
+                self._add_financial_data(elements, styles, start_date, end_date, branch_id)
+            elif report_type == 'sales':
+                self._add_sales_data(elements, styles, start_date, end_date, branch_id)
+            elif report_type == 'performance':
+                self._add_performance_data(elements, styles, start_date, end_date)
+            
+            # Footer
+            elements.append(Spacer(1, 30))
+            footer = Paragraph(
+                f"Généré le {timezone.now().strftime('%d/%m/%Y à %H:%M')} par {request.user.get_full_name()}",
+                ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, alignment=TA_CENTER)
+            )
+            elements.append(footer)
+            
+            doc.build(elements)
+            buffer.seek(0)
+            
+            response = HttpResponse(buffer, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="rapport_{report_type}_{start_date}_{end_date}.pdf"'
+            return response
+            
+        except Exception as e:
+            return HttpResponse(f"Erreur: {str(e)}", status=500)
+    
+    def _add_financial_data(self, elements, styles, start_date, end_date, branch_id):
+        # Summary table
+        data = [['Métrique', 'Valeur']]
+        data.append(['Période', f'{start_date} - {end_date}'])
+        
+        table = Table(data)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(table)
+    
+    def _add_sales_data(self, elements, styles, start_date, end_date, branch_id):
+        pass
+    
+    def _add_performance_data(self, elements, styles, start_date, end_date):
+        pass
+
+
+class ExportExcelReportView(AdminRequiredMixin, View):
+    """Export report as Excel"""
+    
+    def get(self, request, report_type):
+        try:
+            period = request.GET.get('period', 'month')
+            branch_id = request.GET.get('branch_id', 'all')
+            
+            start_date, end_date = FinancialReportAPIView()._get_date_range(period, request)
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = f"Rapport {report_type}"
+            
+            # Header
+            ws['A1'] = f"RAPPORT {report_type.upper()} - PETROX"
+            ws['A1'].font = Font(bold=True, size=14)
+            
+            ws['A2'] = f"Période: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}"
+            
+            # Add data based on report type
+            if report_type == 'financial':
+                self._add_excel_financial_data(ws, start_date, end_date, branch_id)
+            
+            # Save to buffer
+            buffer = io.BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+            
+            response = HttpResponse(
+                buffer,
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="rapport_{report_type}_{start_date}_{end_date}.xlsx"'
+            return response
+            
+        except Exception as e:
+            return HttpResponse(f"Erreur: {str(e)}", status=500)
+    
+    def _add_excel_financial_data(self, ws, start_date, end_date, branch_id):
+        ws['A4'] = "Métrique"
+        ws['B4'] = "Valeur"
+        
+        ws['A4'].font = Font(bold=True)
+        ws['B4'].font = Font(bold=True)
+
+
+class ExpensesReportAPIView(AdminRequiredMixin, View):
+    """Expenses report data"""
+    
+    def get(self, request):
+        try:
+            period = request.GET.get('period', 'month')
+            branch_id = request.GET.get('branch_id', 'all')
+            
+            start_date, end_date = FinancialReportAPIView()._get_date_range(period, request)
+            
+            filters = {
+                'created_at__date__gte': start_date,
+                'created_at__date__lte': end_date,
+                'statut': 'approuvee'
+            }
+            
+            if branch_id != 'all':
+                filters['branche_id'] = branch_id
+            
+            depenses = Depense.objects.filter(**filters)
+            
+            # By category
+            by_category = depenses.values('categorie__nom').annotate(
+                total_usd=Sum(Case(When(devise='USD', then='montant'), default=0, output_field=DecimalField())),
+                total_fc=Sum(Case(When(devise='FC', then='montant'), default=0, output_field=DecimalField())),
+                count=Count('id')
+            ).order_by('-total_usd')
+            
+            # By branch
+            by_branch = depenses.values('branche__nom').annotate(
+                total=Sum('montant'),
+                count=Count('id')
+            ).order_by('-total')
+            
+            total_usd = float(depenses.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0)
+            total_fc = float(depenses.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0)
+            
+            return JsonResponse({
+                'success': True,
+                'period': {
+                    'start': start_date.strftime('%d/%m/%Y'),
+                    'end': end_date.strftime('%d/%m/%Y')
+                },
+                'summary': {
+                    'Total dépenses USD': f'${total_usd:,.2f}',
+                    'Total dépenses FC': f'{total_fc:,.2f} FC',
+                    'Total transactions': depenses.count(),
+                    'Nombre catégories': by_category.count()
+                },
+                'by_category': list(by_category),
+                'by_branch': list(by_branch)
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class ForexImpactReportAPIView(AdminRequiredMixin, View):
+    """Forex impact report data"""
+    
+    def get(self, request):
+        try:
+            period = request.GET.get('period', 'month')
+            branch_id = request.GET.get('branch_id', 'all')
+            
+            start_date, end_date = FinancialReportAPIView()._get_date_range(period, request)
+            
+            # Get current rate
+            current_rate_obj = TauxChange.objects.filter(is_active=True).first()
+            current_rate = current_rate_obj.taux_usd_fc if current_rate_obj else Decimal('2800.00')
+            
+            filters = {
+                'created_at__date__gte': start_date,
+                'created_at__date__lte': end_date,
+                'statut': 'validee'
+            }
+            
+            if branch_id != 'all':
+                filters['branche_id'] = branch_id
+            
+            ventes = Vente.objects.filter(**filters)
+            
+            # Calculate forex impact
+            total_impact = Decimal('0')
+            gains = Decimal('0')
+            losses = Decimal('0')
+            
+            for vente in ventes:
+                if vente.taux_change and vente.taux_change != current_rate:
+                    expected_fc = vente.montant_usd * current_rate
+                    actual_fc = vente.montant_fc
+                    fc_difference = actual_fc - expected_fc
+                    usd_impact = fc_difference / current_rate if current_rate > 0 else Decimal('0')
+                    
+                    total_impact += usd_impact
+                    if usd_impact > 0:
+                        gains += usd_impact
+                    else:
+                        losses += abs(usd_impact)
+            
+            return JsonResponse({
+                'success': True,
+                'period': {
+                    'start': start_date.strftime('%d/%m/%Y'),
+                    'end': end_date.strftime('%d/%m/%Y')
+                },
+                'summary': {
+                    'Impact total USD': f'${float(total_impact):,.2f}',
+                    'Gains USD': f'${float(gains):,.2f}',
+                    'Pertes USD': f'${float(losses):,.2f}',
+                    'Taux actuel': f'{float(current_rate):,.2f} FC',
+                    'Transactions analysées': ventes.count()
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class StockReportAPIView(AdminRequiredMixin, View):
+    """Stock report data"""
+    
+    def get(self, request):
+        try:
+            branch_id = request.GET.get('branch_id', 'all')
+            
+            filters = {}
+            if branch_id != 'all':
+                filters['branche_id'] = branch_id
+            
+            stocks = Stock.objects.filter(**filters).select_related('branche', 'type_carburant')
+            
+            # By fuel type
+            by_fuel = stocks.values('type_carburant__nom').annotate(
+                total_quantity=Sum('quantite_actuelle'),
+                total_capacity=Sum('capacite_max'),
+                branches_count=Count('branche', distinct=True)
+            ).order_by('-total_quantity')
+            
+            # Alerts
+            alerts = stocks.filter(quantite_actuelle__lte=F('seuil_alerte'))
+            critical = alerts.filter(quantite_actuelle__lte=F('seuil_alerte') / 2)
+            
+            total_stock = float(stocks.aggregate(Sum('quantite_actuelle'))['quantite_actuelle__sum'] or 0)
+            total_capacity = float(stocks.aggregate(Sum('capacite_max'))['capacite_max__sum'] or 0)
+            fill_percentage = round((total_stock / total_capacity * 100), 1) if total_capacity > 0 else 0
+            
+            return JsonResponse({
+                'success': True,
+                'summary': {
+                    'Stock total': f'{total_stock:,.2f} L',
+                    'Capacité totale': f'{total_capacity:,.2f} L',
+                    'Taux de remplissage': f'{fill_percentage}%',
+                    'Alertes': alerts.count(),
+                    'Alertes critiques': critical.count()
+                },
+                'by_fuel': list(by_fuel)
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+# TEMPLATE VIEW
+class SalairesView(AdminRequiredMixin, AdminContextMixin, TemplateView):
+    """Salaires & Payroll page"""
+    template_name = 'admin/salaires.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get filters
+        branche_id = self.request.GET.get('branche_id', '')
+        employee_type = self.request.GET.get('employee_type', 'all')
+        period = self.request.GET.get('period', 'month')
+        devise = self.request.GET.get('devise', '')
+        
+        # Calculate date range
+        today = timezone.now().date()
+        if period == 'month':
+            start_date = today.replace(day=1)
+        elif period == 'last_month':
+            last_month = today - relativedelta(months=1)
+            start_date = last_month.replace(day=1)
+            today = start_date.replace(day=1) + relativedelta(months=1) - timedelta(days=1)
+        elif period == 'year':
+            start_date = today.replace(month=1, day=1)
+        else:
+            start_date = None
+        
+        # Base queryset
+        payments = PaiementSalaire.objects.select_related(
+            'pompiste', 'branche', 'caissier'
+        ).order_by('-date_paiement')
+        
+        # Apply filters
+        if start_date:
+            payments = payments.filter(date_paiement__date__gte=start_date)
+        
+        if branche_id:
+            payments = payments.filter(branche_id=branche_id)
+        
+        if devise:
+            payments = payments.filter(devise_paiement=devise)
+        
+        # Format payments for template
+        payments_list = []
+        for payment in payments[:100]:  # Limit to 100 for performance
+            payments_list.append({
+                'id': payment.id,
+                'employee_name': payment.pompiste.get_full_name() if payment.pompiste else 'N/A',
+                'employee_type': 'Pompiste',
+                'branche': payment.branche.nom if payment.branche else 'N/A',
+                'periode': payment.mois_paiement.strftime('%m/%Y') if payment.mois_paiement else 'N/A',
+                'montant': float(payment.montant_paye),
+                'devise': payment.devise_paiement,
+                'paid_by': payment.caissier.get_full_name() if payment.caissier else 'N/A',
+                'date_paiement': payment.date_paiement
+            })
+        
+        context['payments'] = payments_list
+        
+        # Statistics
+        month_start = today.replace(day=1)
+        month_payments = PaiementSalaire.objects.filter(
+            date_paiement__date__gte=month_start
+        )
+        
+        total_usd = float(month_payments.filter(devise_paiement='USD').aggregate(
+            Sum('montant_paye'))['montant_paye__sum'] or 0)
+        total_fc = float(month_payments.filter(devise_paiement='FC').aggregate(
+            Sum('montant_paye'))['montant_paye__sum'] or 0)
+        
+        # Convert FC to USD for total (using current rate)
+        current_rate_obj = TauxChange.objects.filter(is_active=True).first()
+        current_rate = float(current_rate_obj.taux_usd_fc) if current_rate_obj else 2800.0
+        total_usd += (total_fc / current_rate)
+        
+        context['total_paid_month'] = total_usd
+        context['employees_paid_count'] = month_payments.values('pompiste').distinct().count()
+        context['total_payments'] = month_payments.count()
+        
+        # Branches
+        context['branches'] = Branche.objects.filter(is_active=True).order_by('nom')
+        context['branches_count'] = context['branches'].count()
+        
+        return context
+
+
+# API VIEWS
+class PaymentDetailAPIView(AdminRequiredMixin, View):
+    """Get payment details"""
+    
+    def get(self, request, payment_id):
+        try:
+            payment = PaiementSalaire.objects.select_related(
+                'pompiste', 'branche', 'caissier'
+            ).get(id=payment_id)
+            
+            return JsonResponse({
+                'success': True,
+                'payment': {
+                    'id': payment.id,
+                    'employee_name': payment.pompiste.get_full_name() if payment.pompiste else 'N/A',
+                    'branche': payment.branche.nom if payment.branche else 'N/A',
+                    'periode': payment.mois_paiement.strftime('%m/%Y') if payment.mois_paiement else 'N/A',
+                    'montant': str(payment.montant_paye),
+                    'devise': payment.devise_paiement,
+                    'methode_paiement': payment.methode_paiement,
+                    'taux_change': str(payment.taux_change) if payment.taux_change else None,
+                    'paid_by': payment.caissier.get_full_name() if payment.caissier else 'N/A',
+                    'date_paiement': payment.date_paiement.strftime('%d/%m/%Y %H:%M'),
+                    'notes': payment.notes or ''
+                }
+            })
+            
+        except PaiementSalaire.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Paiement introuvable'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class SalaryHistoryAPIView(AdminRequiredMixin, View):
+    """Get salary payment history"""
+    
+    def get(self, request):
+        try:
+            branche_id = request.GET.get('branche_id')
+            employee_id = request.GET.get('employee_id')
+            period = request.GET.get('period', 'month')
+            
+            # Calculate date range
+            today = timezone.now().date()
+            if period == 'month':
+                start_date = today.replace(day=1)
+            elif period == 'year':
+                start_date = today.replace(month=1, day=1)
+            else:
+                start_date = today - timedelta(days=365)
+            
+            # Build filters
+            filters = {
+                'date_paiement__date__gte': start_date
+            }
+            
+            if branche_id:
+                filters['branche_id'] = branche_id
+            
+            if employee_id:
+                filters['pompiste_id'] = employee_id
+            
+            # Get payments
+            payments = PaiementSalaire.objects.filter(**filters).select_related(
+                'pompiste', 'branche', 'caissier'
+            ).order_by('-date_paiement')
+            
+            # Format data
+            payments_data = []
+            for payment in payments:
+                payments_data.append({
+                    'id': payment.id,
+                    'employee': payment.pompiste.get_full_name() if payment.pompiste else 'N/A',
+                    'branche': payment.branche.nom if payment.branche else 'N/A',
+                    'periode': payment.mois_paiement.strftime('%m/%Y') if payment.mois_paiement else 'N/A',
+                    'montant': str(payment.montant_paye),
+                    'devise': payment.devise_paiement,
+                    'date': payment.date_paiement.strftime('%d/%m/%Y')
+                })
+            
+            # Calculate totals
+            total_usd = float(payments.filter(devise_paiement='USD').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or 0)
+            total_fc = float(payments.filter(devise_paiement='FC').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or 0)
+            
+            return JsonResponse({
+                'success': True,
+                'payments': payments_data,
+                'summary': {
+                    'total_payments': payments.count(),
+                    'total_usd': f'${total_usd:,.2f}',
+                    'total_fc': f'{total_fc:,.2f} FC'
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class EmployeeSalaryReportAPIView(AdminRequiredMixin, View):
+    """Get salary report by employee"""
+    
+    def get(self, request):
+        try:
+            period = request.GET.get('period', 'year')
+            branche_id = request.GET.get('branche_id')
+            
+            # Calculate date range
+            today = timezone.now().date()
+            if period == 'year':
+                start_date = today.replace(month=1, day=1)
+            else:
+                start_date = today - timedelta(days=365)
+            
+            # Get all pompistes
+            pompistes = Pompiste.objects.filter(is_active=True)
+            
+            if branche_id:
+                pompistes = pompistes.filter(branche_id=branche_id)
+            
+            # Build report
+            report_data = []
+            
+            for pompiste in pompistes:
+                payments = PaiementSalaire.objects.filter(
+                    pompiste=pompiste,
+                    date_paiement__date__gte=start_date
+                )
+                
+                total_paid_usd = float(payments.filter(devise_paiement='USD').aggregate(
+                    Sum('montant_paye'))['montant_paye__sum'] or 0)
+                total_paid_fc = float(payments.filter(devise_paiement='FC').aggregate(
+                    Sum('montant_paye'))['montant_paye__sum'] or 0)
+                
+                report_data.append({
+                    'employee': pompiste.get_full_name(),
+                    'branche': pompiste.branche.nom if pompiste.branche else 'N/A',
+                    'salary': f'{float(pompiste.salaire)} {pompiste.devise_salaire}',
+                    'payments_count': payments.count(),
+                    'total_paid_usd': total_paid_usd,
+                    'total_paid_fc': total_paid_fc
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'period': {
+                    'start': start_date.strftime('%d/%m/%Y'),
+                    'end': today.strftime('%d/%m/%Y')
+                },
+                'employees': report_data
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+# TEMPLATE VIEW
+class NotificationsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
+    """Notifications page"""
+    template_name = 'admin/notifications.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Generate/update notifications
+        self._generate_notifications()
+        
+        # Get all notifications
+        notifications = self._build_notifications_list()
+        
+        context['notifications'] = notifications
+        context['all_notifications_count'] = len(notifications)
+        context['unread_count'] = sum(1 for n in notifications if not n['is_read'])
+        
+        # Count by type
+        context['stock_alerts_count'] = sum(1 for n in notifications if n['type'] == 'stock')
+        context['missing_sales_count'] = sum(1 for n in notifications if n['type'] == 'missing')
+        context['category_requests_count'] = sum(1 for n in notifications if n['type'] == 'category')
+        
+        return context
+    
+    def _generate_notifications(self):
+        """Generate notifications based on current system state"""
+        notifications = []
+        
+        # 1. Stock Alerts
+        low_stock = Stock.objects.filter(
+            quantite_actuelle__lte=F('seuil_alerte')
+        ).select_related('branche', 'type_carburant')
+        
+        for stock in low_stock:
+            percentage = (stock.quantite_actuelle / stock.capacite_max * 100) if stock.capacite_max > 0 else 0
+            
+            notifications.append({
+                'type': 'stock',
+                'title': f'Stock bas: {stock.type_carburant.nom}',
+                'message': f'{stock.branche.nom} - Niveau: {percentage:.1f}% ({stock.quantite_actuelle}L / {stock.capacite_max}L)',
+                'branche': stock.branche.nom,
+                'action_url': '/dashboard/carburants/',
+                'severity': 'critical' if percentage < 25 else 'warning'
+            })
+        
+        # 2. Missing Sales (Manquants)
+        missing_sales = Vente.objects.filter(
+            statut='manquant',
+            created_at__date__gte=timezone.now().date() - timedelta(days=7)
+        ).select_related('branche', 'pompiste')
+        
+        for sale in missing_sales:
+            total_missing = float(sale.manquant_usd or 0)
+            
+            notifications.append({
+                'type': 'missing',
+                'title': f'Manquant signalé',
+                'message': f'{sale.branche.nom} - Pompiste: {sale.pompiste.get_full_name()} - Montant: ${total_missing:.2f}',
+                'branche': sale.branche.nom,
+                'action_url': f'/dashboard/ventes/?statut=manquant',
+                'severity': 'warning'
+            })
+        
+        # 3. Category Requests (from Caissiers/Managers)
+        # This would need a CategoryRequest model - for now, placeholder
+        # category_requests = CategoryRequest.objects.filter(statut='pending')
+        
+        return notifications
+    
+    def _build_notifications_list(self):
+        """Build complete notifications list from various sources"""
+        notifications = []
+        
+        # Stock alerts
+        low_stock = Stock.objects.filter(
+            quantite_actuelle__lte=F('seuil_alerte')
+        ).select_related('branche', 'type_carburant')
+        
+        for stock in low_stock:
+            percentage = (stock.quantite_actuelle / stock.capacite_max * 100) if stock.capacite_max > 0 else 0
+            
+            notifications.append({
+                'id': f'stock_{stock.id}',
+                'type': 'stock',
+                'title': f'Stock bas: {stock.type_carburant.nom}',
+                'message': f'Niveau actuel: {percentage:.1f}% ({stock.quantite_actuelle}L / {stock.capacite_max}L)',
+                'branche': stock.branche.nom,
+                'action_url': '/dashboard/carburants/',
+                'created_at': stock.updated_at,
+                'is_read': False
+            })
+        
+        # Missing sales
+        missing_sales = Vente.objects.filter(
+            statut='manquant',
+            created_at__date__gte=timezone.now().date() - timedelta(days=7)
+        ).select_related('branche', 'pompiste')
+        
+        for sale in missing_sales:
+            total_missing = float(sale.manquant_usd or 0) + (float(sale.manquant_fc or 0) / 2800)
+            
+            notifications.append({
+                'id': f'missing_{sale.id}',
+                'type': 'missing',
+                'title': f'Manquant - Vente #{sale.id}',
+                'message': f'Pompiste: {sale.pompiste.get_full_name()} - Montant: ${total_missing:.2f} USD',
+                'branche': sale.branche.nom,
+                'action_url': f'/dashboard/ventes/?statut=manquant',
+                'created_at': sale.created_at,
+                'is_read': False
+            })
+        
+        # Sort by date (newest first)
+        notifications.sort(key=lambda x: x['created_at'], reverse=True)
+        
+        return notifications
+
+
+# API VIEWS
+class MarkNotificationReadView(AdminRequiredMixin, View):
+    """Mark notification as read"""
+    
+    def post(self, request, notification_id):
+        # In a full implementation, this would update a Notification model
+        # For now, just return success
+        return JsonResponse({
+            'success': True,
+            'message': 'Notification marquée comme lue'
+        })
+
+
+class MarkAllNotificationsReadView(AdminRequiredMixin, View):
+    """Mark all notifications as read"""
+    
+    def post(self, request):
+        # In a full implementation, this would update all Notification records
+        return JsonResponse({
+            'success': True,
+            'message': 'Toutes les notifications marquées comme lues'
+        })
+
+
+class NotificationsAPIView(AdminRequiredMixin, View):
+    """Get notifications via API"""
+    
+    def get(self, request):
+        notification_type = request.GET.get('type', 'all')
+        
+        notifications = []
+        
+        # Stock alerts
+        if notification_type in ['all', 'stock']:
+            low_stock = Stock.objects.filter(
+                quantite_actuelle__lte=F('seuil_alerte')
+            ).select_related('branche', 'type_carburant')
+            
+            for stock in low_stock:
+                percentage = (stock.quantite_actuelle / stock.capacite_max * 100) if stock.capacite_max > 0 else 0
+                
+                notifications.append({
+                    'type': 'stock',
+                    'title': f'Stock bas: {stock.type_carburant.nom}',
+                    'message': f'{stock.branche.nom} - {percentage:.1f}%',
+                    'severity': 'critical' if percentage < 25 else 'warning',
+                    'timestamp': stock.updated_at.isoformat()
+                })
+        
+        # Missing sales
+        if notification_type in ['all', 'missing']:
+            missing_sales = Vente.objects.filter(
+                statut='manquant',
+                created_at__date__gte=timezone.now().date() - timedelta(days=7)
+            ).select_related('branche', 'pompiste')
+            
+            for sale in missing_sales:
+                notifications.append({
+                    'type': 'missing',
+                    'title': 'Manquant signalé',
+                    'message': f'Vente #{sale.id} - {sale.branche.nom}',
+                    'severity': 'warning',
+                    'timestamp': sale.created_at.isoformat()
+                })
+        
+        return JsonResponse({
+            'success': True,
+            'notifications': notifications,
+            'count': len(notifications)
+        })
+
+
+class NotificationCountAPIView(AdminRequiredMixin, View):
+    """Get notification counts for badge"""
+    
+    def get(self, request):
+        # Stock alerts
+        stock_count = Stock.objects.filter(
+            quantite_actuelle__lte=F('seuil_alerte')
+        ).count()
+        
+        # Missing sales (last 7 days)
+        missing_count = Vente.objects.filter(
+            statut='manquant',
+            created_at__date__gte=timezone.now().date() - timedelta(days=7)
+        ).count()
+        
+        total_unread = stock_count + missing_count
+        
+        return JsonResponse({
+            'success': True,
+            'counts': {
+                'stock': stock_count,
+                'missing': missing_count,
+                'total': total_unread
+            }
+        })
+
+
+class CreatePaymentMethodView(AdminRequiredMixin, View):
+    """Create a new payment method"""
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            nom = data.get('nom')
+            code = data.get('code')
+            
+            if not nom or not code:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Le nom et le code sont requis'
+                }, status=400)
+            
+            # Check if already exists
+            if MoyenPaiement.objects.filter(code=code).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Ce code existe déjà'
+                }, status=400)
+            
+            # Create payment method
+            payment_method = MoyenPaiement.objects.create(
+                nom=nom,
+                code=code,
+                is_active=True
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Moyen de paiement créé avec succès',
+                'payment_method': {
+                    'id': payment_method.id,
+                    'nom': payment_method.nom,
+                    'code': payment_method.code
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur: {str(e)}'
+            }, status=500)
+
+
+class ToggleExpenseCategoryStatusView(AdminRequiredMixin, View):
+    """Toggle expense category active status"""
+    
+    def post(self, request, category_id):
+        try:
+            category = CategorieDepense.objects.get(id=category_id)
+            
+            # Toggle status
+            category.is_active = not category.is_active
+            category.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Catégorie {"activée" if category.is_active else "désactivée"}',
+                'is_active': category.is_active
+            })
+            
+        except CategorieDepense.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Catégorie introuvable'
+            }, status=404)
         except Exception as e:
             return JsonResponse({
                 'success': False,

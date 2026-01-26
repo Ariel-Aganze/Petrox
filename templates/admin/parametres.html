@@ -1,0 +1,466 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}PETROX | Paramètres Système{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
+<a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
+<a href="{% url 'admin_module:parametres' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Paramètres</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Paramètres Système</h1>
+        <p class="mt-2 text-sm text-gray-600">Configuration globale du système PETROX</p>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="grid grid-cols-1 gap-6">
+        
+        <!-- 1. Types de Carburant -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-4">
+                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Types de Carburant</h3>
+                        <p class="text-sm text-gray-500">{{ fuel_types_count }} type(s) configuré(s)</p>
+                    </div>
+                </div>
+                <button onclick="openModal('add-fuel-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for fuel in types_carburant %}
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="h-3 w-3 rounded-full mr-2" style="background-color: {{ fuel.couleur_hex }};"></div>
+                                <span class="font-medium text-gray-900">{{ fuel.nom }}</span>
+                            </div>
+                            <span class="px-2 py-1 text-xs rounded {% if fuel.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {% if fuel.is_active %}Actif{% else %}Inactif{% endif %}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500">Code: {{ fuel.code }}</p>
+                        {% if fuel.prix_vente_usd %}
+                        <p class="text-sm text-gray-500 mt-1">Prix: ${{ fuel.prix_vente_usd }}</p>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-sm text-gray-500 col-span-full">Aucun type de carburant configuré</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Moyens de Paiement -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center mr-4">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Moyens de Paiement</h3>
+                        <p class="text-sm text-gray-500">{{ payment_methods_count }} moyen(s) configuré(s)</p>
+                    </div>
+                </div>
+                <button onclick="openModal('add-payment-method-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {% for method in moyens_paiement %}
+                    <div class="border border-gray-200 rounded-lg p-4 text-center">
+                        <div class="font-medium text-gray-900 mb-1">{{ method.nom }}</div>
+                        <div class="text-xs text-gray-500">{{ method.code }}</div>
+                        <div class="mt-2">
+                            <span class="px-2 py-1 text-xs rounded {% if method.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {% if method.is_active %}Actif{% else %}Inactif{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-sm text-gray-500 col-span-full">Aucun moyen de paiement configuré</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Catégories de Dépenses -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Catégories de Dépenses</h3>
+                        <p class="text-sm text-gray-500">{{ expense_categories_count }} catégorie(s) configurée(s)</p>
+                    </div>
+                </div>
+                <button onclick="openModal('add-expense-category-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-2">
+                    {% for category in categories_depense %}
+                    <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <div class="flex-1">
+                            <div class="flex items-center">
+                                <span class="font-medium text-gray-900">{{ category.nom }}</span>
+                                <span class="ml-2 px-2 py-1 text-xs rounded {% if category.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {% if category.is_active %}Actif{% else %}Inactif{% endif %}
+                                </span>
+                            </div>
+                            {% if category.description %}
+                            <p class="text-sm text-gray-500 mt-1">{{ category.description }}</p>
+                            {% endif %}
+                        </div>
+                        <button onclick="toggleCategoryStatus({{ category.id }})" class="ml-4 text-sm text-gray-600 hover:text-gray-900">
+                            {% if category.is_active %}Désactiver{% else %}Activer{% endif %}
+                        </button>
+                    </div>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">Aucune catégorie de dépense configurée</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Configuration Générale -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center mr-4">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Configuration Générale</h3>
+                        <p class="text-sm text-gray-500">Paramètres globaux du système</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <dt class="text-sm font-medium text-gray-500">Taux de change actuel</dt>
+                        <dd class="mt-2 text-2xl font-semibold text-gray-900">1 USD = {{ current_rate }} FC</dd>
+                        <dd class="mt-1 text-xs text-gray-500">Dernière mise à jour: {{ rate_updated_at|date:"d/m/Y H:i" }}</dd>
+                        <a href="{% url 'admin_module:forex' %}" class="mt-2 inline-flex text-sm text-petrox-red hover:text-petrox-hover">
+                            Gérer les taux →
+                        </a>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <dt class="text-sm font-medium text-gray-500">Branches actives</dt>
+                        <dd class="mt-2 text-2xl font-semibold text-gray-900">{{ active_branches_count }}</dd>
+                        <dd class="mt-1 text-xs text-gray-500">Sur {{ total_branches_count }} branche(s) au total</dd>
+                        <a href="{% url 'admin_module:branches' %}" class="mt-2 inline-flex text-sm text-petrox-red hover:text-petrox-hover">
+                            Gérer les branches →
+                        </a>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <dt class="text-sm font-medium text-gray-500">Utilisateurs système</dt>
+                        <dd class="mt-2 text-2xl font-semibold text-gray-900">{{ users_count }}</dd>
+                        <dd class="mt-1 text-xs text-gray-500">Admin: {{ admin_count }}, Manager: {{ manager_count }}, Caissier: {{ caissier_count }}</dd>
+                        <a href="{% url 'admin_module:utilisateurs' %}" class="mt-2 inline-flex text-sm text-petrox-red hover:text-petrox-hover">
+                            Gérer les utilisateurs →
+                        </a>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <dt class="text-sm font-medium text-gray-500">Devise par défaut</dt>
+                        <dd class="mt-2 text-2xl font-semibold text-gray-900">USD / FC</dd>
+                        <dd class="mt-1 text-xs text-gray-500">Système multi-devises</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- 5. Actions Système -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center mr-4">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Actions Système</h3>
+                        <p class="text-sm text-gray-500">Actions de maintenance et configuration avancée</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">Attention</h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <p>Ces actions peuvent affecter le fonctionnement du système. Utilisez-les avec précaution.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <button class="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">Exporter les données</p>
+                                <p class="text-sm text-gray-500">Télécharger une sauvegarde complète</p>
+                            </div>
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                        </div>
+                    </button>
+                    
+                    <button class="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">Logs système</p>
+                                <p class="text-sm text-gray-500">Consulter l'historique des activités</p>
+                            </div>
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add Fuel Type Modal -->
+<div id="add-fuel-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-fuel-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Ajouter un type de carburant
+                </h3>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-700">
+                        Cette fonctionnalité est disponible dans la page <a href="{% url 'admin_module:carburants' %}" class="underline font-medium">Carburants</a>.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeModal('add-fuel-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payment Method Modal -->
+<div id="add-payment-method-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-payment-method-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form onsubmit="addPaymentMethod(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Ajouter un moyen de paiement
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="payment-nom" class="block text-sm font-medium text-gray-700">Nom *</label>
+                            <input type="text" id="payment-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="payment-code" class="block text-sm font-medium text-gray-700">Code *</label>
+                            <input type="text" id="payment-code" name="code" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
+                        Ajouter
+                    </button>
+                    <button type="button" onclick="closeModal('add-payment-method-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Expense Category Modal -->
+<div id="add-expense-category-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-expense-category-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Ajouter une catégorie de dépense
+                </h3>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-700">
+                        Cette fonctionnalité est disponible dans la page <a href="{% url 'admin_module:depenses' %}" class="underline font-medium">Dépenses</a>.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeModal('add-expense-category-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add payment method
+function addPaymentMethod(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/dashboard/api/settings/payment-methods/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('add-payment-method-modal');
+            showNotification('Moyen de paiement ajouté avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Toggle category status
+function toggleCategoryStatus(categoryId) {
+    if (!confirm('Voulez-vous changer le statut de cette catégorie ?')) return;
+    
+    fetch(`/dashboard/api/settings/expense-categories/${categoryId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Statut modifié avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Modal controls
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Show notification
+function showNotification(message, type, duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    } text-white max-w-md`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, duration);
+}
+</script>
+{% endblock %}

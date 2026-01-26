@@ -36,9 +36,13 @@ urlpatterns = [
     path('notifications/mark-all-read/', views.MarkAllNotificationsReadView.as_view(), name='mark_all_read'),
     
     # User Profile Management
-    path('profile/', views.UserProfileView.as_view(), name='user_profile'),
-    path('profile/update/', views.UpdateProfileView.as_view(), name='update_profile'),
-    path('profile/change-password/', views.ChangePasswordView.as_view(), name='change_password'),
+    # path('profile/', views.UserProfileView.as_view(), name='user_profile'),
+    # path('profile/update/', views.UpdateProfileView.as_view(), name='update_profile'),
+    # path('profile/change-password/', views.ChangePasswordView.as_view(), name='change_password'),
+    path('profile/', views.UserProfilePageView.as_view(), name='user_profile'),
+    path('api/profile/update/', views.UpdateProfileView.as_view(), name='update_profile'),
+    path('api/profile/photo/', views.UploadProfilePhotoView.as_view(), name='upload_photo'),
+    path('api/password/change/', views.ChangePasswordView.as_view(), name='change_password'),
     
     # Reports & Analytics
     path('reports/sales/', views.SalesReportView.as_view(), name='sales_report'),
