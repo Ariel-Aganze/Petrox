@@ -1,3 +1,9 @@
+# apps/admin_module/urls.py
+"""
+URL Configuration for Admin Module
+Handles both template-based views (HTML pages) and API endpoints (JSON responses)
+"""
+
 from django.urls import path
 from . import views
 from . import views_templates
@@ -12,83 +18,272 @@ urlpatterns = [
     # Dashboard
     path('', views_templates.AdminDashboardView.as_view(), name='dashboard'),
     
-    # Branches
+    # Branches Management
     path('branches/', views_templates.BranchesListView.as_view(), name='branches'),
     path('branches/<int:branch_id>/', views_templates.BranchDetailView.as_view(), name='branch_detail'),
     
-    # Ventes (Sales)
+    # Sales (Ventes)
     path('ventes/', views_templates.VentesListView.as_view(), name='ventes'),
     
-    # Dépenses (Expenses)
+    # Expenses (Dépenses)
     path('depenses/', views_templates.DepensesListView.as_view(), name='depenses'),
     
-    # Carburants (Fuel/Stock)
+    # Fuel/Stock (Carburants)
     path('carburants/', views_templates.CarburantsListView.as_view(), name='carburants'),
     
-    # Abonnés (Subscribers)
+    # Subscribers (Abonnés)
     path('abonnes/', views_templates.AbonnesListView.as_view(), name='abonnes'),
     path('abonnes/<int:abonne_id>/', views_templates.AbonneDetailView.as_view(), name='abonne_detail'),
     
-    # Utilisateurs (Users)
+    # Users Management (Utilisateurs)
     path('utilisateurs/', views_templates.UtilisateursListView.as_view(), name='utilisateurs'),
     
     # Documents
     path('documents/', views_templates.DocumentsListView.as_view(), name='documents'),
     
-    # Forex
+    # Forex & Exchange Rates
     path('forex/', views_templates.ForexView.as_view(), name='forex'),
     
-    # Rapports (Reports)
+    # Reports (Rapports)
     path('rapports/', views_templates.RapportsView.as_view(), name='rapports'),
     
     # Notifications
     path('notifications/', views_templates.NotificationsView.as_view(), name='notifications_page'),
     
-    # Salaires (Payroll)
+    # Payroll (Salaires)
     path('salaires/', views_templates.SalairesView.as_view(), name='salaires'),
     
-    # Paramètres (Settings)
+    # System Settings (Paramètres)
     path('parametres/', views_templates.ParametresView.as_view(), name='parametres'),
     
     # ============================================
-    # API ENDPOINTS (JSON responses)
+    # API ENDPOINTS (JSON Responses)
     # ============================================
     
-    # Dashboard API
+    # ---------- Dashboard APIs ----------
     path('api/stats/', views.DashboardStatsAPIView.as_view(), name='dashboard_stats'),
     
-    # Forex & Exchange Rate Management
-    path('api/forex/analysis/', views.ForexAnalysisView.as_view(), name='forex_analysis'),
-    path('api/forex/update-rate/', views.UpdateExchangeRateView.as_view(), name='update_exchange_rate'),
-    path('api/forex/history/', views.ExchangeRateHistoryView.as_view(), name='exchange_rate_history'),
+    # ---------- Branches APIs ----------
+    # Branches Template Views
+   path('branches/', views_templates.BranchesListView.as_view(), name='branches'),
+   path('branches/<int:branch_id>/', views_templates.BranchDetailView.as_view(), name='branch_detail'),
+
+   # Branches API Views
+   path('api/branches/create/', views.CreateBranchView.as_view(), name='create_branch'),
+   path('api/branches/<int:branch_id>/', views.BranchDetailAPIView.as_view(), name='branch_detail_api'),
+   path('api/branches/<int:branch_id>/update/', views.UpdateBranchView.as_view(), name='update_branch'),
+   path('api/branches/<int:branch_id>/toggle-active/', views.ToggleBranchActiveView.as_view(), name='toggle_branch_active'),
+   path('api/branches/<int:branch_id>/delete/', views.DeleteBranchView.as_view(), name='delete_branch'),
+   path('api/branches/<int:branch_id>/stats/', views.BranchStatsView.as_view(), name='branch_stats'),
+   path('api/users/', views.UsersListAPIView.as_view(), name='users_api'),
     
-    # Sales Management
-    path('api/ventes/manquants/', views.MissingsSalesView.as_view(), name='missing_sales'),
+    # # ---------- Sales (Ventes) APIs ----------
+    # Ventes Template View
+   path('ventes/', views_templates.VentesListView.as_view(), name='ventes'),
+
+   # Ventes API Views
+   path('api/ventes/', views.VentesListAPIView.as_view(), name='ventes_api'),
+   path('api/ventes/<int:vente_id>/', views.VenteDetailAPIView.as_view(), name='vente_detail_api'),
+   path('api/ventes/stats/', views.VentesStatsView.as_view(), name='ventes_stats'),
+   path('api/ventes/by-pompiste/', views.SalesByPompisteView.as_view(), name='ventes_by_pompiste'),
+   path('api/ventes/manquants/', views.ManquantsReportView.as_view(), name='manquants_report'),
     
-    # Stock Management
-    path('api/stock/', views.GlobalStockView.as_view(), name='global_stock'),
-    path('api/stock/alerts/', views.StockAlertsView.as_view(), name='stock_alerts'),
+    # # ---------- Expenses (Dépenses) APIs ----------
+    # Dépenses (Expenses) Template View
+   path('depenses/', views_templates.DepensesListView.as_view(), name='depenses'),
+
+# Dépenses API Views
+   path('api/depenses/', views.DepensesListAPIView.as_view(), name='depenses_api'),
+   path('api/depenses/create/', views.CreateDepenseView.as_view(), name='create_depense'),
+   path('api/depenses/<int:depense_id>/', views.DepenseDetailAPIView.as_view(), name='depense_detail_api'),
+   path('api/depenses/<int:depense_id>/update/', views.UpdateDepenseView.as_view(), name='update_depense'),
+   path('api/depenses/<int:depense_id>/delete/', views.DeleteDepenseView.as_view(), name='delete_depense'),
+   path('api/depenses/stats/', views.ExpensesStatsView.as_view(), name='expenses_stats'),
+
+# Categories APIs
+   path('api/categories/', views.CategoriesListAPIView.as_view(), name='categories_api'),
+   path('api/categories/create/', views.CreateCategoryView.as_view(), name='create_category'),
+   path('api/categories/<int:category_id>/update/', views.UpdateCategoryView.as_view(), name='update_category'),
+   path('api/categories/<int:category_id>/delete/', views.DeleteCategoryView.as_view(), name='delete_category'),
+   path('api/categories/<int:category_id>/approve/', views.ApproveCategoryView.as_view(), name='approve_category'),
+   path('api/categories/<int:category_id>/toggle/', views.ToggleCategoryView.as_view(), name='toggle_category'),
     
-    # Abonnés API
-    path('api/abonnes/', views.AbonnesListView.as_view(), name='api_abonnes_list'),
-    path('api/abonnes/create/', views.CreateAbonneView.as_view(), name='create_abonne'),
-    path('api/abonnes/<int:abonne_id>/update/', views.UpdateAbonneView.as_view(), name='update_abonne'),
-    path('api/abonnes/<int:abonne_id>/global-history/', views.AbonneGlobalHistoryView.as_view(), name='abonne_global_history'),
+    # # ---------- Categories APIs ----------
+    # path('api/categories/', views.CategoriesListAPIView.as_view(), name='categories_api'),
+    # path('api/categories/create/', views.CreateCategoryView.as_view(), name='create_category'),
+    # path('api/categories/<int:category_id>/update/', views.UpdateCategoryView.as_view(), name='update_category'),
+    # path('api/categories/<int:category_id>/delete/', views.DeleteCategoryView.as_view(), name='delete_category'),
+    # path('api/categories/<int:category_id>/approve/', views.ApproveCategoryView.as_view(), name='approve_category'),
     
-    # Document API
-    path('api/documents/categories/create/', views.CreateDocumentCategoryView.as_view(), name='create_document_category'),
-    path('api/documents/<int:document_id>/visibility/', views.UpdateDocumentVisibilityView.as_view(), name='update_document_visibility'),
+    # # ---------- Stock & Fuel APIs ----------
+    # Fuel Types
+   path('carburants/', views_templates.CarburantsListView.as_view(), name='carburants'),
+   path('api/fuel-types/', views.FuelTypesListAPIView.as_view(), name='fuel_types_api'),
+   path('api/fuel-types/create/', views.CreateFuelTypeView.as_view(), name='create_fuel_type'),
+   path('api/fuel-types/<int:fuel_id>/', views.FuelTypeDetailAPIView.as_view(), name='fuel_type_detail_api'),
+   path('api/fuel-types/<int:fuel_id>/update/', views.UpdateFuelTypeView.as_view(), name='update_fuel_type'),
+   path('api/fuel-types/<int:fuel_id>/toggle-active/', views.ToggleFuelTypeStatusView.as_view(), name='toggle_fuel_type_status'),
+   path('api/fuel-types/<int:fuel_id>/stats/', views.FuelTypeStatsView.as_view(), name='fuel_type_stats'),
+
+   # Stock Management URLs
+   path('api/stock/', views.StockListAPIView.as_view(), name='stock_api'),
+   path('api/stock/create/', views.CreateStockView.as_view(), name='create_stock'), 
+   path('api/stock/<int:stock_id>/', views.StockDetailAPIView.as_view(), name='stock_detail_api'),
+   path('api/stock/<int:stock_id>/settings/', views.UpdateStockSettingsView.as_view(), name='update_stock_settings'),
+   path('api/stock/<int:stock_id>/history/', views.StockHistoryView.as_view(), name='stock_history'),
+   path('api/stock/alerts/', views.StockAlertsView.as_view(), name='stock_alerts'),
+   path('api/stock/summary/', views.StockSummaryView.as_view(), name='stock_summary'),
+    # # ---------- Subscribers (Abonnés) APIs ----------
+    # Abonnés Management
+   path('abonnes/', views_templates.AbonnesListView.as_view(), name='abonnes'),
+   path('api/abonnes/', views.AbonnesListAPIView.as_view(), name='abonnes_api'),
+   path('api/abonnes/create/', views.CreateAbonneView.as_view(), name='create_abonne'),
+   path('api/abonnes/<int:abonne_id>/', views.AbonneDetailAPIView.as_view(), name='abonne_detail_api'),
+   path('api/abonnes/<int:abonne_id>/update/', views.UpdateAbonneView.as_view(), name='update_abonne'),
+   path('api/abonnes/<int:abonne_id>/toggle-active/', views.ToggleAbonneStatusView.as_view(), name='toggle_abonne_active'),
+   path('api/abonnes/<int:abonne_id>/history/', views.AbonneGlobalHistoryView.as_view(), name='abonne_history'),
+   path('api/abonnes/<int:abonne_id>/payment/', views.AddPaymentView.as_view(), name='add_abonne_payment'),
+   path('api/abonnes/<int:abonne_id>/stats/', views.AbonneConsumptionStatsView.as_view(), name='abonne_stats'),
+   path('api/abonnes/by-type/', views.AbonnesByTypeView.as_view(), name='abonnes_by_type'),
     
-    # System Settings
-    path('api/settings/', views.SystemSettingsView.as_view(), name='system_settings'),
-    path('api/settings/update/', views.UpdateSystemSettingsView.as_view(), name='update_settings'),
+    # # ---------- Users Management APIs ----------
+    # Utilisateurs Template View
+   path('utilisateurs/', views_templates.UtilisateursListView.as_view(), name='utilisateurs'),
+
+# System Users API Views
+   path('api/users/', views.UsersListAPIView.as_view(), name='users_api'),  # Already exists
+   path('api/users/create/', views.CreateUserView.as_view(), name='create_user'),
+   path('api/users/<int:user_id>/', views.UserDetailAPIView.as_view(), name='user_detail_api'),
+   path('api/users/<int:user_id>/update/', views.UpdateUserView.as_view(), name='update_user'),
+   path('api/users/<int:user_id>/toggle-active/', views.ToggleUserActiveView.as_view(), name='toggle_user_active'),
+   path('api/users/<int:user_id>/reset-password/', views.ResetPasswordView.as_view(), name='reset_password'),
+
+   # Pompistes API Views
+   path('api/pompistes/', views.PompistesListAPIView.as_view(), name='pompistes_api'),
+   path('api/pompistes/create/', views.CreatePompisteView.as_view(), name='create_pompiste'),
+   path('api/pompistes/<int:pompiste_id>/', views.PompisteDetailAPIView.as_view(), name='pompiste_detail_api'),
+   path('api/pompistes/<int:pompiste_id>/update/', views.UpdatePompisteView.as_view(), name='update_pompiste'),
+   path('api/pompistes/<int:pompiste_id>/toggle-active/', views.TogglePompisteActiveView.as_view(), name='toggle_pompiste_active'),
     
-    # Reports API
-    path('api/reports/financial/', views.FinancialReportView.as_view(), name='financial_report'),
-    path('api/reports/performance/', views.PerformanceReportView.as_view(), name='performance_report'),
-    path('api/reports/audit/', views.AuditReportView.as_view(), name='audit_report'),
+    # ---------- Pompistes APIs ----------
+    path('api/pompistes/', views.PompistesListAPIView.as_view(), name='pompistes_api'),
+    path('api/pompistes/create/', views.CreatePompisteView.as_view(), name='create_pompiste'),
+    path('api/pompistes/<int:pompiste_id>/', views.PompisteDetailAPIView.as_view(), name='pompiste_detail_api'),
+    path('api/pompistes/<int:pompiste_id>/update/', views.UpdatePompisteView.as_view(), name='update_pompiste'),
+    path('api/pompistes/<int:pompiste_id>/delete/', views.DeletePompisteView.as_view(), name='delete_pompiste'),
+    path('api/pompistes/<int:pompiste_id>/toggle-active/', views.TogglePompisteActiveView.as_view(), name='toggle_pompiste_active'),
     
-    # Export
-    path('api/export/pdf/<str:report_type>/', views.ExportPDFReportView.as_view(), name='export_pdf'),
-    path('api/export/excel/<str:report_type>/', views.ExportExcelReportView.as_view(), name='export_excel'),
+    # # ---------- Forex & Exchange Rate APIs ----------
+   path('forex/', views_templates.ForexView.as_view(), name='forex'),
+   path('api/forex/current/', views.CurrentExchangeRateView.as_view(), name='current_exchange_rate'),
+   path('api/forex/update-rate/', views.UpdateExchangeRateView.as_view(), name='update_exchange_rate'),
+   path('api/forex/history/', views.ExchangeRateHistoryView.as_view(), name='exchange_rate_history'),
+   path('api/forex/analysis/', views.ForexAnalysisView.as_view(), name='forex_analysis'),
+   path('api/forex/impact/', views.ForexImpactView.as_view(), name='forex_impact'),
+    
+    # # ---------- Documents APIs ----------
+    # Documents URLs
+   path('documents/', views_templates.DocumentsView.as_view(), name='documents'),
+   path('api/documents/<int:document_id>/', views.GetDocumentDetailView.as_view(), name='get_document_detail'),
+   path('api/documents/<int:document_id>/update/', views.UpdateDocumentView.as_view(), name='update_document'),
+   path('api/documents/upload/', views.UploadDocumentView.as_view(), name='upload_document'),
+   path('api/documents/<int:document_id>/download/', views.DownloadDocumentView.as_view(), name='download_document'),
+   path('api/documents/<int:document_id>/delete/', views.DeleteDocumentView.as_view(), name='delete_document'),
+   path('api/documents/categories/create/', views.CreateDocumentCategoryView.as_view(), name='create_document_category'),
+   path('api/documents/list/', views.DocumentsListAPIView.as_view(), name='documents_list_api'),
+    
+    # # ---------- Notifications APIs ----------
+    # path('api/notifications/', views.NotificationsListAPIView.as_view(), name='notifications_api'),
+    # path('api/notifications/<int:notification_id>/mark-read/', views.MarkNotificationReadView.as_view(), name='mark_notification_read'),
+    # path('api/notifications/mark-all-read/', views.MarkAllNotificationsReadView.as_view(), name='mark_all_notifications_read'),
+    # path('api/notifications/<int:notification_id>/delete/', views.DeleteNotificationView.as_view(), name='delete_notification'),
+    
+    # # ---------- Payroll (Salaires) APIs ----------
+    # path('api/salaires/', views.SalairesListAPIView.as_view(), name='salaires_api'),
+    # path('api/salaires/stats/', views.PayrollStatsView.as_view(), name='payroll_stats'),
+    # path('api/salaires/<int:payment_id>/', views.PaymentDetailAPIView.as_view(), name='payment_detail_api'),
+    
+    # # ---------- Reports APIs ----------
+    # path('api/reports/financial/', views.FinancialReportView.as_view(), name='financial_report'),
+    # path('api/reports/sales/', views.SalesReportView.as_view(), name='sales_report'),
+    # path('api/reports/stock/', views.StockReportView.as_view(), name='stock_report'),
+    # path('api/reports/performance/', views.PerformanceReportView.as_view(), name='performance_report'),
+    # path('api/reports/export/', views.ExportReportView.as_view(), name='export_report'),
+    
+    # # ---------- Settings APIs ----------
+    # path('api/settings/', views.SystemSettingsView.as_view(), name='system_settings'),
+    # path('api/settings/update/', views.UpdateSystemSettingsView.as_view(), name='update_system_settings'),
+    # path('api/payment-methods/', views.PaymentMethodsAPIView.as_view(), name='payment_methods_api'),
+    # path('api/payment-methods/create/', views.CreatePaymentMethodView.as_view(), name='create_payment_method'),
+    
+    # # ---------- Analytics & Stats APIs ----------
+    # path('api/analytics/overview/', views.AnalyticsOverviewView.as_view(), name='analytics_overview'),
+    # path('api/analytics/trends/', views.TrendsAnalysisView.as_view(), name='trends_analysis'),
+    # path('api/analytics/comparison/', views.ComparisonAnalysisView.as_view(), name='comparison_analysis'),
+    
+    # # ---------- Utility APIs ----------
+    # path('api/search/', views.GlobalSearchView.as_view(), name='global_search'),
+    # path('api/export/csv/', views.ExportCSVView.as_view(), name='export_csv'),
+    # path('api/export/excel/', views.ExportExcelView.as_view(), name='export_excel'),
+    # path('api/export/pdf/', views.ExportPDFView.as_view(), name='export_pdf'),
 ]
+
+"""
+URL PATTERN ORGANIZATION:
+
+1. Template Views (HTML Pages)
+   - These render full HTML pages
+   - Used for initial page loads
+   - Include navigation and full UI structure
+   
+2. API Endpoints (JSON Responses)
+   - Return JSON data for AJAX requests
+   - Used for dynamic updates without page refresh
+   - Organized by resource type
+   
+NAMING CONVENTIONS:
+
+Template Views:
+   - name='resource_name' (e.g., 'dashboard', 'branches')
+   - name='resource_name_detail' (e.g., 'branch_detail')
+
+API Views:
+   - name='resource_name_api' (e.g., 'ventes_api')
+   - name='action_resource_name' (e.g., 'create_branch')
+   - name='resource_name_action' (e.g., 'branch_stats')
+
+URL PATTERNS:
+
+Template Views:
+   - Simple paths: '', 'branches/', 'ventes/'
+   - Detail views: 'branches/<int:pk>/'
+
+API Views:
+   - Prefix with 'api/': 'api/stats/', 'api/branches/'
+   - RESTful conventions:
+     - List: api/resource/
+     - Create: api/resource/create/
+     - Detail: api/resource/<id>/
+     - Update: api/resource/<id>/update/
+     - Delete: api/resource/<id>/delete/
+     - Custom actions: api/resource/<id>/action/
+
+USAGE IN TEMPLATES:
+
+{% url 'admin_module:dashboard' %}
+{% url 'admin_module:branch_detail' branch_id=branch.id %}
+{% url 'admin_module:create_branch' %}
+
+USAGE IN JAVASCRIPT:
+
+fetch('/dashboard/api/stats/')
+fetch('/dashboard/api/branches/create/', {...})
+fetch(`/dashboard/api/branches/${branchId}/update/`, {...})
+
+REVERSE IN PYTHON:
+
+from django.urls import reverse
+url = reverse('admin_module:dashboard')
+url = reverse('admin_module:branch_detail', kwargs={'branch_id': 1})
+url = reverse('admin_module:dashboard_stats')
+"""

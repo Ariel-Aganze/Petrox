@@ -18,8 +18,8 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-petrox-development-ke
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
-
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,c8f02eaaae54.ngrok-free.app', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -219,3 +219,8 @@ LOGGING = {
 
 # Create logs directory
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://c8f02eaaae54.ngrok-free.app',
+    'http://localhost:8000',
+]

@@ -15,44 +15,36 @@
 <a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
 {% endblock %}
 
-{% block mobile_menu %}
-<a href="{% url 'admin_module:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-petrox-red">Dashboard</a>
-<a href="{% url 'admin_module:branches' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Branches</a>
-<a href="{% url 'admin_module:ventes' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
-<a href="{% url 'admin_module:depenses' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
-<a href="{% url 'admin_module:carburants' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
-{% endblock %}
-
 {% block mobile_bottom_nav %}
-<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item active">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="{% url 'admin_module:dashboard' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
     </svg>
-    <span>Dashboard</span>
+    <span class="text-xs mt-1">Dashboard</span>
 </a>
-<a href="{% url 'admin_module:branches' %}" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="{% url 'admin_module:branches' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
-    <span>Branches</span>
+    <span class="text-xs mt-1">Branches</span>
 </a>
-<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="{% url 'admin_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
-    <span>Ventes</span>
+    <span class="text-xs mt-1">Ventes</span>
 </a>
-<a href="{% url 'admin_module:carburants' %}" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="{% url 'admin_module:carburants' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
     </svg>
-    <span>Stock</span>
+    <span class="text-xs mt-1">Stock</span>
 </a>
-<a href="#" onclick="toggleNotifications(); return false;" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="#" onclick="toggleNotifications(); return false;" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
     </svg>
-    <span>Alertes</span>
+    <span class="text-xs mt-1">Alertes</span>
 </a>
 {% endblock %}
 
@@ -67,280 +59,356 @@
             Statistiques pour <span class="font-semibold text-gray-800" id="branch-label">{% if selected_branch %}{{ selected_branch.nom }}{% else %}Toutes les branches{% endif %}</span>
         </p>
     </div>
-    
-    <!-- Filters -->
-    <div class="mt-4 flex flex-wrap gap-2 md:mt-0 md:ml-4">
+    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
         <!-- Period Filter -->
-        <div class="bg-white rounded-lg p-1 shadow-sm border border-gray-200 flex">
-            <button onclick="setPeriod('today', this)" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-900 shadow-sm">Aujourd'hui</button>
-            <button onclick="setPeriod('week', this)" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900">Semaine</button>
-            <button onclick="setPeriod('month', this)" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900">Mois</button>
-            <button onclick="openCustomPeriodModal()" class="period-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-petrox-red">
-                <svg class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-            </button>
-        </div>
+        <select id="period-filter" onchange="updatePeriod(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+            <option value="today">Aujourd'hui</option>
+            <option value="week">Cette semaine</option>
+            <option value="month" selected>Ce mois</option>
+            <option value="year">Cette année</option>
+        </select>
         
-        <!-- Currency Toggle -->
-        <div class="bg-white rounded-lg p-1 shadow-sm border border-gray-200 flex">
-            <button onclick="setCurrency('USD', this)" class="currency-btn px-3 py-1.5 text-sm font-medium rounded-md bg-petrox-red text-white">USD</button>
-            <button onclick="setCurrency('FC', this)" class="currency-btn px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-700">FC</button>
-        </div>
+        <!-- Currency Filter -->
+        <select id="currency-filter" onchange="updateCurrency(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+            <option value="USD" selected>USD ($)</option>
+            <option value="FC">FC (FC)</option>
+        </select>
+        
+        <!-- Refresh Button -->
+        <button onclick="refreshDashboard()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Actualiser
+        </button>
     </div>
 </div>
 
 <!-- KPI Cards -->
 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-    <!-- Total Ventes -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+    <!-- Total Sales -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
-                    <svg class="h-6 w-6 text-petrox-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Ventes</dt>
-                        <dd>
-                            <div class="text-lg font-bold text-gray-900" id="total-sales">--</div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Total Ventes
+                        </dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900" id="total-sales">
+                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
+                            </div>
+                            <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600" id="sales-trend">
+                                <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>+0%</span>
+                            </div>
                         </dd>
                     </dl>
                 </div>
-            </div>
-        </div>
-        <div class="bg-gray-50 px-5 py-2">
-            <div class="text-sm flex items-center" id="sales-trend">
-                <span class="text-gray-500">Chargement...</span>
             </div>
         </div>
     </div>
 
-    <!-- Total Dépenses -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+    <!-- Total Expenses -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
-                    <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Dépenses</dt>
-                        <dd>
-                            <div class="text-lg font-bold text-gray-900" id="total-expenses">--</div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Total Dépenses
+                        </dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900" id="total-expenses">
+                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
+                            </div>
+                            <div class="ml-2 flex items-baseline text-sm font-semibold text-red-600" id="expenses-trend">
+                                <svg class="self-center flex-shrink-0 h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>+0%</span>
+                            </div>
                         </dd>
                     </dl>
                 </div>
             </div>
-        </div>
-        <div class="bg-gray-50 px-5 py-2">
-            <div class="text-sm text-gray-500" id="expenses-count">-- dépenses</div>
         </div>
     </div>
 
-    <!-- Profit/Perte -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+    <!-- Net Profit/Loss -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
-                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Profit / Perte</dt>
-                        <dd>
-                            <div class="text-lg font-bold" id="total-profit">--</div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Profit Net
+                        </dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold" id="net-profit">
+                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
+                            </div>
+                            <div class="ml-2 flex items-baseline text-sm font-semibold" id="profit-margin">
+                                <span>0%</span>
+                            </div>
                         </dd>
                     </dl>
                 </div>
             </div>
-        </div>
-        <div class="bg-gray-50 px-5 py-2">
-            <div class="text-sm text-gray-500" id="profit-label">Bénéfice net</div>
         </div>
     </div>
 
-    <!-- Stock Alerts -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+    <!-- Missing Amounts -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
-                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Alertes Stock</dt>
-                        <dd>
-                            <div class="text-lg font-bold text-gray-900" id="stock-alerts">--</div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Manquants
+                        </dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900" id="total-manquants">
+                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
+                            </div>
+                            <div class="ml-2 flex items-baseline text-sm font-semibold text-yellow-600" id="manquants-count">
+                                <span>0 cas</span>
+                            </div>
                         </dd>
                     </dl>
                 </div>
-            </div>
-        </div>
-        <div class="bg-gray-50 px-5 py-2">
-            <div class="text-sm" id="stock-status">
-                <span class="text-gray-500">Chargement...</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts Section -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-    <!-- Main Chart: Sales vs Expenses -->
-    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Sales vs Expenses Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Ventes vs Dépenses</h3>
-            <div class="flex items-center space-x-4 text-sm">
-                <span class="flex items-center">
-                    <span class="w-3 h-3 bg-petrox-green rounded-full mr-1"></span>
-                    Ventes
-                </span>
-                <span class="flex items-center">
-                    <span class="w-3 h-3 bg-petrox-red rounded-full mr-1"></span>
-                    Dépenses
-                </span>
+            <h3 class="text-lg font-medium text-gray-900">Ventes vs Dépenses</h3>
+            <div class="flex gap-4 text-sm">
+                <div class="flex items-center">
+                    <div class="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+                    <span class="text-gray-600">Ventes</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
+                    <span class="text-gray-600">Dépenses</span>
+                </div>
             </div>
         </div>
-        <div class="h-80">
+        <div class="relative h-80">
             <canvas id="salesExpensesChart"></canvas>
         </div>
     </div>
 
-    <!-- Forex Impact -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Impact Forex</h3>
-            <span class="text-sm text-gray-500" id="current-rate">1 USD = -- FC</span>
-        </div>
-        <div class="h-64">
-            <canvas id="forexChart"></canvas>
-        </div>
-        <div class="mt-4 p-3 rounded-lg" id="forex-summary">
-            <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Impact Total:</span>
-                <span class="text-lg font-bold" id="forex-impact">$0.00</span>
-            </div>
+    <!-- Sales by Fuel Type -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes par Type de Carburant</h3>
+        <div class="relative h-80">
+            <canvas id="fuelTypesChart"></canvas>
         </div>
     </div>
 </div>
 
-<!-- Sales by Fuel Type & Branch Performance -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <!-- Sales by Fuel -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Ventes par Carburant</h3>
-        <div class="space-y-4" id="fuel-sales-list">
-            <div class="text-center text-gray-500 py-4">Chargement...</div>
+<!-- Recent Transactions & Stock Alerts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Transactions -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
+        </div>
+        <div class="overflow-hidden">
+            <ul role="list" class="divide-y divide-gray-200" id="recent-transactions">
+                <!-- Loading state -->
+                <li class="px-6 py-4 text-center text-gray-500">
+                    <svg class="animate-spin h-5 w-5 mx-auto text-petrox-red" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </li>
+            </ul>
         </div>
     </div>
 
-    <!-- Branch Performance -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance par Branche</h3>
-        <div class="space-y-4" id="branch-performance-list">
-            <div class="text-center text-gray-500 py-4">Chargement...</div>
-        </div>
-    </div>
-</div>
-
-<!-- Recent Transactions -->
-<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-900">Transactions Récentes</h3>
-        <div class="flex space-x-2">
-            <button onclick="filterTransactions('all')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">Toutes</button>
-            <button onclick="filterTransactions('sales')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Ventes</button>
-            <button onclick="filterTransactions('expenses')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Dépenses</button>
-            <button onclick="filterTransactions('missing')" class="tx-filter-btn px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Manquants</button>
-        </div>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Référence</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200" id="transactions-tbody">
-                <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Chargement...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="px-6 py-3 border-t border-gray-100 flex justify-between items-center">
-        <span class="text-sm text-gray-500" id="transactions-count">-- transactions</span>
-        <a href="{% url 'admin_module:ventes' %}" class="text-sm font-medium text-petrox-red hover:text-petrox-hover">
-            Voir tout →
-        </a>
-    </div>
-</div>
-{% endblock %}
-
-{% block modals %}
-<!-- Custom Period Modal -->
-<div id="custom-period-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('custom-period-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Période personnalisée</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Date de début</label>
-                        <input type="date" id="custom-start-date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Date de fin</label>
-                        <input type="date" id="custom-end-date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                    </div>
-                </div>
+    <!-- Stock Alerts -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Alertes de Stock</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" id="alerts-badge">
+                    0
+                </span>
             </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="applyCustomPeriod()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
-                    Appliquer
-                </button>
-                <button type="button" onclick="closeModal('custom-period-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Annuler
-                </button>
-            </div>
+        </div>
+        <div class="overflow-hidden">
+            <ul role="list" class="divide-y divide-gray-200" id="stock-alerts">
+                <!-- Loading state -->
+                <li class="px-6 py-4 text-center text-gray-500">
+                    <svg class="animate-spin h-5 w-5 mx-auto text-petrox-red" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    // Chart instances
-    let salesExpensesChart = null;
-    let forexChart = null;
-    
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        initCharts();
-        loadDashboardData();
+// Global state
+let currentPeriod = 'month';
+let currentCurrency = 'USD';
+let currentBranch = '{{ selected_branch_id|default:"all" }}';
+let salesExpensesChart = null;
+let fuelTypesChart = null;
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+    initializeCharts();
+});
+
+// Update period filter
+function updatePeriod(period) {
+    currentPeriod = period;
+    loadDashboardData();
+}
+
+// Update currency filter
+function updateCurrency(currency) {
+    currentCurrency = currency;
+    updateCurrencySymbols(currency);
+    loadDashboardData();
+}
+
+// Update currency symbols in UI
+function updateCurrencySymbols(currency) {
+    const symbol = currency === 'USD' ? '$' : 'FC';
+    document.querySelectorAll('.currency-symbol').forEach(el => {
+        el.textContent = symbol;
     });
+}
+
+// Refresh dashboard
+function refreshDashboard() {
+    loadDashboardData();
+    showNotification('Dashboard actualisé', 'success');
+}
+
+// Load dashboard data from API
+function loadDashboardData() {
+    const url = `/dashboard/api/stats/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
     
-    // Initialize Charts
-    function initCharts() {
-        // Sales vs Expenses Chart
-        const salesCtx = document.getElementById('salesExpensesChart').getContext('2d');
-        salesExpensesChart = new Chart(salesCtx, {
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateKPIs(data);
+            updateCharts(data);
+            updateRecentTransactions(data.recent_transactions || []);
+            updateStockAlerts(data.stock_alerts || []);
+        } else {
+            showNotification('Erreur de chargement des données', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading dashboard:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Update KPI cards
+function updateKPIs(data) {
+    // Total Sales
+    const salesAmount = document.querySelector('#total-sales .amount');
+    const salesTrend = document.querySelector('#sales-trend span');
+    if (salesAmount) salesAmount.textContent = formatNumber(data.total_sales || 0);
+    if (salesTrend) salesTrend.textContent = `${data.sales_trend > 0 ? '+' : ''}${data.sales_trend || 0}%`;
+    
+    // Total Expenses
+    const expensesAmount = document.querySelector('#total-expenses .amount');
+    const expensesTrend = document.querySelector('#expenses-trend span');
+    if (expensesAmount) expensesAmount.textContent = formatNumber(data.total_expenses || 0);
+    if (expensesTrend) expensesTrend.textContent = `${data.expenses_trend > 0 ? '+' : ''}${data.expenses_trend || 0}%`;
+    
+    // Net Profit
+    const netProfit = (data.total_sales || 0) - (data.total_expenses || 0);
+    const netProfitEl = document.querySelector('#net-profit .amount');
+    const profitMarginEl = document.querySelector('#profit-margin span');
+    
+    if (netProfitEl) {
+        netProfitEl.textContent = formatNumber(netProfit);
+        // Change color based on profit/loss
+        const profitContainer = document.getElementById('net-profit');
+        if (netProfit >= 0) {
+            profitContainer.classList.remove('text-red-600');
+            profitContainer.classList.add('text-green-600');
+        } else {
+            profitContainer.classList.remove('text-green-600');
+            profitContainer.classList.add('text-red-600');
+        }
+    }
+    
+    if (profitMarginEl) {
+        const margin = data.total_sales > 0 ? ((netProfit / data.total_sales) * 100).toFixed(1) : 0;
+        profitMarginEl.textContent = `${margin}%`;
+    }
+    
+    // Manquants
+    const manquantsAmount = document.querySelector('#total-manquants .amount');
+    const manquantsCount = document.querySelector('#manquants-count span');
+    if (manquantsAmount) manquantsAmount.textContent = formatNumber(data.total_manquants || 0);
+    if (manquantsCount) manquantsCount.textContent = `${data.manquants_count || 0} cas`;
+}
+
+// Initialize charts
+function initializeCharts() {
+    // Sales vs Expenses Chart
+    const salesExpensesCtx = document.getElementById('salesExpensesChart');
+    if (salesExpensesCtx) {
+        salesExpensesChart = new Chart(salesExpensesCtx, {
             type: 'line',
             data: {
                 labels: [],
@@ -348,18 +416,18 @@
                     {
                         label: 'Ventes',
                         data: [],
-                        borderColor: '#16A34A',
-                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
-                        fill: true,
-                        tension: 0.4
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
                     },
                     {
                         label: 'Dépenses',
                         data: [],
-                        borderColor: '#DC2626',
+                        borderColor: 'rgb(220, 38, 38)',
                         backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                        fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        fill: true
                     }
                 ]
             },
@@ -367,30 +435,56 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const symbol = currentCurrency === 'USD' ? '$' : 'FC';
+                                label += symbol + formatNumber(context.parsed.y);
+                                return label;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.05)' }
-                    },
-                    x: {
-                        grid: { display: false }
+                        ticks: {
+                            callback: function(value) {
+                                const symbol = currentCurrency === 'USD' ? '$' : 'FC';
+                                return symbol + formatNumber(value);
+                            }
+                        }
                     }
                 }
             }
         });
-        
-        // Forex Impact Chart
-        const forexCtx = document.getElementById('forexChart').getContext('2d');
-        forexChart = new Chart(forexCtx, {
+    }
+    
+    // Fuel Types Chart
+    const fuelTypesCtx = document.getElementById('fuelTypesChart');
+    if (fuelTypesCtx) {
+        fuelTypesChart = new Chart(fuelTypesCtx, {
             type: 'doughnut',
             data: {
                 labels: [],
                 datasets: [{
                     data: [],
-                    backgroundColor: ['#DC2626', '#16A34A', '#F59E0B', '#3B82F6', '#8B5CF6'],
-                    borderWidth: 0
+                    backgroundColor: [
+                        'rgb(34, 197, 94)',
+                        'rgb(59, 130, 246)',
+                        'rgb(245, 158, 11)',
+                        'rgb(168, 85, 247)',
+                        'rgb(236, 72, 153)'
+                    ]
                 }]
             },
             options: {
@@ -398,257 +492,209 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: { boxWidth: 12, padding: 15 }
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const symbol = currentCurrency === 'USD' ? '$' : 'FC';
+                                label += symbol + formatNumber(context.parsed);
+                                
+                                // Calculate percentage
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                label += ` (${percentage}%)`;
+                                
+                                return label;
+                            }
+                        }
                     }
                 }
             }
         });
     }
-    
-    // Load Dashboard Data
-    async function loadDashboardData() {
-        try {
-            // Build query params
-            const params = new URLSearchParams({
-                period: currentFilters.period,
-                branche_id: currentFilters.branche_id,
-                devise: currentFilters.devise
-            });
-            
-            if (currentFilters.start_date) params.append('start_date', currentFilters.start_date);
-            if (currentFilters.end_date) params.append('end_date', currentFilters.end_date);
-            
-            const response = await fetch(`/dashboard/api/stats/?${params}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            const data = await response.json();
-            
-            updateKPICards(data);
-            updateCharts(data);
-            updateFuelSales(data);
-            updateBranchPerformance(data);
-            loadRecentTransactions();
-            
-        } catch (error) {
-            console.error('Error loading dashboard data:', error);
-            showToast('Erreur lors du chargement des données', 'error');
-        }
-    }
-    
-    // Update KPI Cards
-    function updateKPICards(data) {
-        const devise = currentFilters.devise;
-        
-        // Total Sales
-        const totalSales = devise === 'USD' ? data.sales.total_usd : data.sales.total_fc;
-        document.getElementById('total-sales').textContent = formatCurrency(totalSales, devise);
-        
-        // Sales Trend
-        const trend = devise === 'USD' ? data.sales.trend_usd : data.sales.trend_fc;
-        const trendEl = document.getElementById('sales-trend');
-        if (trend.direction === 'up') {
-            trendEl.innerHTML = `<span class="text-green-600 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg> +${trend.value}%</span>`;
-        } else if (trend.direction === 'down') {
-            trendEl.innerHTML = `<span class="text-red-600 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg> -${trend.value}%</span>`;
-        } else {
-            trendEl.innerHTML = `<span class="text-gray-500">Stable</span>`;
-        }
-        
-        // Total Expenses
-        const totalExpenses = devise === 'USD' ? data.expenses.total_usd : data.expenses.total_fc;
-        document.getElementById('total-expenses').textContent = formatCurrency(totalExpenses, devise);
-        
-        // Profit
-        const profit = devise === 'USD' ? data.profit.usd : data.profit.fc;
-        const profitEl = document.getElementById('total-profit');
-        const profitNum = parseFloat(profit);
-        profitEl.textContent = formatCurrency(Math.abs(profit), devise);
-        profitEl.className = `text-lg font-bold ${profitNum >= 0 ? 'text-green-600' : 'text-red-600'}`;
-        document.getElementById('profit-label').textContent = profitNum >= 0 ? 'Bénéfice net' : 'Perte nette';
-        
-        // Stock Alerts
-        document.getElementById('stock-alerts').textContent = data.stock.alerts + ' alertes';
-        const stockStatus = document.getElementById('stock-status');
-        stockStatus.innerHTML = `<span class="${data.stock.alerts > 0 ? 'text-red-600' : 'text-green-600'}">${data.stock.status}</span>`;
-        
-        // Exchange Rate
-        document.getElementById('current-rate').textContent = `1 USD = ${formatNumber(data.exchange_rate.current)} FC`;
-    }
-    
-    // Update Charts
-    function updateCharts(data) {
-        const devise = currentFilters.devise;
-        
-        // Generate labels based on period
-        let labels = [];
-        let salesData = [];
-        let expensesData = [];
-        
-        // For now, use sample distribution - in production, this would come from daily breakdown API
-        if (currentFilters.period === 'today') {
-            labels = ['8h', '10h', '12h', '14h', '16h', '18h'];
-        } else if (currentFilters.period === 'week') {
-            labels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-        } else {
-            labels = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
-        }
-        
-        // Distribute totals across periods for visualization
-        const totalSales = parseFloat(devise === 'USD' ? data.sales.total_usd : data.sales.total_fc);
-        const totalExpenses = parseFloat(devise === 'USD' ? data.expenses.total_usd : data.expenses.total_fc);
-        
-        labels.forEach((_, i) => {
-            const variance = 0.8 + Math.random() * 0.4;
-            salesData.push((totalSales / labels.length) * variance);
-            expensesData.push((totalExpenses / labels.length) * variance);
-        });
-        
-        salesExpensesChart.data.labels = labels;
-        salesExpensesChart.data.datasets[0].data = salesData;
-        salesExpensesChart.data.datasets[1].data = expensesData;
+}
+
+// Update charts with new data
+function updateCharts(data) {
+    // Update Sales vs Expenses Chart
+    if (salesExpensesChart && data.chart_data) {
+        salesExpensesChart.data.labels = data.chart_data.labels || [];
+        salesExpensesChart.data.datasets[0].data = data.chart_data.sales || [];
+        salesExpensesChart.data.datasets[1].data = data.chart_data.expenses || [];
         salesExpensesChart.update();
-        
-        // Forex Chart
-        if (data.forex && data.forex.by_carburant) {
-            const fuelLabels = data.forex.by_carburant.map(f => f.carburant);
-            const fuelImpacts = data.forex.by_carburant.map(f => Math.abs(parseFloat(f.impact_usd)));
-            
-            forexChart.data.labels = fuelLabels;
-            forexChart.data.datasets[0].data = fuelImpacts;
-            forexChart.update();
-            
-            // Update forex summary
-            const totalImpact = parseFloat(data.forex.total_gain_loss_usd);
-            const forexSummary = document.getElementById('forex-summary');
-            forexSummary.className = `mt-4 p-3 rounded-lg ${totalImpact >= 0 ? 'bg-green-50' : 'bg-red-50'}`;
-            document.getElementById('forex-impact').textContent = formatCurrency(totalImpact, 'USD');
-            document.getElementById('forex-impact').className = `text-lg font-bold ${totalImpact >= 0 ? 'text-green-600' : 'text-red-600'}`;
-        }
     }
     
-    // Update Fuel Sales List
-    function updateFuelSales(data) {
-        const container = document.getElementById('fuel-sales-list');
-        const devise = currentFilters.devise;
-        
-        if (!data.sales.by_fuel || data.sales.by_fuel.length === 0) {
-            container.innerHTML = '<div class="text-center text-gray-500 py-4">Aucune vente</div>';
-            return;
-        }
-        
-        container.innerHTML = data.sales.by_fuel.map(fuel => {
-            const total = devise === 'USD' ? fuel.total_usd : fuel.total_fc;
-            return `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div class="flex items-center">
-                        <div class="w-3 h-3 rounded-full mr-3" style="background-color: ${fuel.type_carburant__couleur_hex || '#6B7280'}"></div>
-                        <div>
-                            <p class="font-medium text-gray-900">${fuel.type_carburant__nom}</p>
-                            <p class="text-sm text-gray-500">${formatNumber(fuel.total_quantity)} L • ${fuel.count} ventes</p>
-                        </div>
-                    </div>
-                    <span class="font-bold text-gray-900">${formatCurrency(total, devise)}</span>
-                </div>
-            `;
-        }).join('');
+    // Update Fuel Types Chart
+    if (fuelTypesChart && data.fuel_data) {
+        fuelTypesChart.data.labels = data.fuel_data.labels || [];
+        fuelTypesChart.data.datasets[0].data = data.fuel_data.values || [];
+        fuelTypesChart.update();
     }
+}
+
+// Update recent transactions list
+function updateRecentTransactions(transactions) {
+    const container = document.getElementById('recent-transactions');
+    if (!container) return;
     
-    // Update Branch Performance
-    function updateBranchPerformance(data) {
-        const container = document.getElementById('branch-performance-list');
-        
-        // This would come from a separate API call in production
-        // For now, showing placeholder based on branch count
-        if (currentFilters.branche_id !== 'all') {
-            container.innerHTML = '<div class="text-center text-gray-500 py-4">Sélectionnez "Toutes les branches" pour voir la comparaison</div>';
-            return;
-        }
-        
+    if (transactions.length === 0) {
         container.innerHTML = `
-            <div class="text-center text-gray-500 py-4">
-                <p class="mb-2">${data.branches.active} branches actives</p>
-                <a href="{% url 'admin_module:branches' %}" class="text-petrox-red hover:underline text-sm">Voir les performances →</a>
-            </div>
+            <li class="px-6 py-4 text-center text-gray-500">
+                Aucune transaction récente
+            </li>
         `;
+        return;
     }
     
-    // Load Recent Transactions
-    async function loadRecentTransactions() {
-        try {
-            const params = new URLSearchParams({
-                period: currentFilters.period,
-                branche_id: currentFilters.branche_id,
-                limit: 10
-            });
-            
-            // This would be a real API endpoint
-            const data = {
-                recent_transactions: [
-                    // Placeholder - replace with actual API call
-                ]
-            };
-            
-            const tbody = document.getElementById('transactions-tbody');
-            
-            if (!data.recent_transactions || data.recent_transactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucune transaction récente</td></tr>';
-                return;
+    container.innerHTML = transactions.map(transaction => `
+        <li class="px-6 py-4 hover:bg-gray-50 cursor-pointer" onclick="viewTransaction('${transaction.type}', ${transaction.id})">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                        ${transaction.description}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        ${transaction.branch} • ${transaction.date}
+                    </p>
+                </div>
+                <div class="ml-4 flex-shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(transaction.status)}">
+                        ${transaction.status}
+                    </span>
+                    <p class="text-sm font-semibold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'} mt-1">
+                        ${transaction.amount >= 0 ? '+' : ''}${currentCurrency === 'USD' ? '$' : 'FC'}${formatNumber(Math.abs(transaction.amount))}
+                    </p>
+                </div>
+            </div>
+        </li>
+    `).join('');
+}
+
+// Update stock alerts list
+function updateStockAlerts(alerts) {
+    const container = document.getElementById('stock-alerts');
+    const badge = document.getElementById('alerts-badge');
+    
+    if (badge) badge.textContent = alerts.length;
+    
+    if (!container) return;
+    
+    if (alerts.length === 0) {
+        container.innerHTML = `
+            <li class="px-6 py-4 text-center text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="mt-2">Aucune alerte de stock</p>
+            </li>
+        `;
+        return;
+    }
+    
+    container.innerHTML = alerts.map(alert => `
+        <li class="px-6 py-4 hover:bg-gray-50">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 ${alert.level === 'critical' ? 'text-red-500' : 'text-yellow-500'}" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium text-gray-900">
+                        ${alert.fuel_type} - ${alert.branch}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        Stock actuel: ${formatNumber(alert.current_stock)} L
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Seuil d'alerte: ${formatNumber(alert.threshold)} L
+                    </p>
+                </div>
+                <div class="ml-4">
+                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ${alert.level === 'critical' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${alert.level === 'critical' ? 'Critique' : 'Bas'}
+                    </span>
+                </div>
+            </div>
+        </li>
+    `).join('');
+}
+
+// Helper: Get status badge class
+function getStatusClass(status) {
+    const classes = {
+        'Validée': 'bg-green-100 text-green-800',
+        'En attente': 'bg-yellow-100 text-yellow-800',
+        'Manquant': 'bg-red-100 text-red-800',
+        'Approuvée': 'bg-green-100 text-green-800',
+        'Complété': 'bg-green-100 text-green-800'
+    };
+    return classes[status] || 'bg-gray-100 text-gray-800';
+}
+
+// Helper: Format numbers
+function formatNumber(num) {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(num);
+}
+
+// Helper: View transaction details
+function viewTransaction(type, id) {
+    if (type === 'sale') {
+        window.location.href = `/dashboard/ventes/?highlight=${id}`;
+    } else if (type === 'expense') {
+        window.location.href = `/dashboard/depenses/?highlight=${id}`;
+    }
+}
+
+// Helper: Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
-            
-            // Render transactions...
-            
-        } catch (error) {
-            console.error('Error loading transactions:', error);
         }
     }
+    return cookieValue;
+}
+
+// Helper: Show notification
+function showNotification(message, type) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
     
-    // Filter Transactions
-    function filterTransactions(type) {
-        document.querySelectorAll('.tx-filter-btn').forEach(btn => {
-            btn.classList.remove('bg-gray-100', 'text-gray-700');
-            btn.classList.add('text-gray-500');
-        });
-        event.target.classList.add('bg-gray-100', 'text-gray-700');
-        event.target.classList.remove('text-gray-500');
-        
-        // Reload with filter
-        loadRecentTransactions(type);
-    }
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} show`;
+    toast.innerHTML = `
+        <div class="flex items-center">
+            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                ${type === 'success' 
+                    ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
+                    : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
+                }
+            </svg>
+            <span>${message}</span>
+        </div>
+    `;
     
-    // Custom Period Modal
-    function openCustomPeriodModal() {
-        // Set default dates
-        const today = new Date().toISOString().split('T')[0];
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        
-        document.getElementById('custom-start-date').value = weekAgo;
-        document.getElementById('custom-end-date').value = today;
-        
-        openModal('custom-period-modal');
-    }
+    container.appendChild(toast);
     
-    function applyCustomPeriod() {
-        const startDate = document.getElementById('custom-start-date').value;
-        const endDate = document.getElementById('custom-end-date').value;
-        
-        if (!startDate || !endDate) {
-            showToast('Veuillez sélectionner les deux dates', 'error');
-            return;
-        }
-        
-        currentFilters.period = 'custom';
-        currentFilters.start_date = startDate;
-        currentFilters.end_date = endDate;
-        
-        // Update UI
-        document.querySelectorAll('.period-btn').forEach(btn => {
-            btn.classList.remove('bg-gray-100', 'text-gray-900', 'shadow-sm');
-            btn.classList.add('text-gray-500');
-        });
-        
-        closeModal('custom-period-modal');
-        loadDashboardData();
-    }
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
 </script>
 {% endblock %}
