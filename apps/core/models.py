@@ -89,7 +89,10 @@ class TypeCarburant(models.Model):
     nom = models.CharField(max_length=50, unique=True, verbose_name="Nom du carburant")
     code = models.CharField(max_length=10, unique=True, verbose_name="Code")
     couleur_hex = models.CharField(max_length=7, default='#000000', verbose_name="Couleur d'affichage")
+    prix_vente_usd = models.DecimalField(max_digits=8, decimal_places=2, default=0, verbose_name="Prix de vente USD/L")
+    prix_vente_fc = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Prix de vente FC/L")
     is_active = models.BooleanField(default=True, verbose_name="Carburant actif")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Créé le")
     
     class Meta:
         verbose_name = "Type de carburant"
@@ -184,6 +187,7 @@ class Pompiste(models.Model):
     nom = models.CharField(max_length=50, default='', verbose_name="Nom")
     telephone = models.CharField(max_length=20, default='', blank=True, verbose_name="Téléphone")
     adresse = models.TextField(blank=True, default='', verbose_name="Adresse")
+    date_naissance = models.DateField(null=True, blank=True, verbose_name="Date de naissance")
     
     # Informations professionnelles - FIXED: Made nullable and added defaults
     branche = models.ForeignKey(Branche, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Branche")

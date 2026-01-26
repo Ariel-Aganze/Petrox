@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
 {% block title %}PETROX | Gestion des Abonnés{% endblock %}
 
@@ -16,120 +16,352 @@
 {% endblock %}
 
 {% block mobile_bottom_nav %}
-<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg><span>Dashboard</span></a>
-<a href="{% url 'admin_module:abonnes' %}" class="mobile-nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg><span>Abonnés</span></a>
-<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg><span>Ventes</span></a>
-<a href="{% url 'admin_module:utilisateurs' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg><span>Users</span></a>
-<a href="#" onclick="openModal('add-abonne-modal'); return false;" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg><span>Ajouter</span></a>
+<a href="{% url 'admin_module:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span class="text-xs mt-1">Dashboard</span>
+</a>
+<a href="{% url 'admin_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+    <span class="text-xs mt-1">Ventes</span>
+</a>
+<a href="{% url 'admin_module:abonnes' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+    <span class="text-xs mt-1">Abonnés</span>
+</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <span class="text-xs mt-1">Users</span>
+</a>
+<a href="#" onclick="openModal('add-abonne-modal'); return false;" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span class="text-xs mt-1">Ajouter</span>
+</a>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
+<!-- Header Section -->
 <div class="md:flex md:items-center md:justify-between mb-8">
     <div class="flex-1 min-w-0">
-        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">Gestion des Abonnés</h2>
-        <p class="mt-1 text-sm text-gray-500">{{ abonnes_count }} abonné{% if abonnes_count > 1 %}s{% endif %} enregistré{% if abonnes_count > 1 %}s{% endif %} (globaux)</p>
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Gestion des Abonnés
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            {{ abonnes_count }} abonné{{ abonnes_count|pluralize }} | Clients entreprise multi-branches
+        </p>
     </div>
-    <div class="mt-4 flex md:mt-0 md:ml-4">
-        <button onclick="openModal('add-abonne-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
-            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
+        <button onclick="openModal('add-abonne-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
             Nouvel Abonné
         </button>
     </div>
 </div>
 
-<!-- Summary Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <p class="text-sm font-medium text-gray-500">Prépayés</p>
-        <p class="text-2xl font-bold text-blue-600">{{ prepaye_count }}</p>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+    <!-- Total Abonnés -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Total Abonnés
+                        </dt>
+                        <dd class="text-2xl font-semibold text-gray-900">
+                            {{ abonnes_count }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <p class="text-sm font-medium text-gray-500">Postpayés</p>
-        <p class="text-2xl font-bold text-green-600">{{ postpaye_count }}</p>
+
+    <!-- Prépayés -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Prépayés
+                        </dt>
+                        <dd class="text-2xl font-semibold text-green-600">
+                            {{ prepaye_count }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <p class="text-sm font-medium text-gray-500">Crédit</p>
-        <p class="text-2xl font-bold text-purple-600">{{ credit_count }}</p>
+
+    <!-- Postpayés -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Postpayés
+                        </dt>
+                        <dd class="text-2xl font-semibold text-yellow-600">
+                            {{ postpaye_count }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <p class="text-sm font-medium text-gray-500">Solde Total USD</p>
-        <p class="text-2xl font-bold text-gray-900">${{ total_solde_usd|floatformat:2 }}</p>
+
+    <!-- Crédit -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Crédit
+                        </dt>
+                        <dd class="text-2xl font-semibold text-purple-600">
+                            {{ credit_count }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <p class="text-sm font-medium text-gray-500">Solde Total FC</p>
-        <p class="text-2xl font-bold text-gray-900">{{ total_solde_fc|floatformat:0 }} FC</p>
+
+    <!-- Total Solde -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-indigo-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Solde Total
+                        </dt>
+                        <dd class="text-lg font-semibold text-gray-900">
+                            ${{ total_solde_usd|floatformat:2 }}
+                        </dd>
+                        <dd class="text-xs text-gray-500">
+                            {{ total_solde_fc|floatformat:0 }} FC
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Filters -->
-<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
-    <form method="get" class="flex flex-wrap gap-4">
-        <div class="flex-1 min-w-[250px]">
-            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Rechercher par nom, code client..." class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:ring-petrox-red focus:border-petrox-red rounded-md">
+<!-- Filters Bar -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="sm:col-span-1">
+            <input type="text" id="search-input" placeholder="Rechercher par nom, code client..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
         </div>
+        
         <div>
-            <select name="type" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
+            <select id="type-filter" onchange="filterAbonnes()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Tous les types</option>
-                <option value="prepaye" {% if request.GET.type == 'prepaye' %}selected{% endif %}>Prépayé</option>
-                <option value="postpaye" {% if request.GET.type == 'postpaye' %}selected{% endif %}>Postpayé</option>
-                <option value="credit" {% if request.GET.type == 'credit' %}selected{% endif %}>Crédit</option>
+                <option value="prepaye">Prépayé</option>
+                <option value="postpaye">Postpayé</option>
+                <option value="credit">Crédit</option>
             </select>
         </div>
-        <button type="submit" class="px-4 py-2 bg-petrox-red text-white rounded-md text-sm font-medium hover:bg-petrox-hover">Rechercher</button>
-    </form>
+        
+        <div class="flex items-end">
+            <button onclick="resetFilters()" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                Réinitialiser
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- Abonnés Table -->
-<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+<div class="bg-white shadow-sm rounded-lg border border-gray-100">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">
+            Liste des Abonnés (Clients Entreprise)
+        </h3>
+        <p class="mt-1 text-sm text-gray-500">
+            Les abonnés peuvent consommer dans toutes les branches
+        </p>
+    </div>
+    
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entreprise</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Solde USD</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Solde FC</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Client
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Code Client
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Type
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Contact
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Solde USD
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Solde FC
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Statut
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                    </th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white divide-y divide-gray-200" id="abonnes-table-body">
                 {% for abonne in abonnes %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-petrox-red">{{ abonne.code_client }}</td>
+                <tr class="hover:bg-gray-50 abonne-row" 
+                    data-type="{{ abonne.type_abonnement }}"
+                    data-search="{{ abonne.nom_entreprise|lower }} {{ abonne.code_client|lower }} {{ abonne.contact_nom|lower }}">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">{{ abonne.nom_entreprise }}</div>
-                        <div class="text-xs text-gray-500">{{ abonne.adresse|truncatewords:5|default:"-" }}</div>
+                        <div class="text-xs text-gray-500">{{ abonne.contact_nom }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ abonne.contact_nom|default:"-" }}</div>
-                        <div class="text-xs text-gray-500">{{ abonne.contact_telephone|default:"-" }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                            {% if abonne.type_abonnement == 'prepaye' %}bg-blue-100 text-blue-800
-                            {% elif abonne.type_abonnement == 'postpaye' %}bg-green-100 text-green-800
-                            {% else %}bg-purple-100 text-purple-800{% endif %}">
-                            {{ abonne.get_type_abonnement_display }}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {{ abonne.code_client }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm {% if abonne.solde_usd < 0 %}text-red-600{% else %}text-gray-900{% endif %}">${{ abonne.solde_usd|floatformat:2 }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm {% if abonne.solde_fc < 0 %}text-red-600{% else %}text-gray-900{% endif %}">{{ abonne.solde_fc|floatformat:0 }} FC</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full {% if abonne.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {% if abonne.is_active %}Actif{% else %}Inactif{% endif %}
+                        {% if abonne.type_abonnement == 'prepaye' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Prépayé
                         </span>
+                        {% elif abonne.type_abonnement == 'postpaye' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Postpayé
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            Crédit
+                        </span>
+                        {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <a href="{% url 'admin_module:abonne_detail' abonne.id %}" class="text-petrox-red hover:text-petrox-hover mr-2">Détails</a>
-                        <button onclick="editAbonne({{ abonne.id }})" class="text-blue-600 hover:text-blue-800">Modifier</button>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ abonne.contact_telephone }}</div>
+                        {% if abonne.contact_email %}
+                        <div class="text-xs text-gray-500">{{ abonne.contact_email }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold {% if abonne.solde_usd < 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                            ${{ abonne.solde_usd|floatformat:2 }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold {% if abonne.solde_fc < 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                            {{ abonne.solde_fc|floatformat:0 }} FC
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if abonne.is_active %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Actif
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Inactif
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="viewAbonneHistory({{ abonne.id }})" class="text-blue-600 hover:text-blue-900" title="Historique global">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </button>
+                            <button onclick="editAbonne({{ abonne.id }})" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            <button onclick="addPayment({{ abonne.id }}, '{{ abonne.nom_entreprise }}')" class="text-green-600 hover:text-green-900" title="Ajouter paiement">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </button>
+                            <button onclick="toggleAbonneStatus({{ abonne.id }}, {{ abonne.is_active|lower }})" class="text-{% if abonne.is_active %}yellow{% else %}green{% endif %}-600 hover:text-{% if abonne.is_active %}yellow{% else %}green{% endif %}-900" title="{% if abonne.is_active %}Désactiver{% else %}Activer{% endif %}">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    {% if abonne.is_active %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                    {% else %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    {% endif %}
+                                </svg>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8" class="px-6 py-12 text-center text-gray-500">Aucun abonné trouvé</td></tr>
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <p class="mt-2 text-sm">Aucun abonné enregistré</p>
+                        <button onclick="openModal('add-abonne-modal')" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                            Créer le premier abonné
+                        </button>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -140,59 +372,241 @@
 {% block modals %}
 <!-- Add Abonné Modal -->
 <div id="add-abonne-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" onclick="closeModal('add-abonne-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="add-abonne-form" onsubmit="submitAbonneForm(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Nouvel Abonné</h3>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Code Client *</label>
-                                <input type="text" name="code_client" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="CLT-001">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Type *</label>
-                                <select name="type_abonnement" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                    <option value="prepaye">Prépayé</option>
-                                    <option value="postpaye">Postpayé</option>
-                                    <option value="credit">Crédit</option>
-                                </select>
-                            </div>
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-abonne-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full max-h-[90vh] overflow-y-auto">
+            <form id="add-abonne-form" onsubmit="submitAbonne(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Nouvel Abonné (Client Entreprise)
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Nom entreprise -->
+                        <div class="sm:col-span-2">
+                            <label for="abonne-nom-entreprise" class="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
+                            <input type="text" id="abonne-nom-entreprise" name="nom_entreprise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
+                        
+                        <!-- Code client -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
-                            <input type="text" name="nom_entreprise" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label for="abonne-code-client" class="block text-sm font-medium text-gray-700">Code Client *</label>
+                            <input type="text" id="abonne-code-client" name="code_client" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Code unique pour identifier le client</p>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Nom du contact</label>
-                                <input type="text" name="contact_nom" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Téléphone</label>
-                                <input type="tel" name="contact_telephone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                            </div>
-                        </div>
+                        
+                        <!-- Type abonnement -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" name="contact_email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label for="abonne-type" class="block text-sm font-medium text-gray-700">Type d'abonnement *</label>
+                            <select id="abonne-type" name="type_abonnement" required onchange="toggleCreditLimit()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="">Sélectionner...</option>
+                                <option value="prepaye">Prépayé (Solde positif requis)</option>
+                                <option value="postpaye">Postpayé (Paiement différé)</option>
+                                <option value="credit">Crédit (Limite définie)</option>
+                            </select>
                         </div>
+                        
+                        <!-- Contact nom -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Limite de crédit (USD)</label>
-                            <input type="number" name="limite_credit" step="0.01" value="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label for="abonne-contact-nom" class="block text-sm font-medium text-gray-700">Nom du contact *</label>
+                            <input type="text" id="abonne-contact-nom" name="contact_nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
+                        
+                        <!-- Contact telephone -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <textarea name="adresse" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <label for="abonne-contact-telephone" class="block text-sm font-medium text-gray-700">Téléphone *</label>
+                            <input type="tel" id="abonne-contact-telephone" name="contact_telephone" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Contact email -->
+                        <div class="sm:col-span-2">
+                            <label for="abonne-contact-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="abonne-contact-email" name="contact_email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Adresse -->
+                        <div class="sm:col-span-2">
+                            <label for="abonne-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
+                            <textarea id="abonne-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+                        
+                        <!-- Solde initial USD -->
+                        <div>
+                            <label for="abonne-solde-usd" class="block text-sm font-medium text-gray-700">Solde initial USD</label>
+                            <input type="number" id="abonne-solde-usd" name="solde_usd" step="0.01" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Solde initial FC -->
+                        <div>
+                            <label for="abonne-solde-fc" class="block text-sm font-medium text-gray-700">Solde initial FC</label>
+                            <input type="number" id="abonne-solde-fc" name="solde_fc" step="0.01" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Limite credit (only for credit type) -->
+                        <div id="limite-credit-field" class="sm:col-span-2 hidden">
+                            <label for="abonne-limite-credit" class="block text-sm font-medium text-gray-700">Limite de crédit *</label>
+                            <input type="number" id="abonne-limite-credit" name="limite_credit" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Montant maximum de dette autorisée</p>
                         </div>
                     </div>
                 </div>
+                
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">Créer</button>
-                    <button type="button" onclick="closeModal('add-abonne-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Annuler</button>
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Créer l'abonné
+                    </button>
+                    <button type="button" onclick="closeModal('add-abonne-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Abonné Modal -->
+<div id="edit-abonne-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('edit-abonne-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full max-h-[90vh] overflow-y-auto">
+            <form id="edit-abonne-form" onsubmit="updateAbonne(event)">
+                <input type="hidden" id="edit-abonne-id" name="abonne_id">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Modifier l'abonné
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Nom entreprise -->
+                        <div class="sm:col-span-2">
+                            <label for="edit-abonne-nom-entreprise" class="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
+                            <input type="text" id="edit-abonne-nom-entreprise" name="nom_entreprise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Code client -->
+                        <div>
+                            <label for="edit-abonne-code-client" class="block text-sm font-medium text-gray-700">Code Client *</label>
+                            <input type="text" id="edit-abonne-code-client" name="code_client" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Type abonnement -->
+                        <div>
+                            <label for="edit-abonne-type" class="block text-sm font-medium text-gray-700">Type d'abonnement *</label>
+                            <select id="edit-abonne-type" name="type_abonnement" required onchange="toggleEditCreditLimit()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="prepaye">Prépayé</option>
+                                <option value="postpaye">Postpayé</option>
+                                <option value="credit">Crédit</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Contact nom -->
+                        <div>
+                            <label for="edit-abonne-contact-nom" class="block text-sm font-medium text-gray-700">Nom du contact *</label>
+                            <input type="text" id="edit-abonne-contact-nom" name="contact_nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Contact telephone -->
+                        <div>
+                            <label for="edit-abonne-contact-telephone" class="block text-sm font-medium text-gray-700">Téléphone *</label>
+                            <input type="tel" id="edit-abonne-contact-telephone" name="contact_telephone" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Contact email -->
+                        <div class="sm:col-span-2">
+                            <label for="edit-abonne-contact-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="edit-abonne-contact-email" name="contact_email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Adresse -->
+                        <div class="sm:col-span-2">
+                            <label for="edit-abonne-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
+                            <textarea id="edit-abonne-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+                        
+                        <!-- Limite credit -->
+                        <div id="edit-limite-credit-field" class="sm:col-span-2">
+                            <label for="edit-abonne-limite-credit" class="block text-sm font-medium text-gray-700">Limite de crédit</label>
+                            <input type="number" id="edit-abonne-limite-credit" name="limite_credit" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Current balances (display only) -->
+                        <div class="sm:col-span-2 bg-gray-50 p-4 rounded-lg">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Soldes actuels</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500">USD</p>
+                                    <p id="edit-current-solde-usd" class="text-lg font-semibold text-gray-900"></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">FC</p>
+                                    <p id="edit-current-solde-fc" class="text-lg font-semibold text-gray-900"></p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Utilisez "Ajouter paiement" pour modifier les soldes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Enregistrer
+                    </button>
+                    <button type="button" onclick="closeModal('edit-abonne-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payment Modal -->
+<div id="add-payment-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-payment-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="add-payment-form" onsubmit="submitPayment(event)">
+                <input type="hidden" id="payment-abonne-id" name="abonne_id">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Ajouter un paiement
+                    </h3>
+                    <p id="payment-abonne-name" class="text-sm text-gray-500 mb-4"></p>
+                    
+                    <div class="space-y-4">
+                        <!-- Montant -->
+                        <div>
+                            <label for="payment-montant" class="block text-sm font-medium text-gray-700">Montant *</label>
+                            <input type="number" id="payment-montant" name="montant" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <!-- Devise -->
+                        <div>
+                            <label for="payment-devise" class="block text-sm font-medium text-gray-700">Devise *</label>
+                            <select id="payment-devise" name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="USD">USD ($)</option>
+                                <option value="FC">FC</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div>
+                            <label for="payment-notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea id="payment-notes" name="notes" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Enregistrer le paiement
+                    </button>
+                    <button type="button" onclick="closeModal('add-payment-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
                 </div>
             </form>
         </div>
@@ -202,27 +616,416 @@
 
 {% block extra_js %}
 <script>
-    async function submitAbonneForm(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        try {
-            const response = await fetch('/dashboard/api/abonnes/create/', {
-                method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
-                body: JSON.stringify(Object.fromEntries(formData))
-            });
-            const data = await response.json();
+// Filter abonnés
+function filterAbonnes() {
+    const searchValue = document.getElementById('search-input').value.toLowerCase();
+    const typeFilter = document.getElementById('type-filter').value;
+    
+    const rows = document.querySelectorAll('.abonne-row');
+    
+    rows.forEach(row => {
+        let show = true;
+        
+        // Search filter
+        if (searchValue && !row.dataset.search.includes(searchValue)) {
+            show = false;
+        }
+        
+        // Type filter
+        if (typeFilter !== 'all' && row.dataset.type !== typeFilter) {
+            show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+// Real-time search
+document.getElementById('search-input').addEventListener('input', filterAbonnes);
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('type-filter').value = 'all';
+    filterAbonnes();
+}
+
+// Toggle credit limit field based on type
+function toggleCreditLimit() {
+    const type = document.getElementById('abonne-type').value;
+    const field = document.getElementById('limite-credit-field');
+    const input = document.getElementById('abonne-limite-credit');
+    
+    if (type === 'credit') {
+        field.classList.remove('hidden');
+        input.setAttribute('required', 'required');
+    } else {
+        field.classList.add('hidden');
+        input.removeAttribute('required');
+        input.value = '0';
+    }
+}
+
+function toggleEditCreditLimit() {
+    const type = document.getElementById('edit-abonne-type').value;
+    const field = document.getElementById('edit-limite-credit-field');
+    
+    if (type === 'credit') {
+        field.classList.remove('hidden');
+    } else {
+        field.classList.add('hidden');
+    }
+}
+
+// Submit new abonné
+function submitAbonne(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/dashboard/api/abonnes/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('add-abonne-modal');
+            showNotification('Abonné créé avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de la création', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Edit abonné
+function editAbonne(abonneId) {
+    fetch(`/dashboard/api/abonnes/${abonneId}/`)
+        .then(response => response.json())
+        .then(data => {
             if (data.success) {
-                showToast('Abonné créé avec succès', 'success');
-                closeModal('add-abonne-modal');
-                location.reload();
-            } else {
-                showToast(data.message || 'Erreur', 'error');
+                const abonne = data.abonne;
+                
+                // Populate form
+                document.getElementById('edit-abonne-id').value = abonne.id;
+                document.getElementById('edit-abonne-nom-entreprise').value = abonne.nom_entreprise;
+                document.getElementById('edit-abonne-code-client').value = abonne.code_client;
+                document.getElementById('edit-abonne-type').value = abonne.type_abonnement;
+                document.getElementById('edit-abonne-contact-nom').value = abonne.contact_nom;
+                document.getElementById('edit-abonne-contact-telephone').value = abonne.contact_telephone;
+                document.getElementById('edit-abonne-contact-email').value = abonne.contact_email || '';
+                document.getElementById('edit-abonne-adresse').value = abonne.adresse || '';
+                document.getElementById('edit-abonne-limite-credit').value = abonne.limite_credit;
+                
+                // Display current balances
+                const usdClass = abonne.solde_usd < 0 ? 'text-red-600' : 'text-green-600';
+                const fcClass = abonne.solde_fc < 0 ? 'text-red-600' : 'text-green-600';
+                document.getElementById('edit-current-solde-usd').innerHTML = `<span class="${usdClass}">$${abonne.solde_usd.toFixed(2)}</span>`;
+                document.getElementById('edit-current-solde-fc').innerHTML = `<span class="${fcClass}">${abonne.solde_fc.toFixed(0)} FC</span>`;
+                
+                // Toggle credit limit field
+                toggleEditCreditLimit();
+                
+                // Open modal
+                openModal('edit-abonne-modal');
             }
-        } catch (error) {
-            showToast('Erreur de connexion', 'error');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur lors du chargement', 'error');
+        });
+}
+
+// Update abonné
+function updateAbonne(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const abonneId = formData.get('abonne_id');
+    formData.delete('abonne_id');
+    
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch(`/dashboard/api/abonnes/${abonneId}/update/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('edit-abonne-modal');
+            showNotification('Abonné modifié avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de la modification', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// View abonné global history
+function viewAbonneHistory(abonneId) {
+    fetch(`/dashboard/api/abonnes/${abonneId}/history/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const abonne = data.abonne;
+                const branches = data.summary_by_branch;
+                const consumptions = data.consumptions;
+                
+                let branchSummary = '';
+                branches.forEach(branch => {
+                    branchSummary += `
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="text-sm font-semibold text-gray-900">${branch.branche__nom || 'N/A'}</p>
+                            <div class="mt-1 flex gap-4 text-xs text-gray-600">
+                                <span>${branch.count} consommations</span>
+                                <span>${branch.total_quantity ? parseFloat(branch.total_quantity).toFixed(2) : '0'} L</span>
+                            </div>
+                            <div class="mt-1 flex gap-4 text-xs">
+                                <span class="text-green-600">$${branch.total_usd ? parseFloat(branch.total_usd).toFixed(2) : '0.00'}</span>
+                                <span class="text-blue-600">${branch.total_fc ? parseFloat(branch.total_fc).toFixed(0) : '0'} FC</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                let consumptionList = '';
+                consumptions.slice(0, 20).forEach(c => {
+                    consumptionList += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 text-xs text-gray-900">${c.date}</td>
+                            <td class="px-4 py-2 text-xs text-gray-500">${c.branche}</td>
+                            <td class="px-4 py-2 text-xs text-gray-500">${c.carburant}</td>
+                            <td class="px-4 py-2 text-xs font-medium text-gray-900">${c.quantite.toFixed(2)} L</td>
+                            <td class="px-4 py-2 text-xs font-semibold ${c.devise === 'USD' ? 'text-green-600' : 'text-blue-600'}">
+                                ${c.devise === 'USD' ? '$' : ''}${c.montant.toFixed(c.devise === 'USD' ? 2 : 0)}${c.devise === 'FC' ? ' FC' : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                const content = `
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Historique Global - ${abonne.nom_entreprise}</h3>
+                    
+                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-blue-600">Code Client</p>
+                                <p class="text-sm font-semibold text-blue-900">${abonne.code_client}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-blue-600">Type</p>
+                                <p class="text-sm font-semibold text-blue-900">${abonne.type_abonnement_display}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-blue-600">Solde USD</p>
+                                <p class="text-sm font-semibold ${abonne.solde_usd < 0 ? 'text-red-600' : 'text-green-600'}">
+                                    $${parseFloat(abonne.solde_usd).toFixed(2)}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-blue-600">Solde FC</p>
+                                <p class="text-sm font-semibold ${abonne.solde_fc < 0 ? 'text-red-600' : 'text-green-600'}">
+                                    ${parseFloat(abonne.solde_fc).toFixed(0)} FC
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Résumé par Branche (${branches.length} branches)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                        ${branchSummary || '<p class="text-sm text-gray-500">Aucune consommation</p>'}
+                    </div>
+                    
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Dernières Consommations (${data.total_count} au total)</h4>
+                    <div class="max-h-96 overflow-y-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Date</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Branche</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Carburant</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Quantité</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${consumptionList || '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">Aucune consommation</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                showDetailModal('Historique Global', content);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur lors du chargement de l\'historique', 'error');
+        });
+}
+
+// Add payment
+function addPayment(abonneId, abonneName) {
+    document.getElementById('payment-abonne-id').value = abonneId;
+    document.getElementById('payment-abonne-name').textContent = `Client: ${abonneName}`;
+    openModal('add-payment-modal');
+}
+
+// Submit payment
+function submitPayment(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const abonneId = formData.get('abonne_id');
+    formData.delete('abonne_id');
+    
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch(`/dashboard/api/abonnes/${abonneId}/payment/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('add-payment-modal');
+            showNotification(data.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Toggle abonné status
+function toggleAbonneStatus(abonneId, isActive) {
+    const action = isActive ? 'désactiver' : 'activer';
+    if (confirm(`Voulez-vous vraiment ${action} cet abonné?`)) {
+        fetch(`/dashboard/api/abonnes/${abonneId}/toggle-active/`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.message || 'Erreur', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur de connexion', 'error');
+        });
+    }
+}
+
+// Show detail modal
+function showDetailModal(title, content) {
+    const modal = document.createElement('div');
+    modal.id = 'detail-modal';
+    modal.className = 'fixed inset-0 z-50 overflow-y-auto';
+    modal.innerHTML = `
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeDetailModal()"></div>
+            
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    ${content}
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="closeDetailModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
+                        Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function closeDetailModal() {
+    const modal = document.getElementById('detail-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Modal controls
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    // Reset form if exists
+    const form = document.querySelector(`#${modalId} form`);
+    if (form) {
+        form.reset();
+    }
+}
+
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
     }
-    function editAbonne(abonneId) { showToast('Fonctionnalité à implémenter', 'info'); }
+    return cookieValue;
+}
+
+// Show notification
+function showNotification(message, type, duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    } text-white max-w-md`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, duration);
+}
 </script>
 {% endblock %}

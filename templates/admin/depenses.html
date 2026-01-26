@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 
 {% block title %}PETROX | Gestion des Dépenses{% endblock %}
 
@@ -16,249 +16,334 @@
 {% endblock %}
 
 {% block mobile_bottom_nav %}
-<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-    <span>Dashboard</span>
+<a href="{% url 'admin_module:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span class="text-xs mt-1">Dashboard</span>
 </a>
-<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-    <span>Ventes</span>
+<a href="{% url 'admin_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+    <span class="text-xs mt-1">Ventes</span>
 </a>
-<a href="{% url 'admin_module:depenses' %}" class="mobile-nav-item active">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-    <span>Dépenses</span>
+<a href="{% url 'admin_module:depenses' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <span class="text-xs mt-1">Dépenses</span>
 </a>
-<a href="{% url 'admin_module:carburants' %}" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-    <span>Stock</span>
+<a href="{% url 'admin_module:carburants' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>
+    <span class="text-xs mt-1">Stock</span>
 </a>
-<a href="#" onclick="openModal('add-category-modal'); return false;" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-    <span>Catégorie</span>
+<a href="#" onclick="openModal('add-expense-modal'); return false;" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span class="text-xs mt-1">Ajouter</span>
 </a>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
+<!-- Header Section -->
 <div class="md:flex md:items-center md:justify-between mb-8">
     <div class="flex-1 min-w-0">
         <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
             Gestion des Dépenses
         </h2>
         <p class="mt-1 text-sm text-gray-500">
-            {{ depenses_count }} dépense{% if depenses_count > 1 %}s{% endif %} enregistrée{% if depenses_count > 1 %}s{% endif %}
+            {{ depenses_count }} dépense{{ depenses_count|pluralize }} enregistrée{{ depenses_count|pluralize }}
         </p>
     </div>
-    <div class="mt-4 flex gap-2 md:mt-0 md:ml-4">
-        <button onclick="openModal('add-category-modal')" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
+        <!-- Branch Filter -->
+        <select id="branche-filter" onchange="filterExpenses()" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+            <option value="all">Toutes les branches</option>
+            {% for branch in all_branches %}
+            <option value="{{ branch.id }}" {% if selected_branch and branch.id == selected_branch.id %}selected{% endif %}>{{ branch.nom }}</option>
+            {% endfor %}
+        </select>
+        
+        <!-- Categories Button -->
+        <button onclick="openModal('categories-modal')" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
             Catégories
         </button>
-        <button onclick="exportExpenses('pdf')" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        
+        <!-- Add Expense Button -->
+        <button onclick="openModal('add-expense-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Export
+            Nouvelle Dépense
         </button>
     </div>
 </div>
 
-<!-- Summary Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center">
-            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
-                <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-500">Total USD</p>
-                <p class="text-lg font-bold text-red-600">${{ total_usd|floatformat:2|default:"0.00" }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center">
-            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-500">Total FC</p>
-                <p class="text-lg font-bold text-blue-600">{{ total_fc|floatformat:0|default:"0" }} FC</p>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Total USD -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Total USD
+                        </dt>
+                        <dd class="text-2xl font-semibold text-gray-900">
+                            ${{ total_usd|floatformat:2 }}
+                        </dd>
+                    </dl>
+                </div>
             </div>
         </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center">
-            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <svg class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-500">Catégories</p>
-                <p class="text-lg font-bold text-gray-900">{{ categories|length }}</p>
+
+    <!-- Total FC -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Total FC
+                        </dt>
+                        <dd class="text-2xl font-semibold text-gray-900">
+                            {{ total_fc|floatformat:0 }} FC
+                        </dd>
+                    </dl>
+                </div>
             </div>
         </div>
     </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center">
-            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-                <svg class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+
+    <!-- Total Expenses Count -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Nombre de Dépenses
+                        </dt>
+                        <dd class="text-2xl font-semibold text-gray-900">
+                            {{ depenses_count }}
+                        </dd>
+                    </dl>
+                </div>
             </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-500">Demandes en attente</p>
-                <p class="text-lg font-bold text-yellow-600">{{ pending_categories|length }}</p>
+        </div>
+    </div>
+
+    <!-- Categories Count -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Catégories Actives
+                        </dt>
+                        <dd class="text-2xl font-semibold text-gray-900">
+                            {{ categories_depense.count }}
+                        </dd>
+                    </dl>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Expenses by Category Chart -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dépenses par Catégorie</h3>
-        <div class="h-64">
-            <canvas id="expensesByCategoryChart"></canvas>
-        </div>
-    </div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Catégories</h3>
-        <div class="space-y-3">
-            {% for cat in by_category|slice:":5" %}
-            <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">{{ cat.categorie__nom|default:"Non catégorisé" }}</span>
-                <span class="text-sm font-semibold text-gray-900">{{ cat.count }} ({{ cat.total|floatformat:0 }})</span>
-            </div>
-            {% empty %}
-            <p class="text-sm text-gray-500 text-center py-4">Aucune donnée</p>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<!-- Filters -->
-<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
-    <form method="get" class="flex flex-wrap gap-4">
-        <div class="w-full sm:w-auto flex-1 sm:flex-none">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Branche</label>
-            <select name="branche_id" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
-                <option value="all">Toutes les branches</option>
-                {% for branch in all_branches %}
-                <option value="{{ branch.id }}" {% if request.GET.branche_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.nom }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div class="w-full sm:w-auto">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Catégorie</label>
-            <select name="categorie_id" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
+<!-- Filters Bar -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+        <div>
+            <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+            <select id="category-filter" onchange="filterExpenses()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toutes les catégories</option>
-                {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if request.GET.categorie_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nom }}</option>
+                {% for category in categories_depense %}
+                <option value="{{ category.id }}">{{ category.nom }}</option>
                 {% endfor %}
             </select>
         </div>
         
-        <div class="w-full sm:w-auto">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Devise</label>
-            <select name="devise" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
-                <option value="all" {% if request.GET.devise == 'all' %}selected{% endif %}>Toutes</option>
-                <option value="USD" {% if request.GET.devise == 'USD' %}selected{% endif %}>USD</option>
-                <option value="FC" {% if request.GET.devise == 'FC' %}selected{% endif %}>FC</option>
+        <div>
+            <label for="devise-filter" class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
+            <select id="devise-filter" onchange="filterExpenses()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toutes les devises</option>
+                <option value="USD">USD ($)</option>
+                <option value="FC">FC</option>
             </select>
         </div>
         
-        <div class="w-full sm:w-auto">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Période</label>
-            <select name="period" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red rounded-md" onchange="this.form.submit()">
-                <option value="today" {% if request.GET.period == 'today' %}selected{% endif %}>Aujourd'hui</option>
-                <option value="week" {% if request.GET.period == 'week' %}selected{% endif %}>Cette semaine</option>
-                <option value="month" {% if request.GET.period == 'month' or not request.GET.period %}selected{% endif %}>Ce mois</option>
-                <option value="all" {% if request.GET.period == 'all' %}selected{% endif %}>Tout</option>
+        <div>
+            <label for="period-filter" class="block text-sm font-medium text-gray-700 mb-1">Période</label>
+            <select id="period-filter" onchange="filterExpenses()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="today">Aujourd'hui</option>
+                <option value="week">Cette semaine</option>
+                <option value="month" selected>Ce mois</option>
+                <option value="all">Toutes les périodes</option>
             </select>
         </div>
         
-        <div class="w-full sm:w-auto flex items-end">
-            <a href="{% url 'admin_module:depenses' %}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+        <div class="flex items-end">
+            <button onclick="resetFilters()" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 Réinitialiser
-            </a>
+            </button>
         </div>
-    </form>
+    </div>
 </div>
 
 <!-- Expenses Table -->
-<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+<div class="bg-white shadow-sm rounded-lg border border-gray-100">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">
+            Liste des Dépenses
+        </h3>
+    </div>
+    
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créé par</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Catégorie
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Description
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Branche
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Montant
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Statut
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                    </th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for depense in depenses %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        #{{ depense.id }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ depense.date_depense|date:"d/m/Y" }}
-                    </td>
+            <tbody class="bg-white divide-y divide-gray-200" id="expenses-table-body">
+                {% for expense in depenses %}
+                <tr class="hover:bg-gray-50 expense-row" 
+                    data-branch="{{ expense.branche.id }}" 
+                    data-category="{{ expense.categorie.id }}"
+                    data-devise="{{ expense.devise }}"
+                    data-date="{{ expense.created_at|date:'Y-m-d' }}">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ depense.branche.nom|default:"-" }}
+                        {{ expense.created_at|date:"d/m/Y" }}
+                        <div class="text-xs text-gray-500">{{ expense.created_at|date:"H:i" }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
-                            {{ depense.categorie.nom|default:"Non catégorisé" }}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {{ expense.categorie.nom }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                        {{ depense.description|truncatewords:10 }}
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">{{ expense.description|slice:":50" }}{% if expense.description|length > 50 %}...{% endif %}</div>
+                        {% if expense.created_by %}
+                        <div class="text-xs text-gray-500">Par: {{ expense.created_by.get_full_name }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ expense.branche.nom }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="text-sm font-bold text-red-600">
-                            {% if depense.devise == 'USD' %}
-                            ${{ depense.montant|floatformat:2 }}
+                        <div class="text-sm font-semibold text-gray-900">
+                            {% if expense.devise == 'USD' %}
+                                ${{ expense.montant|floatformat:2 }}
                             {% else %}
-                            {{ depense.montant|floatformat:0 }} FC
+                                {{ expense.montant|floatformat:0 }} FC
                             {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if expense.statut == 'approuvee' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Approuvée
                         </span>
+                        {% elif expense.statut == 'en_attente' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            En attente
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Rejetée
+                        </span>
+                        {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ depense.created_by.get_full_name|default:"-" }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <button onclick="viewExpenseDetails({{ depense.id }})" class="text-petrox-red hover:text-petrox-hover mr-2">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="viewExpense({{ expense.id }})" class="text-blue-600 hover:text-blue-900" title="Voir détails">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                            <button onclick="editExpense({{ expense.id }})" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            <button onclick="deleteExpense({{ expense.id }}, '{{ expense.description|slice:":30" }}')" class="text-red-600 hover:text-red-900" title="Supprimer">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="px-6 py-12 text-center">
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune dépense</h3>
-                        <p class="mt-1 text-sm text-gray-500">Aucune dépense ne correspond aux critères sélectionnés.</p>
+                        <p class="mt-2 text-sm">Aucune dépense enregistrée</p>
+                        <button onclick="openModal('add-expense-modal')" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                            Enregistrer la première dépense
+                        </button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -266,84 +351,97 @@
         </table>
     </div>
 </div>
+
+<!-- Expenses by Category (if data exists) -->
+{% if by_category %}
+<div class="mt-8 bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Dépenses par Catégorie</h3>
+    <div class="space-y-4">
+        {% for item in by_category %}
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-900">{{ item.categorie__nom }}</span>
+                    <span class="text-sm text-gray-500">{{ item.count }} dépense{{ item.count|pluralize }}</span>
+                </div>
+                <div class="mt-1 w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-petrox-red h-2 rounded-full" style="width: {{ item.percentage }}%"></div>
+                </div>
+            </div>
+            <div class="ml-4 text-sm font-semibold text-gray-900">
+                ${{ item.total|floatformat:2 }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block modals %}
-<!-- Add Category Modal -->
-<div id="add-category-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-category-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+<!-- Add Expense Modal -->
+<div id="add-expense-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-expense-modal')"></div>
+        
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="add-category-form" onsubmit="submitCategoryForm(event)">
+            <form id="add-expense-form" onsubmit="submitExpense(event)">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                            </svg>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Nouvelle Dépense
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="expense-branche" class="block text-sm font-medium text-gray-700">Branche *</label>
+                            <select id="expense-branche" name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                {% for branch in all_branches %}
+                                <option value="{{ branch.id }}">{{ branch.nom }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Gestion des Catégories</h3>
-                            
-                            <!-- Existing Categories -->
-                            <div class="mt-4">
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Catégories existantes</h4>
-                                <div class="max-h-40 overflow-y-auto space-y-2">
-                                    {% for cat in categories %}
-                                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                        <span class="text-sm text-gray-900">{{ cat.nom }}</span>
-                                        <span class="px-2 py-1 text-xs rounded-full {% if cat.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                                            {% if cat.is_active %}Active{% else %}Inactive{% endif %}
-                                        </span>
-                                    </div>
-                                    {% empty %}
-                                    <p class="text-sm text-gray-500">Aucune catégorie</p>
-                                    {% endfor %}
-                                </div>
+                        
+                        <div>
+                            <label for="expense-categorie" class="block text-sm font-medium text-gray-700">Catégorie *</label>
+                            <select id="expense-categorie" name="categorie_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                {% for category in categories_depense %}
+                                <option value="{{ category.id }}">{{ category.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="expense-description" class="block text-sm font-medium text-gray-700">Description *</label>
+                            <textarea id="expense-description" name="description" rows="3" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="expense-montant" class="block text-sm font-medium text-gray-700">Montant *</label>
+                                <input type="number" id="expense-montant" name="montant" step="0.01" min="0" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                             </div>
-                            
-                            <!-- Pending Requests -->
-                            {% if pending_categories %}
-                            <div class="mt-4">
-                                <h4 class="text-sm font-medium text-yellow-700 mb-2">Demandes en attente</h4>
-                                <div class="space-y-2">
-                                    {% for cat in pending_categories %}
-                                    <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
-                                        <span class="text-sm text-gray-900">{{ cat.nom }}</span>
-                                        <div class="flex space-x-2">
-                                            <button type="button" onclick="approveCategory({{ cat.id }})" class="text-green-600 hover:text-green-800">
-                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                            <button type="button" onclick="rejectCategory({{ cat.id }})" class="text-red-600 hover:text-red-800">
-                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
+                            <div>
+                                <label for="expense-devise" class="block text-sm font-medium text-gray-700">Devise *</label>
+                                <select id="expense-devise" name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="FC">FC</option>
+                                </select>
                             </div>
-                            {% endif %}
-                            
-                            <!-- Add New Category -->
-                            <div class="mt-4 pt-4 border-t border-gray-200">
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Nouvelle catégorie</h4>
-                                <input type="text" name="nom" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Nom de la catégorie">
-                                <textarea name="description" rows="2" class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Description (optionnel)"></textarea>
-                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="expense-beneficiaire" class="block text-sm font-medium text-gray-700">Bénéficiaire</label>
+                            <input type="text" id="expense-beneficiaire" name="beneficiaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                 </div>
+                
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
-                        Ajouter
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Enregistrer
                     </button>
-                    <button type="button" onclick="closeModal('add-category-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Fermer
+                    <button type="button" onclick="closeModal('add-expense-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
                     </button>
                 </div>
             </form>
@@ -351,26 +449,134 @@
     </div>
 </div>
 
-<!-- Expense Detail Modal -->
-<div id="expense-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('expense-detail-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+<!-- Categories Management Modal -->
+<div id="categories-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('categories-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                <div class="flex items-start justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Détails de la Dépense</h3>
-                    <button onclick="closeModal('expense-detail-modal')" class="text-gray-400 hover:text-gray-500">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Gestion des Catégories
+                    </h3>
+                    <button onclick="openModal('add-category-modal'); closeModal('categories-modal');" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-petrox-red hover:bg-petrox-hover">
+                        Nouvelle Catégorie
                     </button>
                 </div>
-                <div id="expense-detail-content">
-                    <div class="text-center py-8">
-                        <div class="spinner mx-auto"></div>
+                
+                <div class="mt-4">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for category in categories_depense %}
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ category.nom }}</td>
+                                <td class="px-4 py-3">
+                                    {% if category.is_active %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-right text-sm">
+                                    <button onclick="toggleCategory({{ category.id }})" class="text-indigo-600 hover:text-indigo-900 mr-2">
+                                        {% if category.is_active %}Désactiver{% else %}Activer{% endif %}
+                                    </button>
+                                    <button onclick="deleteCategory({{ category.id }})" class="text-red-600 hover:text-red-900">Supprimer</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                            {% if pending_categories %}
+                            <tr class="bg-yellow-50">
+                                <td colspan="3" class="px-4 py-2 text-sm font-medium text-yellow-800">Demandes en attente</td>
+                            </tr>
+                            {% for category in pending_categories %}
+                            <tr class="bg-yellow-50">
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ category.nom }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">En attente</span>
+                                </td>
+                                <td class="px-4 py-3 text-right text-sm">
+                                    <button onclick="approveCategory({{ category.id }})" class="text-green-600 hover:text-green-900 mr-2">Approuver</button>
+                                    <button onclick="rejectCategory({{ category.id }})" class="text-red-600 hover:text-red-900">Rejeter</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeModal('categories-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div id="add-category-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-category-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="add-category-form" onsubmit="submitCategory(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Nouvelle Catégorie de Dépense
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="category-nom" class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
+                            <input type="text" id="category-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="category-description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea id="category-description" name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
                     </div>
                 </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Créer
+                    </button>
+                    <button type="button" onclick="closeModal('add-category-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Expense Modal -->
+<div id="view-expense-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('view-expense-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6" id="expense-detail-content">
+                <!-- Content loaded dynamically -->
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeModal('view-expense-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
+                    Fermer
+                </button>
             </div>
         </div>
     </div>
@@ -379,102 +585,339 @@
 
 {% block extra_js %}
 <script>
-    // Initialize chart
-    document.addEventListener('DOMContentLoaded', function() {
-        initExpenseChart();
-    });
+// Filter expenses
+function filterExpenses() {
+    const branche = document.getElementById('branche-filter').value;
+    const category = document.getElementById('category-filter').value;
+    const devise = document.getElementById('devise-filter').value;
+    const period = document.getElementById('period-filter').value;
     
-    function initExpenseChart() {
-        const ctx = document.getElementById('expensesByCategoryChart');
-        if (!ctx) return;
+    const rows = document.querySelectorAll('.expense-row');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    rows.forEach(row => {
+        let show = true;
         
-        const categoryData = [
-            {% for cat in by_category|slice:":10" %}
-            { name: "{{ cat.categorie__nom|default:'Autre' }}", value: {{ cat.total|default:0 }} },
-            {% endfor %}
-        ];
+        // Branch filter
+        if (branche !== 'all' && row.dataset.branch !== branche) {
+            show = false;
+        }
         
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: categoryData.map(c => c.name),
-                datasets: [{
-                    label: 'Montant',
-                    data: categoryData.map(c => c.value),
-                    backgroundColor: '#DC2626',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true },
-                    x: { grid: { display: false } }
-                }
+        // Category filter
+        if (category !== 'all' && row.dataset.category !== category) {
+            show = false;
+        }
+        
+        // Currency filter
+        if (devise !== 'all' && row.dataset.devise !== devise) {
+            show = false;
+        }
+        
+        // Period filter
+        if (period !== 'all') {
+            const expenseDate = new Date(row.dataset.date);
+            const diffTime = today - expenseDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (period === 'today' && diffDays !== 0) show = false;
+            if (period === 'week' && diffDays > 7) show = false;
+            if (period === 'month' && diffDays > 30) show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('branche-filter').value = 'all';
+    document.getElementById('category-filter').value = 'all';
+    document.getElementById('devise-filter').value = 'all';
+    document.getElementById('period-filter').value = 'month';
+    filterExpenses();
+}
+
+// Submit expense
+function submitExpense(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/dashboard/api/depenses/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('add-expense-modal');
+            showNotification('Dépense enregistrée avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Submit category
+function submitCategory(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/dashboard/api/categories/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('add-category-modal');
+            showNotification('Catégorie créée avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de la création', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// View expense details
+function viewExpense(expenseId) {
+    fetch(`/dashboard/api/depenses/${expenseId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const expense = data.expense;
+                const content = `
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Détails de la Dépense</h3>
+                    <dl class="grid grid-cols-1 gap-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${expense.date}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Catégorie</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${expense.categorie}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Description</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${expense.description}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Montant</dt>
+                            <dd class="mt-1 text-sm font-semibold text-gray-900">${expense.montant} ${expense.devise}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Branche</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${expense.branche}</dd>
+                        </div>
+                        ${expense.beneficiaire ? `
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Bénéficiaire</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${expense.beneficiaire}</dd>
+                        </div>
+                        ` : ''}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Enregistré par</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${expense.created_by}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Statut</dt>
+                            <dd class="mt-1"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${expense.statut === 'approuvee' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${expense.statut_display}</span></dd>
+                        </div>
+                    </dl>
+                `;
+                document.getElementById('expense-detail-content').innerHTML = content;
+                openModal('view-expense-modal');
             }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Edit expense
+function editExpense(expenseId) {
+    // TODO: Implement edit functionality
+    showNotification('Fonction en développement', 'info');
+}
+
+// Delete expense
+function deleteExpense(expenseId, description) {
+    if (confirm(`Voulez-vous vraiment supprimer cette dépense?\n"${description}"`)) {
+        fetch(`/dashboard/api/depenses/${expenseId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Dépense supprimée avec succès', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.message || 'Erreur lors de la suppression', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur de connexion', 'error');
         });
     }
-    
-    function viewExpenseDetails(expenseId) {
-        openModal('expense-detail-modal');
-        document.getElementById('expense-detail-content').innerHTML = '<div class="text-center py-8"><div class="spinner mx-auto"></div></div>';
-        
-        // Fetch expense details via API
-        fetch(`/dashboard/api/depenses/${expenseId}/`)
-            .then(r => r.json())
-            .then(data => {
-                document.getElementById('expense-detail-content').innerHTML = `
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><p class="text-sm text-gray-500">Branche</p><p class="font-medium">${data.branche || '-'}</p></div>
-                            <div><p class="text-sm text-gray-500">Date</p><p class="font-medium">${data.date || '-'}</p></div>
-                            <div><p class="text-sm text-gray-500">Catégorie</p><p class="font-medium">${data.categorie || '-'}</p></div>
-                            <div><p class="text-sm text-gray-500">Montant</p><p class="font-medium text-red-600">${data.montant || '-'}</p></div>
-                        </div>
-                        <div><p class="text-sm text-gray-500">Description</p><p class="font-medium">${data.description || '-'}</p></div>
-                    </div>
-                `;
-            })
-            .catch(err => {
-                document.getElementById('expense-detail-content').innerHTML = '<p class="text-red-500">Erreur de chargement</p>';
-            });
-    }
-    
-    async function submitCategoryForm(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        
-        try {
-            const response = await fetch('/dashboard/api/documents/categories/create/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    nom: formData.get('nom'),
-                    description: formData.get('description')
-                })
-            });
-            
-            const data = await response.json();
-            if (data.success) {
-                showToast('Catégorie créée avec succès', 'success');
-                closeModal('add-category-modal');
-                location.reload();
-            } else {
-                showToast(data.message || 'Erreur', 'error');
+}
+
+// Toggle category
+function toggleCategory(categoryId) {
+    fetch(`/dashboard/api/categories/${categoryId}/toggle/`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Statut modifié avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Approve category
+function approveCategory(categoryId) {
+    fetch(`/dashboard/api/categories/${categoryId}/approve/`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Catégorie approuvée avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Reject category
+function rejectCategory(categoryId) {
+    if (confirm('Voulez-vous vraiment rejeter cette demande de catégorie?')) {
+        fetch(`/dashboard/api/categories/${categoryId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
             }
-        } catch (error) {
-            showToast('Erreur de connexion', 'error');
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Demande rejetée', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.message || 'Erreur', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur de connexion', 'error');
+        });
+    }
+}
+
+// Delete category
+function deleteCategory(categoryId) {
+    if (confirm('Voulez-vous vraiment supprimer cette catégorie? Cette action est irréversible.')) {
+        fetch(`/dashboard/api/categories/${categoryId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Catégorie supprimée avec succès', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showNotification(data.message || 'Erreur lors de la suppression', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur de connexion', 'error');
+        });
+    }
+}
+
+// Modal controls
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
     }
+    return cookieValue;
+}
+
+// Show notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    } text-white`;
+    notification.textContent = message;
     
-    function exportExpenses(format) {
-        const params = new URLSearchParams(window.location.search);
-        window.location.href = `/dashboard/api/export/${format}/expenses/?${params.toString()}`;
-    }
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
 </script>
 {% endblock %}

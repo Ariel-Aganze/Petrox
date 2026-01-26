@@ -1,0 +1,276 @@
+{% extends 'base/base.html' %}
+
+{% block title %}PETROX | Rapports{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
+<a href="{% url 'admin_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'admin_module:forex' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Forex</a>
+<a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Rapports</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg><span>Dashboard</span></a>
+<a href="{% url 'admin_module:rapports' %}" class="mobile-nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><span>Rapports</span></a>
+<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg><span>Ventes</span></a>
+<a href="{% url 'admin_module:depenses' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg><span>Dépenses</span></a>
+<a href="#" onclick="toggleNotifications(); return false;" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg><span>Alertes</span></a>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">Rapports & Analyses</h2>
+        <p class="mt-1 text-sm text-gray-500">Générez et exportez des rapports détaillés</p>
+    </div>
+</div>
+
+<!-- Report Types Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    {% for report in report_types %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+        <div class="p-6">
+            <div class="flex items-center mb-4">
+                <div class="h-12 w-12 rounded-lg bg-petrox-red bg-opacity-10 flex items-center justify-center">
+                    {% if report.id == 'financial' %}
+                    <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    {% elif report.id == 'sales' %}
+                    <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    {% elif report.id == 'stock' %}
+                    <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    {% elif report.id == 'forex' %}
+                    <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                    {% else %}
+                    <svg class="h-6 w-6 text-petrox-red" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    {% endif %}
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ report.name }}</h3>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">{{ report.description }}</p>
+            <div class="flex space-x-2">
+                <button onclick="openReportModal('{{ report.id }}', '{{ report.name }}')" class="flex-1 inline-flex justify-center items-center px-3 py-2 border border-petrox-red text-sm font-medium rounded-md text-petrox-red bg-white hover:bg-red-50">
+                    Configurer
+                </button>
+                <button onclick="quickExport('{{ report.id }}', 'pdf')" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" title="Export PDF">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+                </button>
+                <button onclick="quickExport('{{ report.id }}', 'excel')" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" title="Export Excel">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Quick Stats Summary -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">Aperçu Rapide - Ce Mois</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="text-center">
+            <p class="text-3xl font-bold text-green-600" id="month-sales">--</p>
+            <p class="text-sm text-gray-500">Ventes Totales</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-bold text-red-600" id="month-expenses">--</p>
+            <p class="text-sm text-gray-500">Dépenses Totales</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-bold text-blue-600" id="month-profit">--</p>
+            <p class="text-sm text-gray-500">Profit Net</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-bold text-purple-600" id="month-transactions">--</p>
+            <p class="text-sm text-gray-500">Transactions</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Reports (placeholder) -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900">Rapports Générés Récemment</h3>
+    </div>
+    <div class="p-6 text-center text-gray-500">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        <p class="mt-2">Les rapports générés apparaîtront ici</p>
+        <p class="text-xs text-gray-400 mt-1">Sélectionnez un type de rapport ci-dessus pour commencer</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Report Configuration Modal -->
+<div id="report-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" onclick="closeModal('report-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="report-form" onsubmit="generateReport(event)">
+                <input type="hidden" name="report_type" id="report-type">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-center mb-6">
+                        <div class="h-10 w-10 rounded-full bg-petrox-red flex items-center justify-center mr-4">
+                            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900" id="report-modal-title">Configurer le Rapport</h3>
+                            <p class="text-sm text-gray-500">Définissez les paramètres du rapport</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Branche</label>
+                            <select name="branche_id" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="all">Toutes les branches</option>
+                                {% for branch in all_branches %}
+                                <option value="{{ branch.id }}">{{ branch.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Date de début</label>
+                                <input type="date" name="date_debut" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Date de fin</label>
+                                <input type="date" name="date_fin" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Devise</label>
+                            <select name="devise" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="USD">USD</option>
+                                <option value="FC">FC</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Format d'export</label>
+                            <div class="mt-2 flex space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="format" value="pdf" checked class="h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700">PDF</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="format" value="excel" class="h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700">Excel</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="format" value="csv" class="h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700">CSV</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" name="include_charts" id="include-charts" checked class="h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300 rounded">
+                            <label for="include-charts" class="ml-2 block text-sm text-gray-900">Inclure les graphiques (PDF uniquement)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Générer & Télécharger
+                    </button>
+                    <button type="button" onclick="closeModal('report-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadQuickStats();
+        
+        // Set default dates
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        document.querySelector('[name="date_debut"]').value = firstDay.toISOString().split('T')[0];
+        document.querySelector('[name="date_fin"]').value = today.toISOString().split('T')[0];
+    });
+    
+    async function loadQuickStats() {
+        try {
+            const response = await fetch('/dashboard/api/stats/?period=month&currency=USD');
+            const data = await response.json();
+            
+            document.getElementById('month-sales').textContent = formatCurrency(data.total_sales || 0, 'USD');
+            document.getElementById('month-expenses').textContent = formatCurrency(data.total_expenses || 0, 'USD');
+            document.getElementById('month-profit').textContent = formatCurrency(data.profit || 0, 'USD');
+            document.getElementById('month-transactions').textContent = data.transactions_count || 0;
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+    
+    function openReportModal(reportType, reportName) {
+        document.getElementById('report-type').value = reportType;
+        document.getElementById('report-modal-title').textContent = reportName;
+        openModal('report-modal');
+    }
+    
+    async function generateReport(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const reportType = formData.get('report_type');
+        const format = formData.get('format');
+        
+        // Build query string
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            if (value) params.append(key, value);
+        }
+        
+        showToast('Génération du rapport en cours...', 'info');
+        
+        try {
+            const url = format === 'excel' || format === 'csv'
+                ? `/dashboard/api/export/excel/${reportType}/?${params}`
+                : `/dashboard/api/export/pdf/${reportType}/?${params}`;
+            
+            window.open(url, '_blank');
+            closeModal('report-modal');
+            showToast('Rapport généré avec succès', 'success');
+        } catch (error) {
+            showToast('Erreur lors de la génération', 'error');
+        }
+    }
+    
+    function quickExport(reportType, format) {
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        const params = new URLSearchParams({
+            date_debut: firstDay.toISOString().split('T')[0],
+            date_fin: today.toISOString().split('T')[0],
+            devise: 'USD',
+            branche_id: 'all'
+        });
+        
+        const url = format === 'excel'
+            ? `/dashboard/api/export/excel/${reportType}/?${params}`
+            : `/dashboard/api/export/pdf/${reportType}/?${params}`;
+        
+        window.open(url, '_blank');
+    }
+</script>
+{% endblock %}

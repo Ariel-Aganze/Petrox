@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
+{% load static %}
 
 {% block title %}PETROX | Forex & Taux de Change{% endblock %}
 
@@ -16,37 +17,70 @@
 {% endblock %}
 
 {% block mobile_bottom_nav %}
-<a href="{% url 'admin_module:dashboard' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg><span>Dashboard</span></a>
-<a href="{% url 'admin_module:forex' %}" class="mobile-nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span>Forex</span></a>
-<a href="{% url 'admin_module:ventes' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg><span>Ventes</span></a>
-<a href="{% url 'admin_module:rapports' %}" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><span>Rapports</span></a>
-<a href="#" onclick="openModal('update-rate-modal'); return false;" class="mobile-nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg><span>Taux</span></a>
+<a href="{% url 'admin_module:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span class="text-xs mt-1">Dashboard</span>
+</a>
+<a href="{% url 'admin_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+    <span class="text-xs mt-1">Ventes</span>
+</a>
+<a href="{% url 'admin_module:forex' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-xs mt-1">Forex</span>
+</a>
+<a href="{% url 'admin_module:documents' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <span class="text-xs mt-1">Docs</span>
+</a>
+<a href="#" onclick="openModal('update-rate-modal'); return false;" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span class="text-xs mt-1">MAJ Taux</span>
+</a>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
+<!-- Header Section -->
 <div class="md:flex md:items-center md:justify-between mb-8">
     <div class="flex-1 min-w-0">
-        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">Forex & Taux de Change</h2>
-        <p class="mt-1 text-sm text-gray-500">Gestion des taux et analyse de l'impact Forex</p>
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Forex & Taux de Change
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Gestion du taux USD/FC et analyse de l'impact sur les ventes
+        </p>
     </div>
-    <div class="mt-4 flex md:mt-0 md:ml-4">
-        <button onclick="openModal('update-rate-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
-            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
+        <button onclick="openModal('update-rate-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
             Mettre à jour le taux
         </button>
     </div>
 </div>
 
-<!-- Current Rate Card -->
+<!-- Current Rate Banner -->
 <div class="bg-gradient-to-r from-petrox-red to-red-700 rounded-xl shadow-lg p-6 mb-8 text-white">
     <div class="flex items-center justify-between">
         <div>
-            <p class="text-red-200 text-sm font-medium">Taux actuel USD/FC</p>
-            <p class="text-4xl font-bold mt-2">1 USD = <span id="current-rate-display">{{ current_rate.taux_usd_fc|floatformat:2|default:"2800.00" }}</span> FC</p>
+            <p class="text-red-200 text-sm font-medium">Taux Actuel USD/FC</p>
+            <p class="text-4xl font-bold mt-2">
+                1 USD = <span id="current-rate-display">{{ current_rate|floatformat:2 }}</span> FC
+            </p>
             <p class="text-red-200 text-sm mt-2">
-                Depuis le {{ current_rate.date_effective|date:"d/m/Y à H:i"|default:"N/A" }}
-                {% if current_rate.created_by %} par {{ current_rate.created_by.get_full_name }}{% endif %}
+                Mis à jour le {{ rate_updated_at|date:"d/m/Y à H:i" }}
+                {% if rate_updated_by %} par {{ rate_updated_by }}{% endif %}
             </p>
         </div>
         <div class="hidden sm:block">
@@ -57,101 +91,204 @@
     </div>
 </div>
 
-<!-- Forex Impact Analysis -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Impact by Fuel Type -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Impact Forex par Carburant</h3>
-        <div class="h-64">
-            <canvas id="forexByFuelChart"></canvas>
-        </div>
-        <div class="mt-4" id="forex-by-fuel-summary">
-            <div class="text-center text-gray-500 py-4">Chargement...</div>
+<!-- Impact Analysis Stats -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Total Impact -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Impact Total (ce mois)
+                        </dt>
+                        <dd id="total-forex-impact" class="text-2xl font-semibold text-gray-900">
+                            ${{ total_impact|floatformat:2 }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <!-- Impact Summary -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Résumé de l'Impact</h3>
-        <div class="space-y-4" id="forex-summary">
-            <div class="p-4 bg-gray-50 rounded-lg">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Impact Total (ce mois)</span>
-                    <span class="text-xl font-bold" id="total-forex-impact">$0.00</span>
+
+    <!-- Gains -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Gains
+                        </dt>
+                        <dd id="forex-gains" class="text-2xl font-semibold text-green-600">
+                            ${{ gains|floatformat:2 }}
+                        </dd>
+                    </dl>
                 </div>
             </div>
-            <div class="p-4 bg-green-50 rounded-lg">
-                <div class="flex justify-between items-center">
-                    <span class="text-green-700">Gains</span>
-                    <span class="text-xl font-bold text-green-600" id="forex-gains">$0.00</span>
+        </div>
+    </div>
+
+    <!-- Pertes -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Pertes
+                        </dt>
+                        <dd id="forex-losses" class="text-2xl font-semibold text-red-600">
+                            ${{ losses|floatformat:2 }}
+                        </dd>
+                    </dl>
                 </div>
             </div>
-            <div class="p-4 bg-red-50 rounded-lg">
-                <div class="flex justify-between items-center">
-                    <span class="text-red-700">Pertes</span>
-                    <span class="text-xl font-bold text-red-600" id="forex-losses">$0.00</span>
+        </div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
                 </div>
-            </div>
-            <div class="p-4 bg-blue-50 rounded-lg">
-                <div class="flex justify-between items-center">
-                    <span class="text-blue-700">Transactions analysées</span>
-                    <span class="text-xl font-bold text-blue-600" id="forex-transactions">0</span>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                            Transactions
+                        </dt>
+                        <dd id="forex-transactions" class="text-2xl font-semibold text-gray-900">
+                            {{ transactions_count }}
+                        </dd>
+                    </dl>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Rate History -->
-<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-900">Historique des Taux</h3>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Taux (FC/USD)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variation</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Créé par</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for rate in rate_history %}
-                <tr class="hover:bg-gray-50 {% if rate.is_active %}bg-green-50{% endif %}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rate.date_effective|date:"d/m/Y H:i" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ rate.taux_usd_fc|floatformat:2 }} FC</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        {% if forloop.last %}
-                        <span class="text-gray-400">-</span>
-                        {% else %}
-                        {% with next_rate=rate_history|slice:"forloop.counter0:"|first %}
-                        {% if rate.taux_usd_fc > next_rate.taux_usd_fc %}
-                        <span class="text-green-600">▲ +{{ rate.taux_usd_fc|add:next_rate.taux_usd_fc|floatformat:2 }}</span>
-                        {% elif rate.taux_usd_fc < next_rate.taux_usd_fc %}
-                        <span class="text-red-600">▼ {{ rate.taux_usd_fc|add:next_rate.taux_usd_fc|floatformat:2 }}</span>
-                        {% else %}
-                        <span class="text-gray-400">-</span>
-                        {% endif %}
-                        {% endwith %}
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ rate.created_by.get_full_name|default:"Système" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        {% if rate.is_active %}
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Actif</span>
-                        {% else %}
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Historique</span>
-                        {% endif %}
-                    </td>
-                </tr>
+<!-- Impact by Fuel Type and History -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Impact by Fuel -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                Impact Forex par Carburant
+            </h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Gains et pertes par type de carburant (ce mois)
+            </p>
+        </div>
+        <div class="px-4 py-4">
+            <div class="space-y-3" id="forex-by-fuel">
+                {% for fuel_impact in forex_by_fuel %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full mr-3" style="background-color: {{ fuel_impact.couleur }}"></div>
+                        <span class="font-medium text-gray-900">{{ fuel_impact.nom }}</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-semibold {% if fuel_impact.impact >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if fuel_impact.impact >= 0 %}+{% endif %}${{ fuel_impact.impact|floatformat:2 }}
+                        </p>
+                        <p class="text-xs text-gray-500">{{ fuel_impact.transactions }} transaction{{ fuel_impact.transactions|pluralize }}</p>
+                    </div>
+                </div>
                 {% empty %}
-                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-500">Aucun historique de taux</td></tr>
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <p class="mt-2 text-sm">Aucune donnée disponible</p>
+                </div>
                 {% endfor %}
-            </tbody>
-        </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rate History -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                Historique des Taux
+            </h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Dernières modifications du taux de change
+            </p>
+        </div>
+        <div class="px-4 py-4">
+            <div class="overflow-y-auto max-h-96">
+                <div class="space-y-3">
+                    {% for rate in rate_history %}
+                    <div class="flex items-center justify-between p-3 {% if rate.is_active %}bg-green-50 border border-green-200{% else %}bg-gray-50{% endif %} rounded-lg">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">1 USD = {{ rate.taux|floatformat:2 }} FC</p>
+                            <p class="text-xs text-gray-500">{{ rate.date|date:"d/m/Y H:i" }}</p>
+                            <p class="text-xs text-gray-500">Par: {{ rate.created_by }}</p>
+                        </div>
+                        {% if rate.is_active %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Actif
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-8 text-gray-500">
+                        <p class="text-sm">Aucun historique</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Important Note -->
+<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium text-blue-800">Impact Forex</h3>
+            <div class="mt-2 text-sm text-blue-700">
+                <p><strong>Principe:</strong> Le système calcule l'impact en comparant le taux utilisé lors de la vente avec le taux actuel.</p>
+                <ul class="list-disc list-inside mt-2 space-y-1">
+                    <li><strong>Gain:</strong> Si le taux actuel est plus élevé que le taux de la vente (vous avez vendu avant une hausse)</li>
+                    <li><strong>Perte:</strong> Si le taux actuel est plus bas que le taux de la vente (vous avez vendu avant une baisse)</li>
+                </ul>
+                <p class="mt-2"><strong>Important:</strong> Le changement de taux n'affecte PAS les transactions passées. L'historique est conservé pour audit.</p>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -159,29 +296,36 @@
 {% block modals %}
 <!-- Update Rate Modal -->
 <div id="update-rate-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" onclick="closeModal('update-rate-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('update-rate-modal')"></div>
+        
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="update-rate-form" onsubmit="submitRateForm(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <form id="update-rate-form" onsubmit="submitRateUpdate(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
                     <div class="flex items-center mb-4">
                         <div class="h-10 w-10 rounded-full bg-petrox-red flex items-center justify-center mr-4">
-                            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900">Mettre à jour le Taux</h3>
-                            <p class="text-sm text-gray-500">Taux actuel: {{ current_rate.taux_usd_fc|floatformat:2|default:"2800.00" }} FC</p>
+                            <h3 class="text-lg font-medium text-gray-900">Mettre à jour le Taux de Change</h3>
+                            <p class="text-sm text-gray-500">Taux actuel: {{ current_rate|floatformat:2 }} FC</p>
                         </div>
                     </div>
+                    
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Nouveau taux (FC pour 1 USD) *</label>
-                            <input type="number" name="taux_usd_fc" step="0.01" required min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="2850.00">
+                            <label for="new-rate" class="block text-sm font-medium text-gray-700">Nouveau taux (FC pour 1 USD) *</label>
+                            <input type="number" id="new-rate" name="taux_usd_fc" step="0.01" min="1000" max="10000" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="2850.00">
+                            <p class="mt-1 text-xs text-gray-500">Entre 1000 et 10000 FC</p>
                         </div>
+                        
                         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                             <div class="flex">
-                                <svg class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                <svg class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
                                 <div class="text-sm text-yellow-700">
                                     <p class="font-medium">Attention</p>
                                     <p>Le changement de taux n'affecte PAS les transactions passées. L'historique des taux est conservé pour audit.</p>
@@ -190,9 +334,14 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">Mettre à jour</button>
-                    <button type="button" onclick="closeModal('update-rate-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Annuler</button>
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Mettre à jour
+                    </button>
+                    <button type="button" onclick="closeModal('update-rate-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
                 </div>
             </form>
         </div>
@@ -202,88 +351,79 @@
 
 {% block extra_js %}
 <script>
-    let forexChart = null;
+// Submit rate update
+function submitRateUpdate(event) {
+    event.preventDefault();
     
-    document.addEventListener('DOMContentLoaded', function() {
-        initForexChart();
-        loadForexAnalysis();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/dashboard/api/forex/update-rate/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('update-rate-modal');
+            showNotification('Taux de change mis à jour avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de la mise à jour', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
     });
-    
-    function initForexChart() {
-        const ctx = document.getElementById('forexByFuelChart');
-        if (!ctx) return;
-        
-        forexChart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: [], datasets: [{ label: 'Impact USD', data: [], backgroundColor: [] }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
-            }
-        });
+}
+
+// Modal controls
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    const form = document.querySelector(`#${modalId} form`);
+    if (form) {
+        form.reset();
     }
-    
-    async function loadForexAnalysis() {
-        try {
-            const response = await fetch('/dashboard/api/forex/analysis/', {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            const data = await response.json();
-            
-            // Update summary
-            document.getElementById('total-forex-impact').textContent = formatCurrency(data.summary?.total_impact_usd || 0, 'USD');
-            document.getElementById('forex-gains').textContent = formatCurrency(data.summary?.gains || 0, 'USD');
-            document.getElementById('forex-losses').textContent = formatCurrency(data.summary?.losses || 0, 'USD');
-            document.getElementById('forex-transactions').textContent = data.summary?.transactions_analyzed || 0;
-            
-            // Update chart
-            if (data.by_carburant && forexChart) {
-                forexChart.data.labels = data.by_carburant.map(f => f.carburant);
-                forexChart.data.datasets[0].data = data.by_carburant.map(f => Math.abs(parseFloat(f.impact_usd)));
-                forexChart.data.datasets[0].backgroundColor = data.by_carburant.map(f => 
-                    parseFloat(f.impact_usd) >= 0 ? '#16A34A' : '#DC2626'
-                );
-                forexChart.update();
-                
-                // Update summary list
-                document.getElementById('forex-by-fuel-summary').innerHTML = data.by_carburant.map(f => `
-                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span class="text-sm text-gray-600">${f.carburant}</span>
-                        <span class="text-sm font-semibold ${parseFloat(f.impact_usd) >= 0 ? 'text-green-600' : 'text-red-600'}">
-                            ${formatCurrency(f.impact_usd, 'USD')}
-                        </span>
-                    </div>
-                `).join('');
+}
+
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
-        } catch (error) {
-            console.error('Error loading forex analysis:', error);
         }
     }
+    return cookieValue;
+}
+
+// Show notification
+function showNotification(message, type, duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    } text-white max-w-md`;
+    notification.textContent = message;
     
-    async function submitRateForm(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        
-        try {
-            const response = await fetch('/dashboard/api/forex/update-rate/', {
-                method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ taux_usd_fc: formData.get('taux_usd_fc') })
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                showToast('Taux mis à jour avec succès', 'success');
-                closeModal('update-rate-modal');
-                location.reload();
-            } else {
-                showToast(data.message || 'Erreur', 'error');
-            }
-        } catch (error) {
-            showToast('Erreur de connexion', 'error');
-        }
-    }
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, duration);
+}
 </script>
 {% endblock %}
