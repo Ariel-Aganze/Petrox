@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import Http404
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, F, Count, Q, Avg
@@ -12,6 +13,10 @@ from apps.core.models import (
     Document, DocumentCategory, Notification, PaiementSalaire
 )
 from apps.core.models import MoyenPaiement, CategorieDepense, TypeCarburant, TauxChange, Branche, User
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from dateutil.relativedelta import relativedelta
+
+
 
 
 class AdminRequiredMixin(UserPassesTestMixin):
@@ -767,30 +772,73 @@ class AbonnesListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
 
 
 class AbonneDetailView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """Detailed view of a subscriber with global history"""
+    """
+    Detailed view of a single abonné with consumptions history and pagination
+    """
     template_name = 'admin/abonne_detail.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        abonne_id = self.kwargs.get('abonne_id')
-        abonne = get_object_or_404(Abonne, id=abonne_id)
+        abonne_id = kwargs.get('abonne_id')
+        
+        # Get abonné
+        try:
+            abonne = Abonne.objects.get(id=abonne_id)
+        except Abonne.DoesNotExist:
+            raise Http404("Abonné non trouvé")
         
         context['abonne'] = abonne
         
-        # Consumption history across ALL branches
-        context['consumptions'] = ConsommationAbonne.objects.filter(
+        # Get all consumptions for this abonné
+        # FIXED: Removed 'created_by' from select_related
+        consumptions_list = ConsommationAbonne.objects.filter(
             abonne=abonne
-        ).select_related('branche', 'vente__type_carburant').order_by('-created_at')[:50]
+        ).select_related(
+            'branche', 'type_carburant'
+        ).order_by('-created_at')
         
-        # Summary by branch
-        context['by_branch'] = ConsommationAbonne.objects.filter(abonne=abonne).values(
-            'branche__nom'
-        ).annotate(
-            count=Count('id')
+        # Pagination - 20 items per page
+        paginator = Paginator(consumptions_list, 20)
+        page = self.request.GET.get('page', 1)
+        
+        try:
+            consumptions = paginator.page(page)
+        except PageNotAnInteger:
+            consumptions = paginator.page(1)
+        except EmptyPage:
+            consumptions = paginator.page(paginator.num_pages)
+        
+        context['consumptions'] = consumptions
+        
+        # Total consumptions count
+        context['total_consumptions'] = consumptions_list.count()
+        
+        # Count unique branches where abonné consumed
+        context['branches_count'] = consumptions_list.values('branche').distinct().count()
+        
+        # Current month consumption
+        today = timezone.now().date()
+        month_start = today.replace(day=1)
+        
+        month_consumptions = consumptions_list.filter(
+            created_at__date__gte=month_start
         )
         
+        context['month_consumption_usd'] = month_consumptions.filter(
+            devise='USD'
+        ).aggregate(Sum('montant'))['montant__sum'] or 0
+        
+        context['month_consumption_fc'] = month_consumptions.filter(
+            devise='FC'
+        ).aggregate(Sum('montant'))['montant__sum'] or 0
+        
+        # Last consumption date
+        last_consumption = consumptions_list.first()
+        context['last_consumption_date'] = last_consumption.created_at.strftime('%d/%m/%Y') if last_consumption else None
+        
         return context
+
 
 
 class UtilisateursListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
@@ -992,31 +1040,86 @@ class NotificationsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
 
 
 class SalairesView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """Payroll history (view-only for admin)"""
+    """Salaires & Payroll page"""
     template_name = 'admin/salaires.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        branche_id = self.request.GET.get('branche_id', 'all')
+        # Get filters
+        branche_id = self.request.GET.get('branche_id', '')
+        employee_type = self.request.GET.get('employee_type', 'all')
         period = self.request.GET.get('period', 'month')
+        devise = self.request.GET.get('devise', '')
         
-        payments = PaiementSalaire.objects.select_related(
-            'pompiste', 'branche', 'caissier'
-        )
-        
-        if branche_id and branche_id != 'all':
-            payments = payments.filter(branche_id=branche_id)
-        
+        # Calculate date range
         today = timezone.now().date()
         if period == 'month':
-            payments = payments.filter(date_paiement__date__gte=today - timedelta(days=30))
+            start_date = today.replace(day=1)
+        elif period == 'last_month':
+            last_month = today - relativedelta(months=1)
+            start_date = last_month.replace(day=1)
+            today = start_date.replace(day=1) + relativedelta(months=1) - timedelta(days=1)
+        elif period == 'year':
+            start_date = today.replace(month=1, day=1)
+        else:
+            start_date = None
         
-        context['payments'] = payments.order_by('-date_paiement')[:100]
+        # Base queryset
+        payments = PaiementSalaire.objects.select_related(
+            'pompiste', 'branche', 'caissier'
+        ).order_by('-date_paiement')
         
-        # Totals
-        context['total_usd'] = payments.filter(devise_paiement='USD').aggregate(Sum('montant_paye'))['montant_paye__sum'] or 0
-        context['total_fc'] = payments.filter(devise_paiement='FC').aggregate(Sum('montant_paye'))['montant_paye__sum'] or 0
+        # Apply filters
+        if start_date:
+            payments = payments.filter(date_paiement__date__gte=start_date)
+        
+        if branche_id:
+            payments = payments.filter(branche_id=branche_id)
+        
+        if devise:
+            payments = payments.filter(devise_paiement=devise)
+        
+        # Format payments for template
+        payments_list = []
+        for payment in payments[:100]:  # Limit to 100 for performance
+            payments_list.append({
+                'id': payment.id,
+                'employee_name': payment.pompiste.get_full_name() if payment.pompiste else 'N/A',
+                'employee_type': 'Pompiste',
+                'branche': payment.branche.nom if payment.branche else 'N/A',
+                'periode': payment.mois_paiement.strftime('%m/%Y') if payment.mois_paiement else 'N/A',
+                'montant': float(payment.montant_paye),
+                'devise': payment.devise_paiement,
+                'paid_by': payment.caissier.get_full_name() if payment.caissier else 'N/A',
+                'date_paiement': payment.date_paiement
+            })
+        
+        context['payments'] = payments_list
+        
+        # Statistics
+        month_start = today.replace(day=1)
+        month_payments = PaiementSalaire.objects.filter(
+            date_paiement__date__gte=month_start
+        )
+        
+        total_usd = float(month_payments.filter(devise_paiement='USD').aggregate(
+            Sum('montant_paye'))['montant_paye__sum'] or 0)
+        total_fc = float(month_payments.filter(devise_paiement='FC').aggregate(
+            Sum('montant_paye'))['montant_paye__sum'] or 0)
+        
+        # Convert FC to USD for total (using current rate)
+        current_rate_obj = TauxChange.objects.filter(is_active=True).first()
+        current_rate = float(current_rate_obj.taux_usd_fc) if current_rate_obj else 2800.0
+        total_usd += (total_fc / current_rate)
+        
+        context['total_paid_month'] = total_usd
+        context['employees_paid_count'] = month_payments.values('pompiste').distinct().count()
+        context['total_payments'] = month_payments.count()
+        
+        # Branches
+        context['branches'] = Branche.objects.filter(is_active=True).order_by('nom')
+        context['branches_count'] = context['branches'].count()
         
         return context
 
@@ -1139,5 +1242,23 @@ class ParametresView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         context['admin_count'] = User.objects.filter(role='admin').count()
         context['manager_count'] = User.objects.filter(role='manager').count()
         context['caissier_count'] = User.objects.filter(role='caissier').count()
+        
+        return context
+    
+class ValidationManquantsView(AdminRequiredMixin, TemplateView):
+    """
+    Template view for Manquants Validation page
+    Shows all manquants with filtering, charts, and export options
+    """
+    template_name = 'admin/validation_manquants.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get all active branches for filter
+        context['all_branches'] = Branche.objects.filter(is_active=True).order_by('nom')
+        
+        # Get all pompistes for filter
+        context['all_pompistes'] = Pompiste.objects.filter(is_active=True).select_related('branche').order_by('prenom', 'nom')
         
         return context

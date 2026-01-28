@@ -7,6 +7,7 @@
 <a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
 <a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
 <a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:validation_manquants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Manquants</a>
 <a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
 <a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
 <a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
@@ -57,211 +58,325 @@
             Vue d'ensemble
         </h2>
         <p class="mt-1 text-sm text-gray-500">
-            Statistiques pour <span class="font-semibold text-gray-800" id="branch-label">{% if selected_branch %}{{ selected_branch.nom }}{% else %}Toutes les branches{% endif %}</span>
+            Tableau de bord administrateur - Suivi en temps réel de toutes les branches
         </p>
     </div>
-    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
+</div>
+
+<!-- Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Branch Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Branche</label>
+            <select id="branch-filter" onchange="updateBranch(this.value)" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toutes les branches</option>
+                {% for branch in all_branches %}
+                <option value="{{ branch.id }}">{{ branch.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
         <!-- Period Filter -->
-        <select id="period-filter" onchange="updatePeriod(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-            <option value="today">Aujourd'hui</option>
-            <option value="week">Cette semaine</option>
-            <option value="month" selected>Ce mois</option>
-            <option value="year">Cette année</option>
-        </select>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Période</label>
+            <div class="flex space-x-2">
+                <button data-period="day" onclick="updatePeriod('day')" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50">Jour</button>
+                <button data-period="week" onclick="updatePeriod('week')" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50">Semaine</button>
+                <button data-period="month" onclick="updatePeriod('month')" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium bg-petrox-red text-white">Mois</button>
+            </div>
+        </div>
         
         <!-- Currency Filter -->
-        <select id="currency-filter" onchange="updateCurrency(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-            <option value="USD" selected>USD ($)</option>
-            <option value="FC">FC (FC)</option>
-        </select>
-        
-        <!-- Refresh Button -->
-        <button onclick="refreshDashboard()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
-            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Actualiser
-        </button>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Devise</label>
+            <div class="flex space-x-2">
+                <button data-currency="USD" onclick="updateCurrency('USD')" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium bg-petrox-red text-white">USD</button>
+                <button data-currency="FC" onclick="updateCurrency('FC')" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50">FC</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- KPI Cards -->
 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-    <!-- Total Sales -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
+    <!-- Card 1: Total Sales -->
+    <div id="total-sales" class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Total Ventes
-                        </dt>
-                        <dd class="flex items-baseline">
-                            <div class="text-2xl font-semibold text-gray-900" id="total-sales">
-                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
-                            </div>
-                            <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600" id="sales-trend">
-                                <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>+0%</span>
-                            </div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Ventes Totales</dt>
+                        <dd>
+                            <div class="kpi-value text-lg font-bold text-gray-900"><span class="currency-symbol">$</span> 0.00</div>
                         </dd>
                     </dl>
                 </div>
             </div>
         </div>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm">
+                <span class="kpi-trend font-medium text-green-600">+0.0%</span>
+                <span class="text-gray-500"> vs période précédente</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Total Expenses -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
+    <!-- Card 2: Total Expenses -->
+    <div id="total-expenses" class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Total Dépenses
-                        </dt>
-                        <dd class="flex items-baseline">
-                            <div class="text-2xl font-semibold text-gray-900" id="total-expenses">
-                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
-                            </div>
-                            <div class="ml-2 flex items-baseline text-sm font-semibold text-red-600" id="expenses-trend">
-                                <svg class="self-center flex-shrink-0 h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>+0%</span>
-                            </div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Dépenses Totales</dt>
+                        <dd>
+                            <div class="kpi-value text-lg font-bold text-gray-900"><span class="currency-symbol">$</span> 0.00</div>
                         </dd>
                     </dl>
                 </div>
             </div>
         </div>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm">
+                <span class="kpi-trend font-medium text-red-600">+0.0%</span>
+                <span class="text-gray-500"> vs période précédente</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Net Profit/Loss -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
+    <!-- Card 3: Net Profit -->
+    <div id="net-profit" class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Profit Net
-                        </dt>
-                        <dd class="flex items-baseline">
-                            <div class="text-2xl font-semibold" id="net-profit">
-                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
-                            </div>
-                            <div class="ml-2 flex items-baseline text-sm font-semibold" id="profit-margin">
-                                <span>0%</span>
-                            </div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Profit Net</dt>
+                        <dd>
+                            <div class="kpi-value text-lg font-bold text-green-600"><span class="currency-symbol">$</span> 0.00</div>
                         </dd>
                     </dl>
                 </div>
             </div>
         </div>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm">
+                <span class="text-gray-500">Marge: </span>
+                <span class="kpi-trend font-medium">0.0%</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Missing Amounts -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
+    <!-- Card 4: Active Branches -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Manquants
-                        </dt>
-                        <dd class="flex items-baseline">
-                            <div class="text-2xl font-semibold text-gray-900" id="total-manquants">
-                                <span class="currency-symbol">$</span><span class="amount">0.00</span>
-                            </div>
-                            <div class="ml-2 flex items-baseline text-sm font-semibold text-yellow-600" id="manquants-count">
-                                <span>0 cas</span>
-                            </div>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Branches Actives</dt>
+                        <dd>
+                            <div id="active-branches" class="text-lg font-bold text-gray-900">0</div>
                         </dd>
                     </dl>
                 </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-2">
+            <div class="text-sm text-gray-500">
+                Sur {{ all_branches|length }} branche(s)
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts Row -->
+<!-- Forex Impact Section -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6 mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h3 class="text-lg font-medium text-gray-900">Impact Forex</h3>
+            <p class="text-sm text-gray-500">Analyse des gains/pertes de change pour la période sélectionnée</p>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="text-xs text-gray-500">Taux actuel:</span>
+            <span class="text-sm font-medium text-petrox-red">{{ current_rate|floatformat:2 }} FC</span>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <!-- Total Impact -->
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-gray-600 uppercase">Impact Total</span>
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+            </div>
+            <p id="forex-total-impact" class="text-2xl font-bold text-gray-900">$0.00</p>
+            <p class="text-xs text-gray-500 mt-1">USD</p>
+        </div>
+        
+        <!-- Gains -->
+        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-green-700 uppercase">Gains</span>
+                <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                </svg>
+            </div>
+            <p id="forex-gains" class="text-2xl font-bold text-green-600">$0.00</p>
+            <p class="text-xs text-green-600 mt-1">Positif</p>
+        </div>
+        
+        <!-- Losses -->
+        <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 border border-red-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-red-700 uppercase">Pertes</span>
+                <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                </svg>
+            </div>
+            <p id="forex-losses" class="text-2xl font-bold text-red-600">$0.00</p>
+            <p class="text-xs text-red-600 mt-1">Négatif</p>
+        </div>
+        
+        <!-- Average Rate -->
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-blue-700 uppercase">Taux Moyen</span>
+                <svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+            </div>
+            <p id="forex-avg-rate" class="text-2xl font-bold text-blue-600">{{ current_rate|floatformat:2 }}</p>
+            <p class="text-xs text-blue-600 mt-1">USD/FC</p>
+        </div>
+    </div>
+    
+    <!-- Forex by Fuel Type Chart -->
+    <div class="bg-gray-50 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Impact par Type de Carburant</h4>
+        <div style="height: 250px;">
+            <canvas id="forex-fuel-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Export Actions Bar -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+        <div class="flex items-center space-x-2">
+            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span class="text-sm font-medium text-gray-700">Exporter les statistiques du dashboard</span>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            <!-- Refresh Button -->
+            <button onclick="refreshDashboard()" 
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red transition-colors">
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualiser
+            </button>
+            
+            <!-- Export Excel Button -->
+            <button id="export-excel-btn"
+                    class="inline-flex items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </button>
+            
+            <!-- Export PDF Button -->
+            <button id="export-pdf-btn"
+                    class="inline-flex items-center px-4 py-2 border border-petrox-red rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red transition-colors">
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <!-- Sales vs Expenses Chart -->
     <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Ventes vs Dépenses</h3>
-            <div class="flex gap-4 text-sm">
-                <div class="flex items-center">
-                    <div class="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
-                    <span class="text-gray-600">Ventes</span>
-                </div>
-                <div class="flex items-center">
-                    <div class="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
-                    <span class="text-gray-600">Dépenses</span>
-                </div>
-            </div>
-        </div>
-        <div class="relative h-80">
-            <canvas id="salesExpensesChart"></canvas>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes vs Dépenses</h3>
+        <div style="height: 300px;">
+            <canvas id="sales-expenses-chart"></canvas>
         </div>
     </div>
-
+    
     <!-- Sales by Fuel Type -->
     <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes par Type de Carburant</h3>
-        <div class="relative h-80">
-            <canvas id="fuelTypesChart"></canvas>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes par Carburant</h3>
+        <div id="sales-by-fuel" class="space-y-3">
+            <!-- Will be populated by JavaScript -->
+            <div class="text-center py-8 text-gray-500">
+                <svg class="animate-spin h-8 w-8 mx-auto text-petrox-red mb-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p>Chargement des données...</p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Transactions & Stock Alerts -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Recent Transactions and Stock Alerts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <!-- Recent Transactions -->
     <div class="bg-white shadow-sm rounded-lg border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
         </div>
         <div class="overflow-hidden">
-            <ul role="list" class="divide-y divide-gray-200" id="recent-transactions">
-                <!-- Loading state -->
-                <li class="px-6 py-4 text-center text-gray-500">
-                    <svg class="animate-spin h-5 w-5 mx-auto text-petrox-red" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </li>
-            </ul>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réf</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-transactions" class="bg-white divide-y divide-gray-200">
+                    <!-- Will be populated by JavaScript -->
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                            <svg class="animate-spin h-8 w-8 mx-auto text-petrox-red mb-2" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p>Chargement...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -270,19 +385,20 @@
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-medium text-gray-900">Alertes de Stock</h3>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" id="alerts-badge">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hidden" id="alerts-badge">
                     0
                 </span>
             </div>
         </div>
         <div class="overflow-hidden">
             <ul role="list" class="divide-y divide-gray-200" id="stock-alerts">
-                <!-- Loading state -->
-                <li class="px-6 py-4 text-center text-gray-500">
-                    <svg class="animate-spin h-5 w-5 mx-auto text-petrox-red" fill="none" viewBox="0 0 24 24">
+                <!-- Will be populated by JavaScript -->
+                <li class="px-6 py-8 text-center text-gray-500">
+                    <svg class="animate-spin h-8 w-8 mx-auto text-petrox-red mb-2" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
+                    <p>Chargement...</p>
                 </li>
             </ul>
         </div>
@@ -296,25 +412,55 @@
 // Global state
 let currentPeriod = 'month';
 let currentCurrency = 'USD';
-let currentBranch = '{{ selected_branch_id|default:"all" }}';
+let currentBranch = 'all';
 let salesExpensesChart = null;
-let fuelTypesChart = null;
+let forexImpactChart = null;
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
     initializeCharts();
+    setupEventListeners();
 });
+
+// Setup event listeners
+function setupEventListeners() {
+    const exportPdfBtn = document.getElementById('export-pdf-btn');
+    const exportExcelBtn = document.getElementById('export-excel-btn');
+    
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPDF);
+    if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
+}
 
 // Update period filter
 function updatePeriod(period) {
     currentPeriod = period;
+    
+    // Update button states
+    document.querySelectorAll('[data-period]').forEach(btn => {
+        btn.classList.remove('bg-petrox-red', 'text-white');
+        btn.classList.add('text-gray-600', 'hover:bg-gray-50');
+    });
+    
+    event.target.classList.remove('text-gray-600', 'hover:bg-gray-50');
+    event.target.classList.add('bg-petrox-red', 'text-white');
+    
     loadDashboardData();
 }
 
 // Update currency filter
 function updateCurrency(currency) {
     currentCurrency = currency;
+    
+    // Update button states
+    document.querySelectorAll('[data-currency]').forEach(btn => {
+        btn.classList.remove('bg-petrox-red', 'text-white');
+        btn.classList.add('text-gray-600', 'hover:bg-gray-50');
+    });
+    
+    event.target.classList.remove('text-gray-600', 'hover:bg-gray-50');
+    event.target.classList.add('bg-petrox-red', 'text-white');
+    
     updateCurrencySymbols(currency);
     loadDashboardData();
 }
@@ -327,6 +473,12 @@ function updateCurrencySymbols(currency) {
     });
 }
 
+// Update branch filter
+function updateBranch(branchId) {
+    currentBranch = branchId;
+    loadDashboardData();
+}
+
 // Refresh dashboard
 function refreshDashboard() {
     loadDashboardData();
@@ -335,12 +487,15 @@ function refreshDashboard() {
 
 // Load dashboard data from API
 function loadDashboardData() {
+    showLoading(true);
+    
     const url = `/dashboard/api/stats/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
     
     fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
         }
     })
     .then(response => response.json())
@@ -348,109 +503,196 @@ function loadDashboardData() {
         if (data.success) {
             updateKPIs(data);
             updateCharts(data);
+            updateForexImpact(data);
             updateRecentTransactions(data.recent_transactions || []);
             updateStockAlerts(data.stock_alerts || []);
+            updateSalesByFuel(data.sales_by_fuel || []);
         } else {
-            showNotification('Erreur de chargement des données', 'error');
+            showNotification('Erreur: ' + (data.message || 'Erreur de chargement des données'), 'error');
         }
     })
     .catch(error => {
         console.error('Error loading dashboard:', error);
         showNotification('Erreur de connexion', 'error');
+    })
+    .finally(() => {
+        showLoading(false);
     });
 }
 
 // Update KPI cards
 function updateKPIs(data) {
+    const symbol = currentCurrency === 'USD' ? '$' : 'FC';
+    
     // Total Sales
-    const salesAmount = document.querySelector('#total-sales .amount');
-    const salesTrend = document.querySelector('#sales-trend span');
-    if (salesAmount) salesAmount.textContent = formatNumber(data.total_sales || 0);
-    if (salesTrend) salesTrend.textContent = `${data.sales_trend > 0 ? '+' : ''}${data.sales_trend || 0}%`;
+    updateKPICard('total-sales', data.total_sales || 0, data.sales_trend || 0, symbol);
     
     // Total Expenses
-    const expensesAmount = document.querySelector('#total-expenses .amount');
-    const expensesTrend = document.querySelector('#expenses-trend span');
-    if (expensesAmount) expensesAmount.textContent = formatNumber(data.total_expenses || 0);
-    if (expensesTrend) expensesTrend.textContent = `${data.expenses_trend > 0 ? '+' : ''}${data.expenses_trend || 0}%`;
+    updateKPICard('total-expenses', data.total_expenses || 0, data.expenses_trend || 0, symbol);
     
     // Net Profit
     const netProfit = (data.total_sales || 0) - (data.total_expenses || 0);
-    const netProfitEl = document.querySelector('#net-profit .amount');
-    const profitMarginEl = document.querySelector('#profit-margin span');
+    const profitMargin = data.total_sales > 0 ? (netProfit / data.total_sales * 100) : 0;
+    updateKPICard('net-profit', netProfit, profitMargin, symbol, true);
     
-    if (netProfitEl) {
-        netProfitEl.textContent = formatNumber(netProfit);
-        // Change color based on profit/loss
-        const profitContainer = document.getElementById('net-profit');
-        if (netProfit >= 0) {
-            profitContainer.classList.remove('text-red-600');
-            profitContainer.classList.add('text-green-600');
-        } else {
-            profitContainer.classList.remove('text-green-600');
-            profitContainer.classList.add('text-red-600');
+    // Active Branches
+    const activeBranches = document.getElementById('active-branches');
+    if (activeBranches) {
+        activeBranches.textContent = data.active_branches || 0;
+    }
+}
+
+// Update individual KPI card
+function updateKPICard(cardId, value, trend, symbol, isProfit = false) {
+    const card = document.getElementById(cardId);
+    if (!card) return;
+    
+    // Update value
+    const valueEl = card.querySelector('.kpi-value');
+    if (valueEl) {
+        valueEl.textContent = `${symbol} ${formatNumber(value)}`;
+        
+        // Update color for profit
+        if (isProfit) {
+            valueEl.classList.remove('text-green-600', 'text-red-600');
+            valueEl.classList.add(value >= 0 ? 'text-green-600' : 'text-red-600');
         }
     }
     
-    if (profitMarginEl) {
-        const margin = data.total_sales > 0 ? ((netProfit / data.total_sales) * 100).toFixed(1) : 0;
-        profitMarginEl.textContent = `${margin}%`;
+    // Update trend
+    const trendEl = card.querySelector('.kpi-trend');
+    if (trendEl && trend !== null && trend !== undefined) {
+        trendEl.textContent = `${trend >= 0 ? '+' : ''}${trend.toFixed(1)}%`;
+        trendEl.classList.remove('text-green-600', 'text-red-600');
+        trendEl.classList.add(trend >= 0 ? 'text-green-600' : 'text-red-600');
+    }
+}
+
+// Update Forex Impact Section
+function updateForexImpact(data) {
+    const forexData = data.forex_impact || {};
+    
+    // Update total impact
+    const totalImpactEl = document.getElementById('forex-total-impact');
+    if (totalImpactEl) {
+        const total = forexData.total || 0;
+        totalImpactEl.textContent = `$${formatNumber(total)}`;
+        totalImpactEl.classList.remove('text-green-600', 'text-red-600');
+        totalImpactEl.classList.add(total >= 0 ? 'text-green-600' : 'text-red-600');
     }
     
-    // Manquants
-    const manquantsAmount = document.querySelector('#total-manquants .amount');
-    const manquantsCount = document.querySelector('#manquants-count span');
-    if (manquantsAmount) manquantsAmount.textContent = formatNumber(data.total_manquants || 0);
-    if (manquantsCount) manquantsCount.textContent = `${data.manquants_count || 0} cas`;
+    // Update gains
+    const gainsEl = document.getElementById('forex-gains');
+    if (gainsEl) {
+        gainsEl.textContent = `$${formatNumber(forexData.gains || 0)}`;
+    }
+    
+    // Update losses
+    const lossesEl = document.getElementById('forex-losses');
+    if (lossesEl) {
+        lossesEl.textContent = `$${formatNumber(Math.abs(forexData.losses || 0))}`;
+    }
+    
+    // Update by fuel type chart
+    if (forexData.by_fuel && forexData.by_fuel.length > 0) {
+        updateForexByFuelChart(forexData.by_fuel);
+    } else {
+        // Show empty state
+        const canvas = document.getElementById('forex-fuel-chart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (forexImpactChart) {
+                forexImpactChart.destroy();
+                forexImpactChart = null;
+            }
+        }
+    }
+}
+
+// Update Forex by Fuel Chart
+function updateForexByFuelChart(forexByFuel) {
+    const canvas = document.getElementById('forex-fuel-chart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy existing chart
+    if (forexImpactChart) {
+        forexImpactChart.destroy();
+    }
+    
+    const fuelNames = forexByFuel.map(f => f.fuel_type);
+    const impacts = forexByFuel.map(f => f.impact);
+    
+    forexImpactChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: fuelNames,
+            datasets: [{
+                label: 'Impact Forex ($)',
+                data: impacts,
+                backgroundColor: impacts.map(v => v >= 0 ? 'rgba(34, 197, 94, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
+                borderColor: impacts.map(v => v >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Impact: $${formatNumber(context.parsed.y)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + formatNumber(value);
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 // Initialize charts
 function initializeCharts() {
-    // Sales vs Expenses Chart
-    const salesExpensesCtx = document.getElementById('salesExpensesChart');
-    if (salesExpensesCtx) {
-        salesExpensesChart = new Chart(salesExpensesCtx, {
+    // Sales vs Expenses chart will be created when data loads
+    const salesCanvas = document.getElementById('sales-expenses-chart');
+    if (salesCanvas) {
+        const ctx = salesCanvas.getContext('2d');
+        salesExpensesChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
-                datasets: [
-                    {
-                        label: 'Ventes',
-                        data: [],
-                        borderColor: 'rgb(34, 197, 94)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Dépenses',
-                        data: [],
-                        borderColor: 'rgb(220, 38, 38)',
-                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }
-                ]
+                datasets: []
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 plugins: {
                     legend: {
-                        display: false
+                        position: 'top',
                     },
                     tooltip: {
-                        mode: 'index',
-                        intersect: false,
                         callbacks: {
                             label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
                                 const symbol = currentCurrency === 'USD' ? '$' : 'FC';
-                                label += symbol + formatNumber(context.parsed.y);
-                                return label;
+                                return `${context.dataset.label}: ${symbol}${formatNumber(context.parsed.y)}`;
                             }
                         }
                     }
@@ -469,126 +711,129 @@ function initializeCharts() {
             }
         });
     }
-    
-    // Fuel Types Chart
-    const fuelTypesCtx = document.getElementById('fuelTypesChart');
-    if (fuelTypesCtx) {
-        fuelTypesChart = new Chart(fuelTypesCtx, {
-            type: 'doughnut',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    backgroundColor: [
-                        'rgb(34, 197, 94)',
-                        'rgb(59, 130, 246)',
-                        'rgb(245, 158, 11)',
-                        'rgb(168, 85, 247)',
-                        'rgb(236, 72, 153)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                const symbol = currentCurrency === 'USD' ? '$' : 'FC';
-                                label += symbol + formatNumber(context.parsed);
-                                
-                                // Calculate percentage
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                label += ` (${percentage}%)`;
-                                
-                                return label;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
 }
 
 // Update charts with new data
 function updateCharts(data) {
-    // Update Sales vs Expenses Chart
-    if (salesExpensesChart && data.chart_data) {
-        salesExpensesChart.data.labels = data.chart_data.labels || [];
-        salesExpensesChart.data.datasets[0].data = data.chart_data.sales || [];
-        salesExpensesChart.data.datasets[1].data = data.chart_data.expenses || [];
-        salesExpensesChart.update();
-    }
+    if (!salesExpensesChart || !data.chart_data) return;
     
-    // Update Fuel Types Chart
-    if (fuelTypesChart && data.fuel_data) {
-        fuelTypesChart.data.labels = data.fuel_data.labels || [];
-        fuelTypesChart.data.datasets[0].data = data.fuel_data.values || [];
-        fuelTypesChart.update();
-    }
+    const chartData = data.chart_data;
+    
+    salesExpensesChart.data.labels = chartData.labels || [];
+    salesExpensesChart.data.datasets = [
+        {
+            label: 'Ventes',
+            data: chartData.sales || [],
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.4,
+            fill: true
+        },
+        {
+            label: 'Dépenses',
+            data: chartData.expenses || [],
+            borderColor: 'rgb(220, 38, 38)',
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            tension: 0.4,
+            fill: true
+        }
+    ];
+    
+    salesExpensesChart.update();
 }
 
-// Update recent transactions list
-function updateRecentTransactions(transactions) {
-    const container = document.getElementById('recent-transactions');
+// Update sales by fuel
+function updateSalesByFuel(salesByFuel) {
+    const container = document.getElementById('sales-by-fuel');
     if (!container) return;
     
-    if (transactions.length === 0) {
+    if (salesByFuel.length === 0) {
         container.innerHTML = `
-            <li class="px-6 py-4 text-center text-gray-500">
-                Aucune transaction récente
-            </li>
+            <div class="text-center py-8 text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <p class="mt-2">Aucune vente pour cette période</p>
+            </div>
         `;
         return;
     }
     
-    container.innerHTML = transactions.map(transaction => `
-        <li class="px-6 py-4 hover:bg-gray-50 cursor-pointer" onclick="viewTransaction('${transaction.type}', ${transaction.id})">
-            <div class="flex items-center justify-between">
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate">
-                        ${transaction.description}
-                    </p>
-                    <p class="text-sm text-gray-500">
-                        ${transaction.branch} • ${transaction.date}
-                    </p>
+    const symbol = currentCurrency === 'USD' ? '$' : 'FC';
+    const total = salesByFuel.reduce((sum, f) => sum + f.amount, 0);
+    
+    container.innerHTML = salesByFuel.map(fuel => {
+        const percentage = total > 0 ? (fuel.amount / total * 100) : 0;
+        return `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">${fuel.fuel_type}</p>
+                    <p class="text-xs text-gray-500">${formatNumber(fuel.quantity)} L</p>
                 </div>
-                <div class="ml-4 flex-shrink-0">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(transaction.status)}">
-                        ${transaction.status}
-                    </span>
-                    <p class="text-sm font-semibold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'} mt-1">
-                        ${transaction.amount >= 0 ? '+' : ''}${currentCurrency === 'USD' ? '$' : 'FC'}${formatNumber(Math.abs(transaction.amount))}
-                    </p>
+                <div class="text-right ml-4">
+                    <p class="text-sm font-bold text-petrox-red">${symbol} ${formatNumber(fuel.amount)}</p>
+                    <p class="text-xs text-gray-500">${percentage.toFixed(1)}%</p>
                 </div>
             </div>
-        </li>
-    `).join('');
+        `;
+    }).join('');
 }
 
-// Update stock alerts list
+// Update recent transactions
+function updateRecentTransactions(transactions) {
+    const tbody = document.getElementById('recent-transactions');
+    if (!tbody) return;
+    
+    if (transactions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="mt-2">Aucune transaction récente</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    const symbol = currentCurrency === 'USD' ? '$' : 'FC';
+    
+    tbody.innerHTML = transactions.map(tx => {
+        return `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${tx.reference || 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tx.date || 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${tx.type || 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold ${(tx.amount || 0) >= 0 ? 'text-green-600' : 'text-red-600'}">
+                    ${symbol} ${formatNumber(Math.abs(tx.amount || 0))}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Update stock alerts
 function updateStockAlerts(alerts) {
-    const container = document.getElementById('stock-alerts');
-    const badge = document.getElementById('alerts-badge');
+    const alertsList = document.getElementById('stock-alerts');
+    const alertsBadge = document.getElementById('alerts-badge');
     
-    if (badge) badge.textContent = alerts.length;
+    if (!alertsList) return;
     
-    if (!container) return;
+    if (alertsBadge) {
+        alertsBadge.textContent = alerts.length;
+        if (alerts.length > 0) {
+            alertsBadge.classList.remove('hidden');
+        } else {
+            alertsBadge.classList.add('hidden');
+        }
+    }
     
     if (alerts.length === 0) {
-        container.innerHTML = `
-            <li class="px-6 py-4 text-center text-gray-500">
-                <svg class="mx-auto h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        alertsList.innerHTML = `
+            <li class="px-6 py-8 text-center text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p class="mt-2">Aucune alerte de stock</p>
@@ -597,65 +842,69 @@ function updateStockAlerts(alerts) {
         return;
     }
     
-    container.innerHTML = alerts.map(alert => `
+    alertsList.innerHTML = alerts.map(alert => `
         <li class="px-6 py-4 hover:bg-gray-50">
-            <div class="flex items-start">
-                <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 ${alert.level === 'critical' ? 'text-red-500' : 'text-yellow-500'}" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
+                            <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-900">${alert.fuel_type}</p>
+                        <p class="text-sm text-gray-500">${alert.branche}</p>
+                    </div>
                 </div>
-                <div class="ml-3 flex-1">
-                    <p class="text-sm font-medium text-gray-900">
-                        ${alert.fuel_type} - ${alert.branch}
-                    </p>
-                    <p class="text-sm text-gray-500">
-                        Stock actuel: ${formatNumber(alert.current_stock)} L
-                    </p>
-                    <p class="text-xs text-gray-400 mt-1">
-                        Seuil d'alerte: ${formatNumber(alert.threshold)} L
-                    </p>
-                </div>
-                <div class="ml-4">
-                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ${alert.level === 'critical' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
-                        ${alert.level === 'critical' ? 'Critique' : 'Bas'}
-                    </span>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-red-600">${formatNumber(alert.current_stock)} L</p>
+                    <p class="text-xs text-gray-500">Seuil: ${formatNumber(alert.threshold)} L</p>
                 </div>
             </div>
         </li>
     `).join('');
 }
 
-// Helper: Get status badge class
-function getStatusClass(status) {
-    const classes = {
-        'Validée': 'bg-green-100 text-green-800',
-        'En attente': 'bg-yellow-100 text-yellow-800',
-        'Manquant': 'bg-red-100 text-red-800',
-        'Approuvée': 'bg-green-100 text-green-800',
-        'Complété': 'bg-green-100 text-green-800'
-    };
-    return classes[status] || 'bg-gray-100 text-gray-800';
+// Export to PDF
+function exportToPDF() {
+    showLoading(true);
+    
+    const url = `/dashboard/api/dashboard/export/pdf/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    
+    window.location.href = url;
+    
+    setTimeout(() => {
+        showLoading(false);
+        showNotification('Export PDF en cours...', 'success');
+    }, 1000);
 }
 
-// Helper: Format numbers
+// Export to Excel
+function exportToExcel() {
+    showLoading(true);
+    
+    const url = `/dashboard/api/dashboard/export/excel/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    
+    window.location.href = url;
+    
+    setTimeout(() => {
+        showLoading(false);
+        showNotification('Export Excel en cours...', 'success');
+    }, 1000);
+}
+
+// Utility: Format number
 function formatNumber(num) {
-    return new Intl.NumberFormat('en-US', {
+    if (num === null || num === undefined || isNaN(num)) return '0.00';
+    return parseFloat(num).toLocaleString('fr-FR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }).format(num);
+    });
 }
 
-// Helper: View transaction details
-function viewTransaction(type, id) {
-    if (type === 'sale') {
-        window.location.href = `/dashboard/ventes/?highlight=${id}`;
-    } else if (type === 'expense') {
-        window.location.href = `/dashboard/depenses/?highlight=${id}`;
-    }
-}
-
-// Helper: Get CSRF token
+// Utility: Get CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -671,31 +920,47 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Helper: Show notification
-function showNotification(message, type) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
+// Utility: Show loading state
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        if (show) {
+            overlay.classList.remove('hidden');
+        } else {
+            overlay.classList.add('hidden');
+        }
+    }
+}
+
+// Utility: Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transition-opacity ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 
+        'bg-blue-500'
+    }`;
+    notification.textContent = message;
     
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type} show`;
-    toast.innerHTML = `
-        <div class="flex items-center">
-            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                ${type === 'success' 
-                    ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
-                    : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
-                }
-            </svg>
-            <span>${message}</span>
-        </div>
-    `;
+    document.body.appendChild(notification);
     
-    container.appendChild(toast);
-    
+    // Auto remove after 3 seconds
     setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
 </script>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+        <svg class="animate-spin h-12 w-12 text-petrox-red mb-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-gray-700 font-medium">Chargement...</p>
+    </div>
+</div>
 {% endblock %}
