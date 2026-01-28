@@ -7,6 +7,7 @@
 <a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Branches</a>
 <a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
 <a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:validation_manquants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Manquants</a>
 <a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
 <a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
 <a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
@@ -41,11 +42,11 @@
     </svg>
     <span class="text-xs mt-1">Stock</span>
 </a>
-<a href="#" onclick="openModal('add-branch-modal'); return false;" class="flex flex-col items-center justify-center text-gray-600">
+<a href="#" class="flex flex-col items-center justify-center text-gray-600">
     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
     </svg>
-    <span class="text-xs mt-1">Ajouter</span>
+    <span class="text-xs mt-1">Alertes</span>
 </a>
 {% endblock %}
 
@@ -57,125 +58,87 @@
             Gestion des Branches
         </h2>
         <p class="mt-1 text-sm text-gray-500">
-            {{ branches|length }} station{{ branches|length|pluralize }} enregistrée{{ branches|length|pluralize }}
+            Gérez vos stations-service et suivez leurs performances
         </p>
     </div>
-    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
-        <!-- Province Filter -->
-        <select id="province-filter" onchange="filterByProvince(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-            <option value="all">Toutes les provinces</option>
-            {% for province in provinces %}
-            <option value="{{ province }}">{{ province }}</option>
-            {% endfor %}
-        </select>
-        
-        <!-- Add Branch Button -->
+    <div class="mt-4 flex md:mt-0 md:ml-4">
         <button onclick="openModal('add-branch-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Nouvelle Station
+            Nouvelle Branche
         </button>
     </div>
 </div>
 
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-    <!-- Total Branches -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Total Branches
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ branches|length }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Branches Actives</dt>
+                        <dd class="text-lg font-bold text-gray-900">{{ active_branches_count }}</dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Active Branches -->
+    
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Actives
-                        </dt>
-                        <dd class="text-2xl font-semibold text-green-600">
-                            {{ active_branches_count }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Branches</dt>
+                        <dd class="text-lg font-bold text-gray-900">{{ branches|length }}</dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Stock Alerts -->
+    
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Alertes Stock
-                        </dt>
-                        <dd class="text-2xl font-semibold text-yellow-600">
-                            {{ stock_alerts_count }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Alertes Stock</dt>
+                        <dd class="text-lg font-bold text-gray-900">{{ stock_alerts_count }}</dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Provinces -->
+    
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Provinces
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ provinces|length }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Employés Totaux</dt>
+                        <dd class="text-lg font-bold text-gray-900" id="total-employees">-</dd>
                     </dl>
                 </div>
             </div>
@@ -183,58 +146,70 @@
     </div>
 </div>
 
-<!-- Branches Table -->
-<div class="bg-white shadow-sm rounded-lg border border-gray-100">
-    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-        <h3 class="text-lg font-medium leading-6 text-gray-900">
-            Liste des Stations-Services
-        </h3>
+<!-- Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
+    <div class="flex flex-wrap items-center gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Filtrer par Province</label>
+            <select onchange="filterByProvince(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+                <option value="all">Toutes les provinces</option>
+                {% for province in provinces %}
+                <option value="{{ province }}">{{ province }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+            <select onchange="filterByStatus(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+                <option value="all">Tous les statuts</option>
+                <option value="active">Actives</option>
+                <option value="inactive">Inactives</option>
+            </select>
+        </div>
+        
+        <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
+            <input type="text" id="search-input" onkeyup="searchBranches()" placeholder="Nom, code, ville..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+        </div>
+        
+        <div class="pt-6">
+            <button onclick="showComparisonChart()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Comparer les Performances
+            </button>
+        </div>
     </div>
-    
+</div>
+
+<!-- Branches Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Station
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Localisation
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Responsable
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Employés
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stock
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Localisation</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employés</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200" id="branches-table-body">
+            <tbody class="bg-white divide-y divide-gray-200">
                 {% for branch in branches %}
-                <tr class="hover:bg-gray-50 branch-row" data-province="{{ branch.province }}">
+                <tr class="hover:bg-gray-50 branch-row" data-province="{{ branch.province }}" data-status="{% if branch.is_active %}active{% else %}inactive{% endif %}" data-name="{{ branch.nom|lower }}" data-code="{{ branch.code|lower }}" data-ville="{{ branch.ville|lower }}">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
-                                <div class="h-10 w-10 rounded-full bg-petrox-red bg-opacity-10 flex items-center justify-center">
-                                    <span class="text-petrox-red font-semibold">{{ branch.code|slice:":2" }}</span>
-                                </div>
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-petrox-red text-white flex items-center justify-center font-bold">
+                                {{ branch.nom|slice:":2"|upper }}
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ branch.nom }}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    Code: {{ branch.code }}
-                                </div>
+                                <div class="text-sm font-medium text-gray-900">{{ branch.nom }}</div>
+                                <div class="text-sm text-gray-500">{{ branch.code }}</div>
                             </div>
                         </div>
                     </td>
@@ -242,36 +217,27 @@
                         <div class="text-sm text-gray-900">{{ branch.ville }}</div>
                         <div class="text-sm text-gray-500">{{ branch.province }}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {% if branch.responsable %}
-                        <div class="text-sm text-gray-900">{{ branch.responsable.get_full_name }}</div>
-                        <div class="text-sm text-gray-500">{{ branch.responsable.email }}</div>
+                        {{ branch.responsable.prenom }} {{ branch.responsable.nom }}
                         {% else %}
-                        <span class="text-sm text-gray-400 italic">Non assigné</span>
+                        <span class="text-gray-400">Non assigné</span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div class="flex items-center">
-                            <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            {{ branch.pompiste_set.count }} pompistes
-                        </div>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ branch.pompiste_set.count }} pompiste(s)
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {% if branch.has_stock_alert %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-yellow-400" fill="currentColor" viewBox="0 0 8 8">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2" fill="currentColor" viewBox="0 0 8 8">
                                 <circle cx="4" cy="4" r="3" />
                             </svg>
-                            Alerte stock
+                            Alerte
                         </span>
                         {% else %}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
-                                <circle cx="4" cy="4" r="3" />
-                            </svg>
-                            Stock OK
+                            OK
                         </span>
                         {% endif %}
                     </td>
@@ -281,25 +247,30 @@
                             Active
                         </span>
                         {% else %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                             Inactive
                         </span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex justify-end gap-2">
-                            <a href="{% url 'admin_module:branch_detail' branch_id=branch.id %}" class="text-blue-600 hover:text-blue-900" title="Voir détails">
+                        <div class="flex items-center justify-end space-x-3">
+                            <a href="{% url 'admin_module:branch_detail' branch_id=branch.id %}" class="text-petrox-red hover:text-petrox-hover" title="Voir détails">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                             </a>
-                            <button onclick="editBranch({{ branch.id }})" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
+                            <button onclick="editBranch({{ branch.id }})" class="text-blue-600 hover:text-blue-900" title="Modifier">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </button>
-                            <button onclick="toggleBranchStatus({{ branch.id }}, {{ branch.is_active|lower }})" class="text-{% if branch.is_active %}yellow{% else %}green{% endif %}-600 hover:text-{% if branch.is_active %}yellow{% else %}green{% endif %}-900" title="{% if branch.is_active %}Désactiver{% else %}Activer{% endif %}">
+                            <button onclick="viewHistory({{ branch.id }}, '{{ branch.nom }}')" class="text-gray-600 hover:text-gray-900" title="Historique">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </button>
+                            <button onclick="toggleBranchStatus({{ branch.id }}, {{ branch.is_active|lower }})" class="{% if branch.is_active %}text-orange-600 hover:text-orange-900{% else %}text-green-600 hover:text-green-900{% endif %}" title="{% if branch.is_active %}Désactiver{% else %}Activer{% endif %}">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     {% if branch.is_active %}
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -337,7 +308,7 @@
 
 {% block modals %}
 <!-- Add Branch Modal -->
-<div id="add-branch-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+<div id="add-branch-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-branch-modal')"></div>
         
@@ -381,16 +352,15 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Responsable (optional) -->
+                                <!-- Manager Assignment -->
                                 <div>
-                                    <label for="branch-responsable" class="block text-sm font-medium text-gray-700">Responsable</label>
+                                    <label for="branch-responsable" class="block text-sm font-medium text-gray-700">Manager responsable</label>
                                     <select id="branch-responsable" name="responsable_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                         <option value="">Sélectionner un manager</option>
-                                        <!-- Will be populated dynamically -->
                                     </select>
                                 </div>
                                 
-                                <!-- Opening Date -->
+                                <!-- Service Date -->
                                 <div>
                                     <label for="branch-date" class="block text-sm font-medium text-gray-700">Date de mise en service</label>
                                     <input type="date" id="branch-date" name="date_mise_en_service" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
@@ -430,7 +400,6 @@
                             </h3>
                             
                             <div class="space-y-4">
-                                <!-- Same fields as add modal -->
                                 <div>
                                     <label for="edit-branch-nom" class="block text-sm font-medium text-gray-700">Nom de la station *</label>
                                     <input type="text" id="edit-branch-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
@@ -458,7 +427,7 @@
                                 </div>
                                 
                                 <div>
-                                    <label for="edit-branch-responsable" class="block text-sm font-medium text-gray-700">Responsable</label>
+                                    <label for="edit-branch-responsable" class="block text-sm font-medium text-gray-700">Manager responsable</label>
                                     <select id="edit-branch-responsable" name="responsable_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                         <option value="">Sélectionner un manager</option>
                                     </select>
@@ -505,15 +474,33 @@
                         </h3>
                         <div class="mt-2">
                             <p class="text-sm text-gray-500">
-                                Êtes-vous sûr de vouloir supprimer <strong id="delete-branch-name"></strong>? Cette action est irréversible et supprimera toutes les données associées.
+                                Êtes-vous sûr de vouloir supprimer <strong id="delete-branch-name"></strong>?
                             </p>
+                            <div class="mt-4 bg-red-50 border border-red-200 rounded-md p-3">
+                                <p class="text-sm text-red-800 font-medium mb-2">
+                                    ⚠️ Cette action est IRRÉVERSIBLE et supprimera:
+                                </p>
+                                <ul class="text-sm text-red-700 list-disc list-inside space-y-1">
+                                    <li>Toutes les ventes enregistrées</li>
+                                    <li>Toutes les dépenses</li>
+                                    <li>L'historique des stocks</li>
+                                    <li>Les données des employés assignés</li>
+                                    <li>Toutes les transactions liées</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="confirm-delete-checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Je comprends que cette action est irréversible</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="confirmDeleteBranch()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                    Supprimer
+                <button type="button" onclick="confirmDeleteBranch()" id="confirm-delete-btn" disabled class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm">
+                    Supprimer définitivement
                 </button>
                 <button type="button" onclick="closeModal('delete-branch-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                     Annuler
@@ -522,20 +509,147 @@
         </div>
     </div>
 </div>
+
+<!-- History Modal -->
+<div id="history-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('history-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Historique des modifications - <span id="history-branch-name"></span>
+                    </h3>
+                    <button onclick="closeModal('history-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Utilisateur</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Détails</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Comparison Modal -->
+<div id="comparison-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('comparison-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Comparaison des Performances par Branche
+                    </h3>
+                    <button onclick="closeModal('comparison-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Sales Comparison Chart -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Ventes par Branche (Ce mois)</h4>
+                        <div style="height: 300px;">
+                            <canvas id="sales-comparison-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Expenses Comparison Chart -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Dépenses par Branche (Ce mois)</h4>
+                        <div style="height: 300px;">
+                            <canvas id="expenses-comparison-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Profit Comparison Chart -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Profit Net par Branche</h4>
+                        <div style="height: 300px;">
+                            <canvas id="profit-comparison-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Employees Count Chart -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Nombre d'Employés par Branche</h4>
+                        <div style="height: 300px;">
+                            <canvas id="employees-comparison-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 let deleteBranchId = null;
+let comparisonCharts = {
+    sales: null,
+    expenses: null,
+    profit: null,
+    employees: null
+};
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     loadAvailableManagers();
+    calculateTotalEmployees();
+    setupDeleteConfirmation();
 });
+
+// Calculate total employees across all branches
+function calculateTotalEmployees() {
+    const rows = document.querySelectorAll('.branch-row');
+    let total = 0;
+    rows.forEach(row => {
+        const employeeText = row.cells[3].textContent.trim();
+        const count = parseInt(employeeText.split(' ')[0]) || 0;
+        total += count;
+    });
+    document.getElementById('total-employees').textContent = total;
+}
+
+// Setup delete confirmation checkbox
+function setupDeleteConfirmation() {
+    const checkbox = document.getElementById('confirm-delete-checkbox');
+    const deleteBtn = document.getElementById('confirm-delete-btn');
+    
+    if (checkbox && deleteBtn) {
+        checkbox.addEventListener('change', function() {
+            deleteBtn.disabled = !this.checked;
+        });
+    }
+}
 
 // Load available managers for branch assignment
 function loadAvailableManagers() {
-    fetch('/dashboard/api/users/?role=manager&assigned=false')
+    fetch('/dashboard/api/users/?role=manager')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -566,6 +680,13 @@ function submitBranch(event) {
     
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData.entries());
+    
+    // Remove empty values
+    Object.keys(data).forEach(key => {
+        if (data[key] === '') {
+            delete data[key];
+        }
+    });
     
     fetch('/dashboard/api/branches/create/', {
         method: 'POST',
@@ -620,6 +741,13 @@ function updateBranch(event) {
     const data = Object.fromEntries(formData.entries());
     const branchId = data.branch_id;
     delete data.branch_id;
+    
+    // Remove empty values
+    Object.keys(data).forEach(key => {
+        if (data[key] === '') {
+            delete data[key];
+        }
+    });
     
     fetch(`/dashboard/api/branches/${branchId}/update/`, {
         method: 'PUT',
@@ -677,12 +805,20 @@ function toggleBranchStatus(branchId, isActive) {
 function deleteBranch(branchId, branchName) {
     deleteBranchId = branchId;
     document.getElementById('delete-branch-name').textContent = branchName;
+    document.getElementById('confirm-delete-checkbox').checked = false;
+    document.getElementById('confirm-delete-btn').disabled = true;
     openModal('delete-branch-modal');
 }
 
 // Confirm delete branch
 function confirmDeleteBranch() {
     if (!deleteBranchId) return;
+    
+    const checkbox = document.getElementById('confirm-delete-checkbox');
+    if (!checkbox.checked) {
+        showNotification('Veuillez confirmer la suppression', 'error');
+        return;
+    }
     
     fetch(`/dashboard/api/branches/${deleteBranchId}/delete/`, {
         method: 'DELETE',
@@ -707,16 +843,231 @@ function confirmDeleteBranch() {
     });
 }
 
+// View branch history
+function viewHistory(branchId, branchName) {
+    document.getElementById('history-branch-name').textContent = branchName;
+    
+    fetch(`/dashboard/api/branches/${branchId}/history/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const tbody = document.getElementById('history-table-body');
+                
+                if (data.history.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                Aucun historique disponible
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML = data.history.map(entry => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${entry.date}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.user}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    entry.action === 'created' ? 'bg-green-100 text-green-800' :
+                                    entry.action === 'updated' ? 'bg-blue-100 text-blue-800' :
+                                    entry.action === 'deleted' ? 'bg-red-100 text-red-800' :
+                                    'bg-gray-100 text-gray-800'
+                                }">
+                                    ${entry.action}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${entry.details}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                openModal('history-modal');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading history:', error);
+            showNotification('Erreur de chargement de l\'historique', 'error');
+        });
+}
+
+// Show comparison charts
+function showComparisonChart() {
+    fetch('/dashboard/api/branches/comparison/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                createComparisonCharts(data.branches);
+                openModal('comparison-modal');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur de chargement des données', 'error');
+        });
+}
+
+// Create comparison charts
+function createComparisonCharts(branches) {
+    const branchNames = branches.map(b => b.name);
+    const salesData = branches.map(b => b.sales);
+    const expensesData = branches.map(b => b.expenses);
+    const profitData = branches.map(b => b.profit);
+    const employeesData = branches.map(b => b.employees);
+    
+    // Destroy existing charts
+    Object.values(comparisonCharts).forEach(chart => {
+        if (chart) chart.destroy();
+    });
+    
+    // Sales Chart
+    const salesCtx = document.getElementById('sales-comparison-chart').getContext('2d');
+    comparisonCharts.sales = new Chart(salesCtx, {
+        type: 'bar',
+        data: {
+            labels: branchNames,
+            datasets: [{
+                label: 'Ventes (USD)',
+                data: salesData,
+                backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                borderColor: 'rgb(34, 197, 94)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    
+    // Expenses Chart
+    const expensesCtx = document.getElementById('expenses-comparison-chart').getContext('2d');
+    comparisonCharts.expenses = new Chart(expensesCtx, {
+        type: 'bar',
+        data: {
+            labels: branchNames,
+            datasets: [{
+                label: 'Dépenses (USD)',
+                data: expensesData,
+                backgroundColor: 'rgba(220, 38, 38, 0.8)',
+                borderColor: 'rgb(220, 38, 38)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    
+    // Profit Chart
+    const profitCtx = document.getElementById('profit-comparison-chart').getContext('2d');
+    comparisonCharts.profit = new Chart(profitCtx, {
+        type: 'bar',
+        data: {
+            labels: branchNames,
+            datasets: [{
+                label: 'Profit Net (USD)',
+                data: profitData,
+                backgroundColor: profitData.map(v => v >= 0 ? 'rgba(34, 197, 94, 0.8)' : 'rgba(220, 38, 38, 0.8)'),
+                borderColor: profitData.map(v => v >= 0 ? 'rgb(34, 197, 94)' : 'rgb(220, 38, 38)'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    
+    // Employees Chart
+    const employeesCtx = document.getElementById('employees-comparison-chart').getContext('2d');
+    comparisonCharts.employees = new Chart(employeesCtx, {
+        type: 'bar',
+        data: {
+            labels: branchNames,
+            datasets: [{
+                label: 'Nombre d\'Employés',
+                data: employeesData,
+                backgroundColor: 'rgba(147, 51, 234, 0.8)',
+                borderColor: 'rgb(147, 51, 234)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
 // Filter by province
 function filterByProvince(province) {
     const rows = document.querySelectorAll('.branch-row');
+    const statusFilter = document.querySelector('select[onchange*="filterByStatus"]').value;
     
     rows.forEach(row => {
-        if (province === 'all' || row.dataset.province === province) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        const matchesProvince = province === 'all' || row.dataset.province === province;
+        const matchesStatus = statusFilter === 'all' || row.dataset.status === statusFilter;
+        row.style.display = matchesProvince && matchesStatus ? '' : 'none';
+    });
+}
+
+// Filter by status
+function filterByStatus(status) {
+    const rows = document.querySelectorAll('.branch-row');
+    const provinceFilter = document.querySelector('select[onchange*="filterByProvince"]').value;
+    
+    rows.forEach(row => {
+        const matchesStatus = status === 'all' || row.dataset.status === status;
+        const matchesProvince = provinceFilter === 'all' || row.dataset.province === provinceFilter;
+        row.style.display = matchesStatus && matchesProvince ? '' : 'none';
+    });
+}
+
+// Search branches
+function searchBranches() {
+    const searchText = document.getElementById('search-input').value.toLowerCase();
+    const rows = document.querySelectorAll('.branch-row');
+    
+    rows.forEach(row => {
+        const name = row.dataset.name || '';
+        const code = row.dataset.code || '';
+        const ville = row.dataset.ville || '';
+        
+        const matches = name.includes(searchText) || 
+                       code.includes(searchText) || 
+                       ville.includes(searchText);
+        
+        row.style.display = matches ? '' : 'none';
     });
 }
 
@@ -747,17 +1098,19 @@ function getCookie(name) {
 
 // Show notification
 function showNotification(message, type) {
-    // Create notification element
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-500' : 'bg-red-500'
-    } text-white`;
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
     notification.textContent = message;
     
     document.body.appendChild(notification);
     
     setTimeout(() => {
-        notification.remove();
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
 </script>

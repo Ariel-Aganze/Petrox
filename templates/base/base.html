@@ -90,7 +90,7 @@
                 <div class="flex items-center space-x-4">
                     
                     <!-- Branch Selector (Admin only) -->
-                    {% if user.role == 'admin' %}
+                    <!-- {% if user.role == 'admin' %}
                     <div class="hidden sm:block">
                         <select id="branch-selector" class="block w-full pl-3 pr-10 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md shadow-sm text-gray-700 bg-gray-50" onchange="switchBranch(this.value)">
                             <option value="all">Toutes les branches</option>
@@ -99,7 +99,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    {% endif %}
+                    {% endif %} -->
 
                     <!-- Notifications -->
                     <button class="p-1 rounded-full text-gray-500 hover:text-petrox-red relative focus:outline-none" onclick="toggleNotifications()">

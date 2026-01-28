@@ -7,6 +7,7 @@
 <a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
 <a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
 <a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Dépenses</a>
+<a href="{% url 'admin_module:validation_manquants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Manquants</a>
 <a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
 <a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
 <a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
@@ -41,11 +42,11 @@
     </svg>
     <span class="text-xs mt-1">Stock</span>
 </a>
-<a href="#" onclick="openModal('add-expense-modal'); return false;" class="flex flex-col items-center justify-center text-gray-600">
+<a href="{% url 'admin_module:utilisateurs' %}" class="flex flex-col items-center justify-center text-gray-600">
     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
     </svg>
-    <span class="text-xs mt-1">Ajouter</span>
+    <span class="text-xs mt-1">Users</span>
 </a>
 {% endblock %}
 
@@ -57,132 +58,132 @@
             Gestion des Dépenses
         </h2>
         <p class="mt-1 text-sm text-gray-500">
-            {{ depenses_count }} dépense{{ depenses_count|pluralize }} enregistrée{{ depenses_count|pluralize }}
+            Suivi et analyse des dépenses de toutes les stations
         </p>
     </div>
-    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
-        <!-- Branch Filter -->
-        <select id="branche-filter" onchange="filterExpenses()" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-            <option value="all">Toutes les branches</option>
-            {% for branch in all_branches %}
-            <option value="{{ branch.id }}" {% if selected_branch and branch.id == selected_branch.id %}selected{% endif %}>{{ branch.nom }}</option>
-            {% endfor %}
-        </select>
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+        <!-- Bulk Actions Dropdown -->
+        <div class="relative inline-block text-left" id="bulk-expenses-container" style="display: none;">
+            <button type="button" onclick="toggleBulkExpensesMenu()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <span id="selected-expenses-count">0</span> sélectionnée(s)
+                <svg class="-mr-1 ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div id="bulk-expenses-menu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                    <button onclick="bulkDeleteExpenses()" class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                        Supprimer Sélection
+                    </button>
+                    <button onclick="bulkExportExpensesPDF()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Export PDF Sélection
+                    </button>
+                    <button onclick="bulkExportExpensesExcel()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Export Excel Sélection
+                    </button>
+                </div>
+            </div>
+        </div>
         
-        <!-- Categories Button -->
-        <button onclick="openModal('categories-modal')" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
-            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button onclick="openModal('add-category-modal')" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
             Catégories
         </button>
-        
-        <!-- Add Expense Button -->
-        <button onclick="openModal('add-expense-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+        <button onclick="openModal('add-expense-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Nouvelle Dépense
+        </button>
+        <button onclick="exportExpensesPDF()" class="inline-flex items-center px-4 py-2 border border-petrox-red rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            PDF
+        </button>
+        <button onclick="exportExpensesExcel()" class="inline-flex items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Excel
         </button>
     </div>
 </div>
 
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Total Count -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Dépenses</dt>
+                        <dd class="text-lg font-bold text-gray-900" id="total-expenses-count">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Total USD -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Total USD
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            ${{ total_usd|floatformat:2 }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total USD</dt>
+                        <dd class="text-lg font-bold text-green-600" id="total-usd">-</dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
-
+    
     <!-- Total FC -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Total FC
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ total_fc|floatformat:0 }} FC
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total FC</dt>
+                        <dd class="text-lg font-bold text-purple-600" id="total-fc">-</dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Total Expenses Count -->
-    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-        <div class="p-5">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Nombre de Dépenses
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ depenses_count }}
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
     <!-- Categories Count -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
         <div class="p-5">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                    </div>
+                <div class="flex-shrink-0 bg-orange-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Catégories Actives
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ categories_depense.count }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Catégories Actives</dt>
+                        <dd class="text-lg font-bold text-orange-600" id="categories-count">-</dd>
                     </dl>
                 </div>
             </div>
@@ -190,193 +191,119 @@
     </div>
 </div>
 
-<!-- Filters Bar -->
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Expenses by Category Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Dépenses par Catégorie</h3>
+        <div style="height: 300px;">
+            <canvas id="expenses-by-category-chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Expenses Trend Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Évolution (30 derniers jours)</h3>
+        <div style="height: 300px;">
+            <canvas id="expenses-trend-chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Expenses by Branch Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Dépenses par Branche</h3>
+        <div style="height: 300px;">
+            <canvas id="expenses-by-branch-chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Currency Distribution Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Répartition par Devise</h3>
+        <div style="height: 300px;">
+            <canvas id="currency-distribution-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
 <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Branch Filter -->
         <div>
-            <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-            <select id="category-filter" onchange="filterExpenses()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                <option value="all">Toutes les catégories</option>
-                {% for category in categories_depense %}
-                <option value="{{ category.id }}">{{ category.nom }}</option>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Branche</label>
+            <select onchange="applyFilters()" id="filter-branch" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toutes les branches</option>
+                {% for branch in all_branches %}
+                <option value="{{ branch.id }}">{{ branch.nom }}</option>
                 {% endfor %}
             </select>
         </div>
         
+        <!-- Category Filter -->
         <div>
-            <label for="devise-filter" class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
-            <select id="devise-filter" onchange="filterExpenses()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+            <select onchange="applyFilters()" id="filter-category" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toutes les catégories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Currency Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
+            <select onchange="applyFilters()" id="filter-currency" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toutes les devises</option>
-                <option value="USD">USD ($)</option>
+                <option value="USD">USD</option>
                 <option value="FC">FC</option>
             </select>
         </div>
         
+        <!-- Period Filter -->
         <div>
-            <label for="period-filter" class="block text-sm font-medium text-gray-700 mb-1">Période</label>
-            <select id="period-filter" onchange="filterExpenses()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Période</label>
+            <select onchange="applyFilters()" id="filter-period" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toute la période</option>
                 <option value="today">Aujourd'hui</option>
-                <option value="week">Cette semaine</option>
-                <option value="month" selected>Ce mois</option>
-                <option value="all">Toutes les périodes</option>
+                <option value="week">7 derniers jours</option>
+                <option value="month" selected>30 derniers jours</option>
             </select>
         </div>
         
-        <div class="flex items-end">
-            <button onclick="resetFilters()" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                Réinitialiser
-            </button>
+        <!-- Search -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+            <input type="text" id="search-input" onkeyup="searchExpenses()" placeholder="Description..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
         </div>
     </div>
 </div>
 
 <!-- Expenses Table -->
-<div class="bg-white shadow-sm rounded-lg border border-gray-100">
-    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-        <h3 class="text-lg font-medium leading-6 text-gray-900">
-            Liste des Dépenses
-        </h3>
-    </div>
-    
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
+                    <th scope="col" class="px-6 py-3 text-left">
+                        <input type="checkbox" id="select-all-expenses" onchange="toggleSelectAllExpenses()" class="h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300 rounded">
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Catégorie
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Description
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Branche
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Montant
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200" id="expenses-table-body">
-                {% for expense in depenses %}
-                <tr class="hover:bg-gray-50 expense-row" 
-                    data-branch="{{ expense.branche.id }}" 
-                    data-category="{{ expense.categorie.id }}"
-                    data-devise="{{ expense.devise }}"
-                    data-date="{{ expense.created_at|date:'Y-m-d' }}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ expense.created_at|date:"d/m/Y" }}
-                        <div class="text-xs text-gray-500">{{ expense.created_at|date:"H:i" }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            {{ expense.categorie.nom }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-gray-900">{{ expense.description|slice:":50" }}{% if expense.description|length > 50 %}...{% endif %}</div>
-                        {% if expense.created_by %}
-                        <div class="text-xs text-gray-500">Par: {{ expense.created_by.get_full_name }}</div>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ expense.branche.nom }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-semibold text-gray-900">
-                            {% if expense.devise == 'USD' %}
-                                ${{ expense.montant|floatformat:2 }}
-                            {% else %}
-                                {{ expense.montant|floatformat:0 }} FC
-                            {% endif %}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        {% if expense.statut == 'approuvee' %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Approuvée
-                        </span>
-                        {% elif expense.statut == 'en_attente' %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            En attente
-                        </span>
-                        {% else %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Rejetée
-                        </span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex justify-end gap-2">
-                            <button onclick="viewExpense({{ expense.id }})" class="text-blue-600 hover:text-blue-900" title="Voir détails">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </button>
-                            <button onclick="editExpense({{ expense.id }})" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
-                            <button onclick="deleteExpense({{ expense.id }}, '{{ expense.description|slice:":30" }}')" class="text-red-600 hover:text-red-900" title="Supprimer">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <p class="mt-2 text-sm">Aucune dépense enregistrée</p>
-                        <button onclick="openModal('add-expense-modal')" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
-                            Enregistrer la première dépense
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
+                <!-- Will be populated by JavaScript -->
             </tbody>
         </table>
     </div>
 </div>
-
-<!-- Expenses by Category (if data exists) -->
-{% if by_category %}
-<div class="mt-8 bg-white shadow-sm rounded-lg border border-gray-100 p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Dépenses par Catégorie</h3>
-    <div class="space-y-4">
-        {% for item in by_category %}
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-gray-900">{{ item.categorie__nom }}</span>
-                    <span class="text-sm text-gray-500">{{ item.count }} dépense{{ item.count|pluralize }}</span>
-                </div>
-                <div class="mt-1 w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-petrox-red h-2 rounded-full" style="width: {{ item.percentage }}%"></div>
-                </div>
-            </div>
-            <div class="ml-4 text-sm font-semibold text-gray-900">
-                ${{ item.total|floatformat:2 }}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
 {% endblock %}
 
 {% block modals %}
@@ -386,7 +313,7 @@
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-expense-modal')"></div>
         
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="add-expense-form" onsubmit="submitExpense(event)">
+            <form onsubmit="submitExpense(event)" id="expense-form">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
                         Nouvelle Dépense
@@ -394,8 +321,9 @@
                     
                     <div class="space-y-4">
                         <div>
-                            <label for="expense-branche" class="block text-sm font-medium text-gray-700">Branche *</label>
-                            <select id="expense-branche" name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label class="block text-sm font-medium text-gray-700">Branche *</label>
+                            <select name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="">Sélectionner une branche</option>
                                 {% for branch in all_branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
                                 {% endfor %}
@@ -403,36 +331,38 @@
                         </div>
                         
                         <div>
-                            <label for="expense-categorie" class="block text-sm font-medium text-gray-700">Catégorie *</label>
-                            <select id="expense-categorie" name="categorie_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                {% for category in categories_depense %}
-                                <option value="{{ category.id }}">{{ category.nom }}</option>
+                            <label class="block text-sm font-medium text-gray-700">Catégorie *</label>
+                            <select name="categorie_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="">Sélectionner une catégorie</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.nom }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         
                         <div>
-                            <label for="expense-description" class="block text-sm font-medium text-gray-700">Description *</label>
-                            <textarea id="expense-description" name="description" rows="3" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <label class="block text-sm font-medium text-gray-700">Description *</label>
+                            <textarea name="description" rows="3" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Description de la dépense..."></textarea>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="expense-montant" class="block text-sm font-medium text-gray-700">Montant *</label>
-                                <input type="number" id="expense-montant" name="montant" step="0.01" min="0" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <label class="block text-sm font-medium text-gray-700">Montant *</label>
+                                <input type="number" name="montant" step="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
                             </div>
+                            
                             <div>
-                                <label for="expense-devise" class="block text-sm font-medium text-gray-700">Devise *</label>
-                                <select id="expense-devise" name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                    <option value="USD">USD ($)</option>
+                                <label class="block text-sm font-medium text-gray-700">Devise *</label>
+                                <select name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <option value="USD">USD</option>
                                     <option value="FC">FC</option>
                                 </select>
                             </div>
                         </div>
                         
                         <div>
-                            <label for="expense-beneficiaire" class="block text-sm font-medium text-gray-700">Bénéficiaire</label>
-                            <input type="text" id="expense-beneficiaire" name="beneficiaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label class="block text-sm font-medium text-gray-700">Bénéficiaire (optionnel)</label>
+                            <input type="text" name="beneficiaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Nom du bénéficiaire">
                         </div>
                     </div>
                 </div>
@@ -450,103 +380,27 @@
     </div>
 </div>
 
-<!-- Categories Management Modal -->
-<div id="categories-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('categories-modal')"></div>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">
-                        Gestion des Catégories
-                    </h3>
-                    <button onclick="openModal('add-category-modal'); closeModal('categories-modal');" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-petrox-red hover:bg-petrox-hover">
-                        Nouvelle Catégorie
-                    </button>
-                </div>
-                
-                <div class="mt-4">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {% for category in categories_depense %}
-                            <tr>
-                                <td class="px-4 py-3 text-sm text-gray-900">{{ category.nom }}</td>
-                                <td class="px-4 py-3">
-                                    {% if category.is_active %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Active</span>
-                                    {% else %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Inactive</span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm">
-                                    <button onclick="toggleCategory({{ category.id }})" class="text-indigo-600 hover:text-indigo-900 mr-2">
-                                        {% if category.is_active %}Désactiver{% else %}Activer{% endif %}
-                                    </button>
-                                    <button onclick="deleteCategory({{ category.id }})" class="text-red-600 hover:text-red-900">Supprimer</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            
-                            {% if pending_categories %}
-                            <tr class="bg-yellow-50">
-                                <td colspan="3" class="px-4 py-2 text-sm font-medium text-yellow-800">Demandes en attente</td>
-                            </tr>
-                            {% for category in pending_categories %}
-                            <tr class="bg-yellow-50">
-                                <td class="px-4 py-3 text-sm text-gray-900">{{ category.nom }}</td>
-                                <td class="px-4 py-3">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">En attente</span>
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm">
-                                    <button onclick="approveCategory({{ category.id }})" class="text-green-600 hover:text-green-900 mr-2">Approuver</button>
-                                    <button onclick="rejectCategory({{ category.id }})" class="text-red-600 hover:text-red-900">Rejeter</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="closeModal('categories-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm">
-                    Fermer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Add Category Modal -->
 <div id="add-category-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-category-modal')"></div>
         
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="add-category-form" onsubmit="submitCategory(event)">
+            <form onsubmit="submitCategory(event)" id="category-form">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Nouvelle Catégorie de Dépense
+                        Nouvelle Catégorie
                     </h3>
                     
                     <div class="space-y-4">
                         <div>
-                            <label for="category-nom" class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
-                            <input type="text" id="category-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
+                            <input type="text" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Ex: Carburant, Entretien, Salaires...">
                         </div>
                         
                         <div>
-                            <label for="category-description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea id="category-description" name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <label class="block text-sm font-medium text-gray-700">Description (optionnelle)</label>
+                            <textarea name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Description de la catégorie..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -564,20 +418,39 @@
     </div>
 </div>
 
-<!-- View Expense Modal -->
+<!-- View Expense Detail Modal -->
 <div id="view-expense-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('view-expense-modal')"></div>
         
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6" id="expense-detail-content">
-                <!-- Content loaded dynamically -->
-            </div>
-            
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="closeModal('view-expense-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
-                    Fermer
-                </button>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Détails de la Dépense
+                    </h3>
+                    <button onclick="closeModal('view-expense-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="expense-detail-content">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="printExpenseFromModal()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        Imprimer
+                    </button>
+                    <button onclick="closeModal('view-expense-modal')" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Fermer
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -585,58 +458,499 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-// Filter expenses
-function filterExpenses() {
-    const branche = document.getElementById('branche-filter').value;
-    const category = document.getElementById('category-filter').value;
-    const devise = document.getElementById('devise-filter').value;
-    const period = document.getElementById('period-filter').value;
+let selectedExpenses = new Set();
+let currentExpenseId = null;
+let expensesCharts = {};
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadExpensesData();
+    loadExpensesAnalytics();
+});
+
+// Load expenses data
+function loadExpensesData() {
+    const branch = document.getElementById('filter-branch').value;
+    const category = document.getElementById('filter-category').value;
+    const currency = document.getElementById('filter-currency').value;
+    const period = document.getElementById('filter-period').value;
     
-    const rows = document.querySelectorAll('.expense-row');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const params = new URLSearchParams();
+    if (branch !== 'all') params.append('branche_id', branch);
+    if (category !== 'all') params.append('categorie_id', category);
+    if (currency !== 'all') params.append('devise', currency);
+    if (period !== 'all') params.append('period', period);
     
-    rows.forEach(row => {
-        let show = true;
-        
-        // Branch filter
-        if (branche !== 'all' && row.dataset.branch !== branche) {
-            show = false;
+    fetch(`/dashboard/api/depenses/?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateStats(data);
+                updateExpensesTable(data.depenses);
+            }
+        })
+        .catch(error => console.error('Error loading expenses:', error));
+}
+
+// Update stats cards
+function updateStats(data) {
+    document.getElementById('total-expenses-count').textContent = data.count || 0;
+    document.getElementById('total-usd').textContent = `$${(data.total_usd || 0).toFixed(2)}`;
+    document.getElementById('total-fc').textContent = `${(data.total_fc || 0).toFixed(0)} FC`;
+    document.getElementById('categories-count').textContent = data.categories_count || 0;
+}
+
+// Update expenses table
+function updateExpensesTable(expenses) {
+    const tbody = document.getElementById('expenses-table-body');
+    
+    if (!expenses || expenses.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="mt-2 text-sm">Aucune dépense pour les filtres sélectionnés</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = expenses.map(exp => `
+        <tr class="hover:bg-gray-50 expense-row" 
+            data-expense-id="${exp.id}"
+            data-branch="${exp.branche_id}"
+            data-category="${exp.categorie_id}"
+            data-currency="${exp.devise}"
+            data-description="${exp.description}">
+            <td class="px-6 py-4 whitespace-nowrap">
+                <input type="checkbox" class="expense-checkbox h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300 rounded" 
+                       value="${exp.id}" onchange="updateBulkExpensesActions()">
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${exp.date}
+                <div class="text-xs text-gray-500">${exp.time}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${exp.branche}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    ${exp.categorie}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+                ${exp.description.substring(0, 50)}${exp.description.length > 50 ? '...' : ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">
+                    ${exp.devise === 'USD' ? '$' : ''}${parseFloat(exp.montant).toFixed(2)}${exp.devise === 'FC' ? ' FC' : ''}
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    exp.statut === 'approuvee' ? 'bg-green-100 text-green-800' :
+                    exp.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                }">
+                    ${exp.statut_display}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end space-x-3">
+                    <button onclick="viewExpenseDetail(${exp.id})" class="text-blue-600 hover:text-blue-900" title="Voir détails">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                    <button onclick="printExpense(${exp.id})" class="text-gray-600 hover:text-gray-900" title="Imprimer">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                    </button>
+                    <button onclick="deleteExpense(${exp.id}, '${exp.description.substring(0, 30)}')" class="text-red-600 hover:text-red-900" title="Supprimer">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Load analytics
+function loadExpensesAnalytics() {
+    const period = document.getElementById('filter-period').value;
+    const branch = document.getElementById('filter-branch').value;
+    
+    const params = new URLSearchParams();
+    if (period !== 'all') params.append('period', period);
+    if (branch !== 'all') params.append('branche_id', branch);
+    
+    fetch(`/dashboard/api/depenses/analytics/?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                createExpensesCharts(data);
+            }
+        })
+        .catch(error => console.error('Error loading analytics:', error));
+}
+
+// Create charts
+function createExpensesCharts(data) {
+    // Destroy existing charts
+    Object.values(expensesCharts).forEach(chart => {
+        if (chart) chart.destroy();
+    });
+    
+    // 1. By Category (Pie Chart)
+    if (data.by_category && data.by_category.length > 0) {
+        const ctx1 = document.getElementById('expenses-by-category-chart').getContext('2d');
+        expensesCharts.byCategory = new Chart(ctx1, {
+            type: 'pie',
+            data: {
+                labels: data.by_category.map(c => c.categorie__nom),
+                datasets: [{
+                    data: data.by_category.map(c => c.total),
+                    backgroundColor: [
+                        '#DC2626', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6',
+                        '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+    }
+    
+    // 2. Trend (Line Chart)
+    if (data.trend && data.trend.length > 0) {
+        const ctx2 = document.getElementById('expenses-trend-chart').getContext('2d');
+        expensesCharts.trend = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: data.trend.map(t => t.date__date || t.date),
+                datasets: [{
+                    label: 'Montant Total',
+                    data: data.trend.map(t => t.total),
+                    borderColor: '#DC2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+    
+    // 3. By Branch (Bar Chart)
+    if (data.by_branch && data.by_branch.length > 0) {
+        const ctx3 = document.getElementById('expenses-by-branch-chart').getContext('2d');
+        expensesCharts.byBranch = new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: data.by_branch.map(b => b.branche__nom),
+                datasets: [{
+                    label: 'Total USD',
+                    data: data.by_branch.map(b => b.total_usd || 0),
+                    backgroundColor: '#10B981'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+    
+    // 4. Currency Distribution (Doughnut)
+    const ctx4 = document.getElementById('currency-distribution-chart').getContext('2d');
+    expensesCharts.currency = new Chart(ctx4, {
+        type: 'doughnut',
+        data: {
+            labels: ['USD', 'FC'],
+            datasets: [{
+                data: [data.total_usd || 0, data.total_fc || 0],
+                backgroundColor: ['#10B981', '#8B5CF6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
         }
-        
-        // Category filter
-        if (category !== 'all' && row.dataset.category !== category) {
-            show = false;
-        }
-        
-        // Currency filter
-        if (devise !== 'all' && row.dataset.devise !== devise) {
-            show = false;
-        }
-        
-        // Period filter
-        if (period !== 'all') {
-            const expenseDate = new Date(row.dataset.date);
-            const diffTime = today - expenseDate;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (period === 'today' && diffDays !== 0) show = false;
-            if (period === 'week' && diffDays > 7) show = false;
-            if (period === 'month' && diffDays > 30) show = false;
-        }
-        
-        row.style.display = show ? '' : 'none';
     });
 }
 
-// Reset filters
-function resetFilters() {
-    document.getElementById('branche-filter').value = 'all';
-    document.getElementById('category-filter').value = 'all';
-    document.getElementById('devise-filter').value = 'all';
-    document.getElementById('period-filter').value = 'month';
-    filterExpenses();
+// Apply filters
+function applyFilters() {
+    loadExpensesData();
+    loadExpensesAnalytics();
+}
+
+// Search expenses
+function searchExpenses() {
+    const searchText = document.getElementById('search-input').value.toLowerCase();
+    const rows = document.querySelectorAll('.expense-row');
+    
+    rows.forEach(row => {
+        const description = row.dataset.description.toLowerCase();
+        row.style.display = description.includes(searchText) ? '' : 'none';
+    });
+}
+
+// Toggle select all
+function toggleSelectAllExpenses() {
+    const selectAll = document.getElementById('select-all-expenses');
+    const checkboxes = document.querySelectorAll('.expense-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        const row = checkbox.closest('.expense-row');
+        if (row.style.display !== 'none') {
+            checkbox.checked = selectAll.checked;
+            if (selectAll.checked) {
+                selectedExpenses.add(checkbox.value);
+            } else {
+                selectedExpenses.delete(checkbox.value);
+            }
+        }
+    });
+    
+    updateBulkExpensesActions();
+}
+
+// Update bulk actions visibility
+function updateBulkExpensesActions() {
+    selectedExpenses.clear();
+    document.querySelectorAll('.expense-checkbox:checked').forEach(cb => {
+        selectedExpenses.add(cb.value);
+    });
+    
+    const container = document.getElementById('bulk-expenses-container');
+    const count = document.getElementById('selected-expenses-count');
+    
+    if (selectedExpenses.size > 0) {
+        container.style.display = 'block';
+        count.textContent = selectedExpenses.size;
+    } else {
+        container.style.display = 'none';
+        document.getElementById('bulk-expenses-menu').classList.add('hidden');
+    }
+}
+
+// Toggle bulk menu
+function toggleBulkExpensesMenu() {
+    const menu = document.getElementById('bulk-expenses-menu');
+    menu.classList.toggle('hidden');
+}
+
+// Bulk delete
+function bulkDeleteExpenses() {
+    if (!confirm(`Supprimer ${selectedExpenses.size} dépense(s) sélectionnée(s)?`)) return;
+    
+    const ids = Array.from(selectedExpenses);
+    
+    fetch('/dashboard/api/depenses/bulk-delete/', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ ids: ids })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`${data.deleted_count} dépenses supprimées`, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de la suppression', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Bulk export PDF
+function bulkExportExpensesPDF() {
+    const ids = Array.from(selectedExpenses).join(',');
+    window.location.href = `/dashboard/api/depenses/export/pdf/?ids=${ids}`;
+    showNotification('Export PDF en cours...', 'success');
+}
+
+// Bulk export Excel
+function bulkExportExpensesExcel() {
+    const ids = Array.from(selectedExpenses).join(',');
+    window.location.href = `/dashboard/api/depenses/export/excel/?ids=${ids}`;
+    showNotification('Export Excel en cours...', 'success');
+}
+
+// Export all to PDF
+function exportExpensesPDF() {
+    const branch = document.getElementById('filter-branch').value;
+    const category = document.getElementById('filter-category').value;
+    const currency = document.getElementById('filter-currency').value;
+    const period = document.getElementById('filter-period').value;
+    
+    const params = new URLSearchParams();
+    if (branch !== 'all') params.append('branche_id', branch);
+    if (category !== 'all') params.append('categorie_id', category);
+    if (currency !== 'all') params.append('devise', currency);
+    if (period !== 'all') params.append('period', period);
+    
+    window.location.href = `/dashboard/api/depenses/export/pdf/?${params.toString()}`;
+    showNotification('Export PDF en cours...', 'success');
+}
+
+// Export all to Excel
+function exportExpensesExcel() {
+    const branch = document.getElementById('filter-branch').value;
+    const category = document.getElementById('filter-category').value;
+    const currency = document.getElementById('filter-currency').value;
+    const period = document.getElementById('filter-period').value;
+    
+    const params = new URLSearchParams();
+    if (branch !== 'all') params.append('branche_id', branch);
+    if (category !== 'all') params.append('categorie_id', category);
+    if (currency !== 'all') params.append('devise', currency);
+    if (period !== 'all') params.append('period', period);
+    
+    window.location.href = `/dashboard/api/depenses/export/excel/?${params.toString()}`;
+    showNotification('Export Excel en cours...', 'success');
+}
+
+// View expense detail
+function viewExpenseDetail(expenseId) {
+    currentExpenseId = expenseId;
+    
+    fetch(`/dashboard/api/depenses/${expenseId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const exp = data.expense;
+                const content = `
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Informations Générales</h4>
+                            <dl class="space-y-2">
+                                <div>
+                                    <dt class="text-xs text-gray-500">Date</dt>
+                                    <dd class="text-sm font-medium text-gray-900">${exp.date} ${exp.time}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Branche</dt>
+                                    <dd class="text-sm text-gray-900">${exp.branche}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Catégorie</dt>
+                                    <dd class="text-sm text-gray-900">${exp.categorie}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Enregistré par</dt>
+                                    <dd class="text-sm text-gray-900">${exp.created_by}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Détails Financiers</h4>
+                            <dl class="space-y-2">
+                                <div>
+                                    <dt class="text-xs text-gray-500">Montant</dt>
+                                    <dd class="text-2xl font-bold text-petrox-red">
+                                        ${exp.devise === 'USD' ? '$' : ''}${parseFloat(exp.montant).toFixed(2)}${exp.devise === 'FC' ? ' FC' : ''}
+                                    </dd>
+                                </div>
+                                ${exp.beneficiaire ? `
+                                <div>
+                                    <dt class="text-xs text-gray-500">Bénéficiaire</dt>
+                                    <dd class="text-sm text-gray-900">${exp.beneficiaire}</dd>
+                                </div>
+                                ` : ''}
+                                <div>
+                                    <dt class="text-xs text-gray-500">Statut</dt>
+                                    <dd class="mt-1">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                            exp.statut === 'approuvee' ? 'bg-green-100 text-green-800' :
+                                            exp.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-red-100 text-red-800'
+                                        }">
+                                            ${exp.statut_display}
+                                        </span>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Description</h4>
+                        <p class="text-sm text-gray-600">${exp.description}</p>
+                    </div>
+                `;
+                document.getElementById('expense-detail-content').innerHTML = content;
+                openModal('view-expense-modal');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Print expense
+function printExpense(expenseId) {
+    window.open(`/dashboard/api/depenses/${expenseId}/print/`, '_blank');
+}
+
+// Print from modal
+function printExpenseFromModal() {
+    if (currentExpenseId) {
+        printExpense(currentExpenseId);
+    }
+}
+
+// Delete expense
+function deleteExpense(expenseId, description) {
+    if (!confirm(`Supprimer cette dépense?\n"${description}"`)) return;
+    
+    fetch(`/dashboard/api/depenses/${expenseId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Dépense supprimée avec succès', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de la suppression', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
 }
 
 // Submit expense
@@ -659,7 +973,7 @@ function submitExpense(event) {
         if (data.success) {
             closeModal('add-expense-modal');
             showNotification('Dépense enregistrée avec succès', 'success');
-            setTimeout(() => window.location.reload(), 1000);
+            setTimeout(() => location.reload(), 1000);
         } else {
             showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
         }
@@ -690,7 +1004,7 @@ function submitCategory(event) {
         if (data.success) {
             closeModal('add-category-modal');
             showNotification('Catégorie créée avec succès', 'success');
-            setTimeout(() => window.location.reload(), 1000);
+            setTimeout(() => location.reload(), 1000);
         } else {
             showNotification(data.message || 'Erreur lors de la création', 'error');
         }
@@ -701,186 +1015,6 @@ function submitCategory(event) {
     });
 }
 
-// View expense details
-function viewExpense(expenseId) {
-    fetch(`/dashboard/api/depenses/${expenseId}/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const expense = data.expense;
-                const content = `
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Détails de la Dépense</h3>
-                    <dl class="grid grid-cols-1 gap-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${expense.date}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Catégorie</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${expense.categorie}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Description</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${expense.description}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Montant</dt>
-                            <dd class="mt-1 text-sm font-semibold text-gray-900">${expense.montant} ${expense.devise}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Branche</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${expense.branche}</dd>
-                        </div>
-                        ${expense.beneficiaire ? `
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Bénéficiaire</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${expense.beneficiaire}</dd>
-                        </div>
-                        ` : ''}
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Enregistré par</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${expense.created_by}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Statut</dt>
-                            <dd class="mt-1"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${expense.statut === 'approuvee' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${expense.statut_display}</span></dd>
-                        </div>
-                    </dl>
-                `;
-                document.getElementById('expense-detail-content').innerHTML = content;
-                openModal('view-expense-modal');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-// Edit expense
-function editExpense(expenseId) {
-    // TODO: Implement edit functionality
-    showNotification('Fonction en développement', 'info');
-}
-
-// Delete expense
-function deleteExpense(expenseId, description) {
-    if (confirm(`Voulez-vous vraiment supprimer cette dépense?\n"${description}"`)) {
-        fetch(`/dashboard/api/depenses/${expenseId}/delete/`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Dépense supprimée avec succès', 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showNotification(data.message || 'Erreur lors de la suppression', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Erreur de connexion', 'error');
-        });
-    }
-}
-
-// Toggle category
-function toggleCategory(categoryId) {
-    fetch(`/dashboard/api/categories/${categoryId}/toggle/`, {
-        method: 'PATCH',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Statut modifié avec succès', 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showNotification(data.message || 'Erreur', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Erreur de connexion', 'error');
-    });
-}
-
-// Approve category
-function approveCategory(categoryId) {
-    fetch(`/dashboard/api/categories/${categoryId}/approve/`, {
-        method: 'PATCH',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Catégorie approuvée avec succès', 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showNotification(data.message || 'Erreur', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Erreur de connexion', 'error');
-    });
-}
-
-// Reject category
-function rejectCategory(categoryId) {
-    if (confirm('Voulez-vous vraiment rejeter cette demande de catégorie?')) {
-        fetch(`/dashboard/api/categories/${categoryId}/delete/`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Demande rejetée', 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showNotification(data.message || 'Erreur', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Erreur de connexion', 'error');
-        });
-    }
-}
-
-// Delete category
-function deleteCategory(categoryId) {
-    if (confirm('Voulez-vous vraiment supprimer cette catégorie? Cette action est irréversible.')) {
-        fetch(`/dashboard/api/categories/${categoryId}/delete/`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Catégorie supprimée avec succès', 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showNotification(data.message || 'Erreur lors de la suppression', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Erreur de connexion', 'error');
-        });
-    }
-}
-
 // Modal controls
 function openModal(modalId) {
     document.getElementById(modalId).classList.remove('hidden');
@@ -888,6 +1022,24 @@ function openModal(modalId) {
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
+}
+
+// Show notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 // Get CSRF token
@@ -906,19 +1058,13 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Show notification
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-    } text-white`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
+// Close bulk menu when clicking outside
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('bulk-expenses-container');
+    const menu = document.getElementById('bulk-expenses-menu');
+    if (container && !container.contains(event.target)) {
+        menu.classList.add('hidden');
+    }
+});
 </script>
 {% endblock %}

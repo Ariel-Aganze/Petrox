@@ -17,7 +17,7 @@ import io
 
 # PDF Generation imports
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.pagesizes import letter, A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
@@ -61,7 +61,10 @@ from django.db.models import Case, When, DecimalField
 
 from apps.core.models import PaiementSalaire, Pompiste
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from django.db.models.functions import TruncDate
+
+
 
 class AdminRequiredMixin(UserPassesTestMixin):
     """Mixin to restrict access to admin users only"""
@@ -464,6 +467,144 @@ class BranchStatsView(AdminRequiredMixin, View):
                     'nom': branch.nom,
                     'code': branch.code,
                     'is_active': branch.is_active
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+# ============================================
+# NEW VIEW 1: Branch History (Modification History)
+# ============================================
+
+class BranchHistoryView(AdminRequiredMixin, View):
+    """
+    Get modification history for a branch
+    Shows all changes made to the branch with user and timestamp
+    """
+    
+    def get(self, request, branch_id):
+        try:
+            branch = get_object_or_404(Branche, id=branch_id)
+            
+            # Get history from Django's LogEntry if available
+            from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+            from django.contrib.contenttypes.models import ContentType
+            
+            content_type = ContentType.objects.get_for_model(Branche)
+            
+            logs = LogEntry.objects.filter(
+                content_type=content_type,
+                object_id=str(branch_id)
+            ).select_related('user').order_by('-action_time')
+            
+            history = []
+            for log in logs:
+                action_map = {
+                    ADDITION: 'created',
+                    CHANGE: 'updated',
+                    DELETION: 'deleted'
+                }
+                
+                history.append({
+                    'date': log.action_time.strftime('%d/%m/%Y %H:%M'),
+                    'user': f"{log.user.prenom} {log.user.nom}" if hasattr(log.user, 'prenom') else log.user.username,
+                    'action': action_map.get(log.action_flag, 'unknown'),
+                    'details': log.change_message or 'Aucun détail disponible'
+                })
+            
+            # If no Django logs, create basic history from branch data
+            if not history:
+                history = [
+                    {
+                        'date': branch.created_at.strftime('%d/%m/%Y %H:%M') if hasattr(branch, 'created_at') else timezone.now().strftime('%d/%m/%Y %H:%M'),
+                        'user': f"{branch.created_by.prenom} {branch.created_by.nom}" if hasattr(branch, 'created_by') and branch.created_by else 'Système',
+                        'action': 'created',
+                        'details': f'Branche créée: {branch.nom}'
+                    }
+                ]
+            
+            return JsonResponse({
+                'success': True,
+                'history': history
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================
+# NEW VIEW 2: Branch Performance Comparison
+# ============================================
+
+class BranchComparisonView(AdminRequiredMixin, View):
+    """
+    Compare performance metrics across all branches
+    Returns data for comparison charts
+    """
+    
+    def get(self, request):
+        try:
+            # Get date range (current month by default)
+            today = timezone.now().date()
+            start_date = today.replace(day=1)
+            end_date = today
+            
+            branches = Branche.objects.filter(is_active=True)
+            comparison_data = []
+            
+            for branch in branches:
+                # Sales for this month
+                sales = Vente.objects.filter(
+                    branche=branch,
+                    created_at__date__gte=start_date,
+                    created_at__date__lte=end_date,
+                    statut='validee'
+                )
+                total_sales_usd = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
+                
+                # Expenses for this month
+                expenses = Depense.objects.filter(
+                    branche=branch,
+                    created_at__date__gte=start_date,
+                    created_at__date__lte=end_date,
+                    statut='approuvee',
+                    devise='USD'
+                )
+                total_expenses_usd = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
+                
+                # Profit
+                profit = total_sales_usd - total_expenses_usd
+                
+                # Employee count
+                pompistes_count = Pompiste.objects.filter(branche=branch, is_active=True).count()
+                users_count = User.objects.filter(branche=branch, is_active=True).count()
+                total_employees = pompistes_count + users_count
+                
+                comparison_data.append({
+                    'id': branch.id,
+                    'name': branch.nom,
+                    'sales': float(total_sales_usd),
+                    'expenses': float(total_expenses_usd),
+                    'profit': float(profit),
+                    'employees': total_employees
+                })
+            
+            # Sort by sales (descending)
+            comparison_data.sort(key=lambda x: x['sales'], reverse=True)
+            
+            return JsonResponse({
+                'success': True,
+                'branches': comparison_data,
+                'period': {
+                    'start': start_date.strftime('%d/%m/%Y'),
+                    'end': end_date.strftime('%d/%m/%Y')
                 }
             })
             
@@ -2292,6 +2433,120 @@ class AbonneDetailView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         
         return context
 
+class CreatePaymentView(LoginRequiredMixin, View):
+    """
+    Create a payment for an abonné
+    Updates the abonné's balance
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            required_fields = ['abonne_id', 'montant', 'devise', 'methode_paiement']
+            for field in required_fields:
+                if not data.get(field):
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Le champ {field} est requis'
+                    }, status=400)
+            
+            # Get abonné
+            try:
+                abonne = Abonne.objects.get(id=data['abonne_id'], is_active=True)
+            except Abonne.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Abonné introuvable'
+                }, status=404)
+            
+            # Validate amount
+            try:
+                montant = Decimal(str(data['montant']))
+                if montant <= 0:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Le montant doit être supérieur à 0'
+                    }, status=400)
+            except (ValueError, TypeError, InvalidOperation):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Montant invalide'
+                }, status=400)
+            
+            # Validate currency
+            devise = data['devise']
+            if devise not in ['USD', 'FC']:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Devise invalide (USD ou FC uniquement)'
+                }, status=400)
+            
+            # Validate payment method
+            methode = data['methode_paiement']
+            if methode not in ['cash', 'mobile_money', 'bank']:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Méthode de paiement invalide'
+                }, status=400)
+            
+            # Get or create "Paiements Abonnés" category
+            categorie, created = CategorieDepense.objects.get_or_create(
+                nom='Paiements Abonnés',
+                defaults={
+                    'description': 'Paiements reçus des abonnés (clients entreprise)',
+                    'created_by': request.user
+                }
+            )
+            
+            # Create payment record as a negative expense (income)
+            # Get user's branch (for admin, use first branch or None)
+            if request.user.role == 'admin':
+                branche = Branche.objects.first()
+            else:
+                branche = request.user.branche
+            
+            payment_record = Depense.objects.create(
+                branche=branche,
+                categorie=categorie,
+                description=f'Paiement reçu de {abonne.nom_entreprise} ({abonne.code_client})',
+                montant=-montant,  # Negative to indicate income
+                devise=devise,
+                methode_paiement=methode,
+                created_by=request.user
+            )
+            
+            # Update abonné balance (payment increases balance)
+            abonne.update_solde_with_consumption(montant, devise, 'paiement')
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Paiement enregistré avec succès',
+                'payment': {
+                    'id': payment_record.id,
+                    'montant': str(montant),
+                    'devise': devise,
+                    'abonne': {
+                        'id': abonne.id,
+                        'nom': abonne.nom_entreprise,
+                        'solde_usd': str(abonne.solde_usd),
+                        'solde_fc': str(abonne.solde_fc)
+                    }
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Format JSON invalide'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur serveur: {str(e)}'
+            }, status=500)
+
 class UtilisateursListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
     """List all users and pompistes"""
     template_name = 'admin/utilisateurs.html'
@@ -2381,31 +2636,72 @@ class NotificationsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         return context
     
 class SalairesView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """Payroll management and history"""
+    """Payroll management with complete employee data"""
     template_name = 'admin/salaires.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        # Get filter parameters
         branche_id = self.request.GET.get('branche_id', 'all')
         period = self.request.GET.get('period', 'month')
         
+        # Get payment history (last 50 payments)
         payments = PaiementSalaire.objects.select_related(
-            'pompiste', 'branche', 'caissier'
-        )
+            'pompiste', 'branche', 'caissier', 'employe_user'
+        ).order_by('-date_paiement')[:50]
         
-        if branche_id and branche_id != 'all':
+        # Apply branch filter if specified
+        if branche_id != 'all':
             payments = payments.filter(branche_id=branche_id)
+        
+        context['payments'] = payments
+        
+        # Get all active branches for filters
+        context['branches'] = Branche.objects.filter(is_active=True).order_by('nom')
+        
+        # Get all active pompistes with their data
+        pompistes = Pompiste.objects.filter(is_active=True).select_related('branche')
+        context['pompistes'] = pompistes
+        
+        # Get all system users (managers and caissiers) with their data
+        system_users = User.objects.filter(
+            is_active=True,
+            role__in=['manager', 'caissier']
+        ).select_related('branche')
+        context['system_users'] = system_users
+        
+        # Calculate statistics for current period
+        from django.utils import timezone
+        from datetime import timedelta
+        from django.db.models import Sum, Count
         
         today = timezone.now().date()
         if period == 'month':
-            payments = payments.filter(date_paiement__date__gte=today - timedelta(days=30))
+            start_date = today.replace(day=1)
+        else:  # year
+            start_date = today.replace(month=1, day=1)
         
-        context['payments'] = payments.order_by('-date_paiement')[:100]
+        # Get payments for period
+        period_payments = PaiementSalaire.objects.filter(
+            date_paiement__date__gte=start_date,
+            statut='paye'
+        )
         
-        # Totals
-        context['total_usd'] = payments.filter(devise='USD').aggregate(Sum('montant_paye'))['montant_paye__sum'] or 0
-        context['total_fc'] = payments.filter(devise='FC').aggregate(Sum('montant_paye'))['montant_paye__sum'] or 0
+        if branche_id != 'all':
+            period_payments = period_payments.filter(branche_id=branche_id)
+        
+        # Calculate totals
+        stats = {
+            'total_usd': float(period_payments.filter(devise_paiement='USD').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or 0),
+            'total_fc': float(period_payments.filter(devise_paiement='FC').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or 0),
+            'employees_paid': period_payments.values('pompiste', 'employe_user').distinct().count(),
+            'period': period
+        }
+        
+        context['statistics'] = stats
         
         return context
 
@@ -2679,13 +2975,16 @@ class AdminRequiredMixin(UserPassesTestMixin):
 # ==================== EXPENSES CRUD APIs ====================
 
 class DepensesListAPIView(AdminRequiredMixin, View):
-    """Get list of expenses with filters"""
+    """
+    Get list of expenses with filters and stats
+    Returns expenses data, totals, and categories count
+    """
     
     def get(self, request):
         try:
             # Get filter parameters
             branche_id = request.GET.get('branche_id', 'all')
-            category_id = request.GET.get('category_id', 'all')
+            categorie_id = request.GET.get('categorie_id', 'all')
             devise = request.GET.get('devise', 'all')
             period = request.GET.get('period', 'month')
             
@@ -2694,15 +2993,13 @@ class DepensesListAPIView(AdminRequiredMixin, View):
                 'branche', 'categorie', 'created_by'
             ).filter(statut='approuvee')
             
-            # Branch filter
+            # Apply filters
             if branche_id and branche_id != 'all':
                 depenses = depenses.filter(branche_id=branche_id)
             
-            # Category filter
-            if category_id and category_id != 'all':
-                depenses = depenses.filter(categorie_id=category_id)
+            if categorie_id and categorie_id != 'all':
+                depenses = depenses.filter(categorie_id=categorie_id)
             
-            # Currency filter
             if devise and devise != 'all':
                 depenses = depenses.filter(devise=devise)
             
@@ -2717,21 +3014,23 @@ class DepensesListAPIView(AdminRequiredMixin, View):
                 month_ago = today - timedelta(days=30)
                 depenses = depenses.filter(created_at__date__gte=month_ago)
             
-            # Build response
+            # Prepare response data
             depenses_data = []
-            for depense in depenses[:100]:  # Limit to 100 for performance
+            for depense in depenses.order_by('-created_at'):
                 depenses_data.append({
                     'id': depense.id,
-                    'date': depense.created_at.strftime('%Y-%m-%d %H:%M'),
-                    'categorie': depense.categorie.nom,
-                    'categorie_id': depense.categorie.id,
+                    'date': depense.created_at.strftime('%d/%m/%Y'),
+                    'time': depense.created_at.strftime('%H:%M'),
+                    'branche': depense.branche.nom if depense.branche else 'N/A',
+                    'branche_id': depense.branche.id if depense.branche else None,
+                    'categorie': depense.categorie.nom if depense.categorie else 'N/A',
+                    'categorie_id': depense.categorie.id if depense.categorie else None,
                     'description': depense.description,
-                    'branche': depense.branche.nom,
-                    'branche_id': depense.branche.id,
-                    'montant': float(depense.montant),
+                    'montant': str(depense.montant),
                     'devise': depense.devise,
                     'beneficiaire': depense.beneficiaire or '',
                     'statut': depense.statut,
+                    'statut_display': depense.get_statut_display(),
                     'created_by': depense.created_by.get_full_name() if depense.created_by else 'N/A'
                 })
             
@@ -2741,12 +3040,16 @@ class DepensesListAPIView(AdminRequiredMixin, View):
             total_fc = float(depenses.filter(devise='FC').aggregate(
                 Sum('montant'))['montant__sum'] or 0)
             
+            # Categories count
+            categories_count = CategorieDepense.objects.filter(is_active=True).count()
+            
             return JsonResponse({
                 'success': True,
                 'depenses': depenses_data,
                 'count': len(depenses_data),
                 'total_usd': total_usd,
-                'total_fc': total_fc
+                'total_fc': total_fc,
+                'categories_count': categories_count
             })
             
         except Exception as e:
@@ -3053,6 +3356,603 @@ class ExpensesStatsView(AdminRequiredMixin, View):
                 'success': False,
                 'message': str(e)
             }, status=500)
+
+
+class ExpensesAnalyticsAPIView(AdminRequiredMixin, View):
+    """
+    Get comprehensive analytics data for expenses
+    Returns data for 4 charts: by category, trend, by branch, currency distribution
+    """
+    
+    def get(self, request):
+        try:
+            # Get filter parameters
+            period = request.GET.get('period', 'month')
+            branche_id = request.GET.get('branche_id', 'all')
+            
+            # Calculate date range
+            today = timezone.now().date()
+            if period == 'week':
+                start_date = today - timedelta(days=7)
+            elif period == 'month':
+                start_date = today - timedelta(days=30)
+            elif period == 'quarter':
+                start_date = today - timedelta(days=90)
+            else:
+                start_date = today - timedelta(days=30)  # default to month
+            
+            # Base queryset
+            depenses = Depense.objects.filter(
+                created_at__date__gte=start_date,
+                statut='approuvee'
+            )
+            
+            # Apply branch filter if specified
+            if branche_id and branche_id != 'all':
+                depenses = depenses.filter(branche_id=branche_id)
+            
+            # 1. By Category
+            by_category = depenses.values('categorie__nom').annotate(
+                total=Sum('montant'),
+                count=Count('id')
+            ).order_by('-total')[:10]
+            
+            # 2. Trend (daily aggregation)
+            trend = depenses.annotate(
+                date=TruncDate('created_at')
+            ).values('date').annotate(
+                total=Sum('montant')
+            ).order_by('date')
+            
+            # Fill in missing dates with zeros for smooth chart
+            trend_dict = {str(t['date']): float(t['total']) for t in trend}
+            filled_trend = []
+            days_count = 30 if period == 'month' else 7 if period == 'week' else 90
+            
+            for i in range(days_count + 1):
+                check_date = start_date + timedelta(days=i)
+                date_str = str(check_date)
+                filled_trend.append({
+                    'date': date_str,
+                    'date__date': date_str,  # For compatibility
+                    'total': trend_dict.get(date_str, 0)
+                })
+            
+            # 3. By Branch
+            by_branch = depenses.values('branche__nom').annotate(
+                total_usd=Sum('montant', filter=Q(devise='USD')),
+                total_fc=Sum('montant', filter=Q(devise='FC')),
+                count=Count('id')
+            ).order_by('-total_usd')[:10]
+            
+            # 4. Totals by currency
+            total_usd = float(depenses.filter(devise='USD').aggregate(
+                Sum('montant'))['montant__sum'] or 0)
+            total_fc = float(depenses.filter(devise='FC').aggregate(
+                Sum('montant'))['montant__sum'] or 0)
+            
+            return JsonResponse({
+                'success': True,
+                'by_category': [
+                    {
+                        'categorie__nom': item['categorie__nom'],
+                        'total': float(item['total']),
+                        'count': item['count']
+                    }
+                    for item in by_category
+                ],
+                'trend': filled_trend,
+                'by_branch': [
+                    {
+                        'branche__nom': item['branche__nom'],
+                        'total_usd': float(item['total_usd'] or 0),
+                        'total_fc': float(item['total_fc'] or 0),
+                        'count': item['count']
+                    }
+                    for item in by_branch
+                ],
+                'total_usd': total_usd,
+                'total_fc': total_fc
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================
+# VIEW 3: Bulk Delete Expenses
+# ============================================
+
+class BulkDeleteExpensesView(AdminRequiredMixin, View):
+    """
+    Delete multiple expenses at once
+    Accepts array of expense IDs
+    """
+    
+    def delete(self, request):
+        try:
+            data = json.loads(request.body)
+            ids = data.get('ids', [])
+            
+            if not ids:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune dépense sélectionnée'
+                }, status=400)
+            
+            # Validate IDs
+            try:
+                ids = [int(id) for id in ids]
+            except (ValueError, TypeError):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'IDs invalides'
+                }, status=400)
+            
+            # Delete expenses
+            deleted = Depense.objects.filter(id__in=ids).delete()
+            
+            return JsonResponse({
+                'success': True,
+                'deleted_count': deleted[0],
+                'message': f'{deleted[0]} dépense(s) supprimée(s)'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================
+# VIEW 4: Bulk Export Expenses to PDF
+# ============================================
+
+class BulkExportExpensesPDFView(AdminRequiredMixin, View):
+    """
+    Export selected expenses to PDF with professional formatting
+    Can export specific IDs or use filters
+    """
+    
+    def get(self, request):
+        try:
+            # Check if specific IDs provided
+            ids_param = request.GET.get('ids', '')
+            
+            if ids_param:
+                # Export specific expenses
+                ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+                depenses = Depense.objects.filter(id__in=ids)
+                title_suffix = f'{len(ids)} sélectionnée(s)'
+            else:
+                # Export with filters
+                branche_id = request.GET.get('branche_id', 'all')
+                categorie_id = request.GET.get('categorie_id', 'all')
+                devise = request.GET.get('devise', 'all')
+                period = request.GET.get('period', 'month')
+                
+                depenses = Depense.objects.filter(statut='approuvee')
+                
+                if branche_id and branche_id != 'all':
+                    depenses = depenses.filter(branche_id=branche_id)
+                if categorie_id and categorie_id != 'all':
+                    depenses = depenses.filter(categorie_id=categorie_id)
+                if devise and devise != 'all':
+                    depenses = depenses.filter(devise=devise)
+                
+                today = timezone.now().date()
+                if period == 'today':
+                    depenses = depenses.filter(created_at__date=today)
+                elif period == 'week':
+                    depenses = depenses.filter(created_at__date__gte=today - timedelta(days=7))
+                elif period == 'month':
+                    depenses = depenses.filter(created_at__date__gte=today - timedelta(days=30))
+                
+                title_suffix = 'avec filtres'
+            
+            depenses = depenses.select_related('branche', 'categorie', 'created_by')
+            
+            if not depenses.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune dépense trouvée'
+                }, status=404)
+            
+            # Create PDF
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="depenses_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+            
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4)
+            elements = []
+            
+            # Styles
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#DC2626'),
+                spaceAfter=30,
+                alignment=1
+            )
+            
+            # Title
+            elements.append(Paragraph('PETROX - Rapport des Dépenses', title_style))
+            elements.append(Paragraph(f'Export: {title_suffix}', styles['Normal']))
+            elements.append(Paragraph(f'Généré le: {timezone.now().strftime("%d/%m/%Y à %H:%M")}', styles['Normal']))
+            elements.append(Spacer(1, 0.5*inch))
+            
+            # Summary
+            total_usd = sum(float(d.montant) for d in depenses if d.devise == 'USD')
+            total_fc = sum(float(d.montant) for d in depenses if d.devise == 'FC')
+            
+            summary_data = [
+                ['Métrique', 'Valeur'],
+                ['Nombre de dépenses', str(len(depenses))],
+                ['Total USD', f'${total_usd:.2f}'],
+                ['Total FC', f'{total_fc:.0f} FC']
+            ]
+            
+            summary_table = Table(summary_data, colWidths=[2.5*inch, 2*inch])
+            summary_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#DC2626')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ]))
+            
+            elements.append(summary_table)
+            elements.append(Spacer(1, 0.4*inch))
+            
+            # Detailed table
+            elements.append(Paragraph('Détails des Dépenses', styles['Heading2']))
+            elements.append(Spacer(1, 0.2*inch))
+            
+            data = [['Date', 'Branche', 'Catégorie', 'Description', 'Montant', 'Devise']]
+            
+            for dep in depenses.order_by('-created_at')[:50]:  # Limit to 50
+                data.append([
+                    dep.created_at.strftime('%d/%m/%Y'),
+                    (dep.branche.nom if dep.branche else 'N/A')[:15],
+                    (dep.categorie.nom if dep.categorie else 'N/A')[:15],
+                    dep.description[:30],
+                    f'{float(dep.montant):.2f}',
+                    dep.devise
+                ])
+            
+            detail_table = Table(data, colWidths=[0.9*inch, 1.3*inch, 1.2*inch, 2*inch, 0.9*inch, 0.6*inch])
+            detail_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1F2937')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 7),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ]))
+            
+            elements.append(detail_table)
+            
+            # Build PDF
+            doc.build(elements)
+            pdf = buffer.getvalue()
+            buffer.close()
+            response.write(pdf)
+            
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur export PDF: {str(e)}'
+            }, status=500)
+
+
+# ============================================
+# VIEW 5: Bulk Export Expenses to Excel
+# ============================================
+
+class BulkExportExpensesExcelView(AdminRequiredMixin, View):
+    """
+    Export expenses to Excel with formatting
+    """
+    
+    def get(self, request):
+        try:
+            # Check if specific IDs provided
+            ids_param = request.GET.get('ids', '')
+            
+            if ids_param:
+                ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+                depenses = Depense.objects.filter(id__in=ids)
+            else:
+                # Use filters
+                branche_id = request.GET.get('branche_id', 'all')
+                categorie_id = request.GET.get('categorie_id', 'all')
+                devise = request.GET.get('devise', 'all')
+                period = request.GET.get('period', 'month')
+                
+                depenses = Depense.objects.filter(statut='approuvee')
+                
+                if branche_id and branche_id != 'all':
+                    depenses = depenses.filter(branche_id=branche_id)
+                if categorie_id and categorie_id != 'all':
+                    depenses = depenses.filter(categorie_id=categorie_id)
+                if devise and devise != 'all':
+                    depenses = depenses.filter(devise=devise)
+                
+                today = timezone.now().date()
+                if period == 'today':
+                    depenses = depenses.filter(created_at__date=today)
+                elif period == 'week':
+                    depenses = depenses.filter(created_at__date__gte=today - timedelta(days=7))
+                elif period == 'month':
+                    depenses = depenses.filter(created_at__date__gte=today - timedelta(days=30))
+            
+            depenses = depenses.select_related('branche', 'categorie', 'created_by')
+            
+            if not depenses.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune dépense trouvée'
+                }, status=404)
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = 'Dépenses'
+            
+            # Header styling
+            header_fill = PatternFill(start_color='DC2626', end_color='DC2626', fill_type='solid')
+            header_font = Font(bold=True, color='FFFFFF', size=12)
+            border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            
+            # Headers
+            headers = [
+                'Date', 'Heure', 'Branche', 'Catégorie', 'Description',
+                'Montant', 'Devise', 'Bénéficiaire', 'Enregistré par', 'Statut'
+            ]
+            
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.value = header
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+                cell.border = border
+            
+            # Data rows
+            for row_num, dep in enumerate(depenses.order_by('-created_at'), 2):
+                ws.cell(row=row_num, column=1).value = dep.created_at.strftime('%d/%m/%Y')
+                ws.cell(row=row_num, column=2).value = dep.created_at.strftime('%H:%M')
+                ws.cell(row=row_num, column=3).value = dep.branche.nom if dep.branche else 'N/A'
+                ws.cell(row=row_num, column=4).value = dep.categorie.nom if dep.categorie else 'N/A'
+                ws.cell(row=row_num, column=5).value = dep.description
+                ws.cell(row=row_num, column=6).value = float(dep.montant)
+                ws.cell(row=row_num, column=7).value = dep.devise
+                ws.cell(row=row_num, column=8).value = dep.beneficiaire or ''
+                ws.cell(row=row_num, column=9).value = dep.created_by.get_full_name() if dep.created_by else 'N/A'
+                ws.cell(row=row_num, column=10).value = dep.get_statut_display()
+                
+                # Apply border
+                for col_num in range(1, 11):
+                    ws.cell(row=row_num, column=col_num).border = border
+            
+            # Adjust column widths
+            column_widths = [12, 8, 18, 15, 35, 12, 8, 20, 20, 12]
+            for col_num, width in enumerate(column_widths, 1):
+                ws.column_dimensions[openpyxl.utils.get_column_letter(col_num)].width = width
+            
+            # Summary row
+            summary_row = len(list(depenses)) + 3
+            ws.cell(row=summary_row, column=1).value = 'TOTAUX'
+            ws.cell(row=summary_row, column=1).font = Font(bold=True, size=12)
+            
+            total_usd = sum(float(d.montant) for d in depenses if d.devise == 'USD')
+            total_fc = sum(float(d.montant) for d in depenses if d.devise == 'FC')
+            
+            ws.cell(row=summary_row, column=5).value = f'USD: ${total_usd:.2f} | FC: {total_fc:.0f} FC'
+            ws.cell(row=summary_row, column=5).font = Font(bold=True, size=12)
+            
+            # Save to response
+            response = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="depenses_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+            
+            wb.save(response)
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur export Excel: {str(e)}'
+            }, status=500)
+
+
+# ============================================
+# VIEW 6: Print Single Expense Receipt
+# ============================================
+
+class PrintExpenseReceiptView(AdminRequiredMixin, View):
+    """
+    Generate printable receipt for single expense
+    Returns HTML formatted for printing
+    """
+    
+    def get(self, request, expense_id):
+        try:
+            depense = get_object_or_404(
+                Depense.objects.select_related(
+                    'branche', 'categorie', 'created_by'
+                ),
+                id=expense_id
+            )
+            
+            # Generate HTML receipt
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Reçu Dépense - {depense.id}</title>
+                <style>
+                    @media print {{
+                        @page {{ margin: 0.5cm; }}
+                        body {{ margin: 0; padding: 20px; }}
+                    }}
+                    body {{
+                        font-family: 'Arial', sans-serif;
+                        max-width: 80mm;
+                        margin: 0 auto;
+                        padding: 10px;
+                    }}
+                    .header {{
+                        text-align: center;
+                        border-bottom: 2px solid #DC2626;
+                        padding-bottom: 10px;
+                        margin-bottom: 15px;
+                    }}
+                    .logo {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #DC2626;
+                        margin-bottom: 5px;
+                    }}
+                    .branch {{
+                        font-size: 14px;
+                        color: #555;
+                    }}
+                    .section {{
+                        margin-bottom: 15px;
+                    }}
+                    .label {{
+                        font-size: 11px;
+                        color: #666;
+                        margin-bottom: 2px;
+                    }}
+                    .value {{
+                        font-size: 13px;
+                        font-weight: bold;
+                        margin-bottom: 8px;
+                    }}
+                    .amount {{
+                        text-align: center;
+                        border: 2px solid #DC2626;
+                        padding: 15px;
+                        margin: 15px 0;
+                    }}
+                    .amount-label {{
+                        font-size: 12px;
+                        color: #666;
+                        margin-bottom: 5px;
+                    }}
+                    .amount-value {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #DC2626;
+                    }}
+                    .footer {{
+                        text-align: center;
+                        font-size: 10px;
+                        color: #999;
+                        border-top: 1px solid #ddd;
+                        padding-top: 10px;
+                        margin-top: 15px;
+                    }}
+                    .description {{
+                        font-size: 11px;
+                        color: #444;
+                        padding: 10px;
+                        background-color: #f9f9f9;
+                        border-radius: 4px;
+                        margin: 10px 0;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="logo">PETROX</div>
+                    <div class="branch">{depense.branche.nom if depense.branche else 'N/A'}</div>
+                    <div style="font-size: 10px; color: #999;">
+                        {depense.branche.adresse if depense.branche else ''}<br>
+                        {depense.branche.ville if depense.branche else ''}, {depense.branche.province if depense.branche else ''}
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="label">Numéro de Transaction</div>
+                    <div class="value">DEP-{depense.id:06d}</div>
+                    
+                    <div class="label">Date et Heure</div>
+                    <div class="value">{depense.created_at.strftime('%d/%m/%Y à %H:%M')}</div>
+                    
+                    <div class="label">Catégorie</div>
+                    <div class="value">{depense.categorie.nom if depense.categorie else 'N/A'}</div>
+                    
+                    {f'<div class="label">Bénéficiaire</div><div class="value">{depense.beneficiaire}</div>' if depense.beneficiaire else ''}
+                </div>
+                
+                <div class="description">
+                    <div class="label">Description</div>
+                    <div style="margin-top: 5px;">{depense.description}</div>
+                </div>
+                
+                <div class="amount">
+                    <div class="amount-label">MONTANT</div>
+                    <div class="amount-value">
+                        {depense.devise == 'USD' and f'${float(depense.montant):.2f}' or f'{float(depense.montant):.0f} FC'}
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="label">Enregistré par</div>
+                    <div class="value">{depense.created_by.get_full_name() if depense.created_by else 'N/A'}</div>
+                    
+                    <div class="label">Statut</div>
+                    <div class="value">{depense.get_statut_display()}</div>
+                </div>
+                
+                <div class="footer">
+                    <div>PETROX - Gestion de Stations</div>
+                    <div>Imprimé le {timezone.now().strftime('%d/%m/%Y à %H:%M')}</div>
+                </div>
+                
+                <script>
+                    window.onload = function() {{
+                        window.print();
+                    }};
+                </script>
+            </body>
+            </html>
+            """
+            
+            return HttpResponse(html_content, content_type='text/html')
+            
+        except Exception as e:
+            return HttpResponse(f'<html><body><h3>Erreur: {str(e)}</h3></body></html>')
+
+
 
 
 # ==================== EXPENSE CATEGORIES APIs ====================
@@ -4983,6 +5883,393 @@ class AbonnesByTypeView(AdminRequiredMixin, View):
                 'message': str(e)
             }, status=500)
 
+# ============================================
+# VIEW 1: Export Abonnés to PDF
+# ============================================
+
+class ExportAbonnesPDFView(AdminRequiredMixin, View):
+    """
+    Export all abonnés to PDF with professional formatting
+    Includes soldes, type, contact info
+    """
+    
+    def get(self, request):
+        try:
+            # Get filters
+            type_filter = request.GET.get('type', 'all')
+            search = request.GET.get('search', '')
+            
+            # Base queryset
+            abonnes = Abonne.objects.filter(is_active=True)
+            
+            # Apply filters
+            if type_filter != 'all':
+                abonnes = abonnes.filter(type_abonnement=type_filter)
+            
+            if search:
+                abonnes = abonnes.filter(
+                    Q(nom_entreprise__icontains=search) |
+                    Q(code_client__icontains=search) |
+                    Q(contact_nom__icontains=search)
+                )
+            
+            abonnes = abonnes.order_by('nom_entreprise')
+            
+            if not abonnes.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucun abonné trouvé'
+                }, status=404)
+            
+            # Create PDF
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="abonnes_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+            
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=landscape(A4))
+            elements = []
+            
+            # Styles
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#DC2626'),
+                spaceAfter=30,
+                alignment=1
+            )
+            
+            # Title
+            elements.append(Paragraph('PETROX - Liste des Abonnés', title_style))
+            elements.append(Paragraph(f'Généré le: {timezone.now().strftime("%d/%m/%Y à %H:%M")}', styles['Normal']))
+            if type_filter != 'all':
+                filter_text = {'prepaye': 'Prépayés', 'postpaye': 'Postpayés', 'credit': 'Crédit'}
+                elements.append(Paragraph(f'Type: {filter_text.get(type_filter, "Tous")}', styles['Normal']))
+            elements.append(Spacer(1, 0.5*inch))
+            
+            # Summary
+            total_prepaye = abonnes.filter(type_abonnement='prepaye').count()
+            total_postpaye = abonnes.filter(type_abonnement='postpaye').count()
+            total_credit = abonnes.filter(type_abonnement='credit').count()
+            
+            total_solde_usd = sum(float(a.solde_usd) for a in abonnes)
+            total_solde_fc = sum(float(a.solde_fc) for a in abonnes)
+            
+            summary_data = [
+                ['Métrique', 'Valeur'],
+                ['Total Abonnés', str(len(abonnes))],
+                ['Prépayés', str(total_prepaye)],
+                ['Postpayés', str(total_postpaye)],
+                ['Crédit', str(total_credit)],
+                ['Solde Total USD', f'${total_solde_usd:.2f}'],
+                ['Solde Total FC', f'{total_solde_fc:.0f} FC']
+            ]
+            
+            summary_table = Table(summary_data, colWidths=[2.5*inch, 2*inch])
+            summary_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#DC2626')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ]))
+            
+            elements.append(summary_table)
+            elements.append(Spacer(1, 0.4*inch))
+            
+            # Detailed table
+            elements.append(Paragraph('Liste Détaillée', styles['Heading2']))
+            elements.append(Spacer(1, 0.2*inch))
+            
+            data = [['Entreprise', 'Code Client', 'Type', 'Contact', 'Téléphone', 'Solde USD', 'Solde FC']]
+            
+            for abonne in abonnes:
+                data.append([
+                    abonne.nom_entreprise[:25],
+                    abonne.code_client,
+                    abonne.get_type_abonnement_display(),
+                    abonne.contact_nom[:20],
+                    abonne.contact_telephone,
+                    f'${float(abonne.solde_usd):.2f}',
+                    f'{float(abonne.solde_fc):.0f} FC'
+                ])
+            
+            detail_table = Table(data, colWidths=[2.2*inch, 1*inch, 1*inch, 1.5*inch, 1.2*inch, 1*inch, 1*inch])
+            detail_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1F2937')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 7),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ]))
+            
+            elements.append(detail_table)
+            
+            # Build PDF
+            doc.build(elements)
+            pdf = buffer.getvalue()
+            buffer.close()
+            response.write(pdf)
+            
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur export PDF: {str(e)}'
+            }, status=500)
+
+
+# ============================================
+# VIEW 2: Export Abonnés to Excel
+# ============================================
+
+class ExportAbonnesExcelView(AdminRequiredMixin, View):
+    """
+    Export abonnés to Excel with formatting
+    """
+    
+    def get(self, request):
+        try:
+            # Get filters
+            type_filter = request.GET.get('type', 'all')
+            search = request.GET.get('search', '')
+            
+            # Base queryset
+            abonnes = Abonne.objects.filter(is_active=True)
+            
+            # Apply filters
+            if type_filter != 'all':
+                abonnes = abonnes.filter(type_abonnement=type_filter)
+            
+            if search:
+                abonnes = abonnes.filter(
+                    Q(nom_entreprise__icontains=search) |
+                    Q(code_client__icontains=search) |
+                    Q(contact_nom__icontains=search)
+                )
+            
+            abonnes = abonnes.order_by('nom_entreprise')
+            
+            if not abonnes.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucun abonné trouvé'
+                }, status=404)
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = 'Abonnés'
+            
+            # Header styling
+            header_fill = PatternFill(start_color='DC2626', end_color='DC2626', fill_type='solid')
+            header_font = Font(bold=True, color='FFFFFF', size=12)
+            border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            
+            # Headers
+            headers = [
+                'Entreprise', 'Code Client', 'Type Abonnement', 
+                'Contact Nom', 'Contact Téléphone', 'Contact Email',
+                'Adresse', 'Solde USD', 'Solde FC', 'Limite Crédit',
+                'Statut', 'Date Création'
+            ]
+            
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.value = header
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+                cell.border = border
+            
+            # Data rows
+            for row_num, abonne in enumerate(abonnes, 2):
+                ws.cell(row=row_num, column=1).value = abonne.nom_entreprise
+                ws.cell(row=row_num, column=2).value = abonne.code_client
+                ws.cell(row=row_num, column=3).value = abonne.get_type_abonnement_display()
+                ws.cell(row=row_num, column=4).value = abonne.contact_nom
+                ws.cell(row=row_num, column=5).value = abonne.contact_telephone
+                ws.cell(row=row_num, column=6).value = abonne.contact_email
+                ws.cell(row=row_num, column=7).value = abonne.adresse
+                ws.cell(row=row_num, column=8).value = float(abonne.solde_usd)
+                ws.cell(row=row_num, column=9).value = float(abonne.solde_fc)
+                ws.cell(row=row_num, column=10).value = float(abonne.limite_credit)
+                ws.cell(row=row_num, column=11).value = 'Actif' if abonne.is_active else 'Inactif'
+                ws.cell(row=row_num, column=12).value = abonne.created_at.strftime('%d/%m/%Y')
+                
+                # Apply border
+                for col_num in range(1, 13):
+                    ws.cell(row=row_num, column=col_num).border = border
+                
+                # Color code soldes
+                solde_usd_cell = ws.cell(row=row_num, column=8)
+                solde_fc_cell = ws.cell(row=row_num, column=9)
+                
+                if float(abonne.solde_usd) < 0:
+                    solde_usd_cell.font = Font(color='DC2626', bold=True)
+                else:
+                    solde_usd_cell.font = Font(color='10B981', bold=True)
+                
+                if float(abonne.solde_fc) < 0:
+                    solde_fc_cell.font = Font(color='DC2626', bold=True)
+                else:
+                    solde_fc_cell.font = Font(color='10B981', bold=True)
+            
+            # Adjust column widths
+            column_widths = [30, 15, 15, 20, 18, 25, 30, 12, 12, 12, 10, 15]
+            for col_num, width in enumerate(column_widths, 1):
+                ws.column_dimensions[openpyxl.utils.get_column_letter(col_num)].width = width
+            
+            # Summary row
+            summary_row = len(list(abonnes)) + 3
+            ws.cell(row=summary_row, column=1).value = 'TOTAUX'
+            ws.cell(row=summary_row, column=1).font = Font(bold=True, size=12)
+            
+            total_usd = sum(float(a.solde_usd) for a in abonnes)
+            total_fc = sum(float(a.solde_fc) for a in abonnes)
+            
+            ws.cell(row=summary_row, column=8).value = total_usd
+            ws.cell(row=summary_row, column=8).font = Font(bold=True, size=12)
+            ws.cell(row=summary_row, column=9).value = total_fc
+            ws.cell(row=summary_row, column=9).font = Font(bold=True, size=12)
+            
+            # Save to response
+            response = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="abonnes_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+            
+            wb.save(response)
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur export Excel: {str(e)}'
+            }, status=500)
+
+
+# ============================================
+# VIEW 3: Get Payment History for Abonné
+# ============================================
+
+class AbonnePaymentHistoryView(AdminRequiredMixin, View):
+    """
+    Get detailed payment history for an abonné
+    Shows all payments made across all branches
+    """
+    
+    def get(self, request, abonne_id):
+        try:
+            # Get abonné
+            try:
+                abonne = Abonne.objects.get(id=abonne_id)
+            except Abonne.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Abonné introuvable'
+                }, status=404)
+            
+            # Get date range filters
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            
+            # Get payment records from Depense model
+            # Payments are stored as negative amounts in Depense with category "Paiements Abonnés"
+            payments_category = CategorieDepense.objects.filter(nom='Paiements Abonnés').first()
+            
+            if payments_category:
+                payments = Depense.objects.filter(
+                    categorie=payments_category,
+                    description__icontains=abonne.code_client
+                ).select_related('branche', 'created_by')
+                
+                # Apply date filters
+                if start_date:
+                    try:
+                        start = timezone.datetime.strptime(start_date, '%Y-%m-%d').date()
+                        payments = payments.filter(created_at__date__gte=start)
+                    except ValueError:
+                        pass
+                
+                if end_date:
+                    try:
+                        end = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+                        payments = payments.filter(created_at__date__lte=end)
+                    except ValueError:
+                        pass
+                
+                payments = payments.order_by('-created_at')
+                
+                # Prepare payment data
+                payments_data = []
+                total_paid_usd = 0
+                total_paid_fc = 0
+                
+                for payment in payments:
+                    amount = abs(float(payment.montant))  # Convert from negative
+                    
+                    if payment.devise == 'USD':
+                        total_paid_usd += amount
+                    else:
+                        total_paid_fc += amount
+                    
+                    payments_data.append({
+                        'id': payment.id,
+                        'date': payment.created_at.strftime('%d/%m/%Y'),
+                        'time': payment.created_at.strftime('%H:%M'),
+                        'branche': payment.branche.nom if payment.branche else 'N/A',
+                        'montant': amount,
+                        'devise': payment.devise,
+                        'methode': payment.methode_paiement if hasattr(payment, 'methode_paiement') else 'N/A',
+                        'caissier': payment.created_by.get_full_name() if payment.created_by else 'N/A'
+                    })
+            else:
+                payments_data = []
+                total_paid_usd = 0
+                total_paid_fc = 0
+            
+            return JsonResponse({
+                'success': True,
+                'abonne': {
+                    'id': abonne.id,
+                    'nom_entreprise': abonne.nom_entreprise,
+                    'code_client': abonne.code_client,
+                    'solde_actuel_usd': str(abonne.solde_usd),
+                    'solde_actuel_fc': str(abonne.solde_fc)
+                },
+                'payments': payments_data,
+                'count': len(payments_data),
+                'totals': {
+                    'total_paid_usd': total_paid_usd,
+                    'total_paid_fc': total_paid_fc
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
 # ==================== FUEL TYPES MANAGEMENT ====================
 
 class CarburantsListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
@@ -6795,91 +8082,6 @@ class StockReportAPIView(AdminRequiredMixin, View):
                 'message': str(e)
             }, status=500)
 
-# TEMPLATE VIEW
-class SalairesView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """Salaires & Payroll page"""
-    template_name = 'admin/salaires.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        # Get filters
-        branche_id = self.request.GET.get('branche_id', '')
-        employee_type = self.request.GET.get('employee_type', 'all')
-        period = self.request.GET.get('period', 'month')
-        devise = self.request.GET.get('devise', '')
-        
-        # Calculate date range
-        today = timezone.now().date()
-        if period == 'month':
-            start_date = today.replace(day=1)
-        elif period == 'last_month':
-            last_month = today - relativedelta(months=1)
-            start_date = last_month.replace(day=1)
-            today = start_date.replace(day=1) + relativedelta(months=1) - timedelta(days=1)
-        elif period == 'year':
-            start_date = today.replace(month=1, day=1)
-        else:
-            start_date = None
-        
-        # Base queryset
-        payments = PaiementSalaire.objects.select_related(
-            'pompiste', 'branche', 'caissier'
-        ).order_by('-date_paiement')
-        
-        # Apply filters
-        if start_date:
-            payments = payments.filter(date_paiement__date__gte=start_date)
-        
-        if branche_id:
-            payments = payments.filter(branche_id=branche_id)
-        
-        if devise:
-            payments = payments.filter(devise_paiement=devise)
-        
-        # Format payments for template
-        payments_list = []
-        for payment in payments[:100]:  # Limit to 100 for performance
-            payments_list.append({
-                'id': payment.id,
-                'employee_name': payment.pompiste.get_full_name() if payment.pompiste else 'N/A',
-                'employee_type': 'Pompiste',
-                'branche': payment.branche.nom if payment.branche else 'N/A',
-                'periode': payment.mois_paiement.strftime('%m/%Y') if payment.mois_paiement else 'N/A',
-                'montant': float(payment.montant_paye),
-                'devise': payment.devise_paiement,
-                'paid_by': payment.caissier.get_full_name() if payment.caissier else 'N/A',
-                'date_paiement': payment.date_paiement
-            })
-        
-        context['payments'] = payments_list
-        
-        # Statistics
-        month_start = today.replace(day=1)
-        month_payments = PaiementSalaire.objects.filter(
-            date_paiement__date__gte=month_start
-        )
-        
-        total_usd = float(month_payments.filter(devise_paiement='USD').aggregate(
-            Sum('montant_paye'))['montant_paye__sum'] or 0)
-        total_fc = float(month_payments.filter(devise_paiement='FC').aggregate(
-            Sum('montant_paye'))['montant_paye__sum'] or 0)
-        
-        # Convert FC to USD for total (using current rate)
-        current_rate_obj = TauxChange.objects.filter(is_active=True).first()
-        current_rate = float(current_rate_obj.taux_usd_fc) if current_rate_obj else 2800.0
-        total_usd += (total_fc / current_rate)
-        
-        context['total_paid_month'] = total_usd
-        context['employees_paid_count'] = month_payments.values('pompiste').distinct().count()
-        context['total_payments'] = month_payments.count()
-        
-        # Branches
-        context['branches'] = Branche.objects.filter(is_active=True).order_by('nom')
-        context['branches_count'] = context['branches'].count()
-        
-        return context
-
 
 # API VIEWS
 class PaymentDetailAPIView(AdminRequiredMixin, View):
@@ -7345,4 +8547,1840 @@ class ToggleExpenseCategoryStatusView(AdminRequiredMixin, View):
             return JsonResponse({
                 'success': False,
                 'message': f'Erreur: {str(e)}'
+            }, status=500)
+        
+
+class ExportDashboardPDFView(AdminRequiredMixin, View):
+    """Export dashboard statistics as PDF"""
+    
+    def get(self, request):
+        try:
+            # Get filters
+            branche_id = request.GET.get('branche_id', 'all')
+            period = request.GET.get('period', 'month')
+            devise = request.GET.get('devise', 'USD')
+            
+            # Get data
+            stats_data = self._get_dashboard_stats(request, branche_id, period, devise)
+            
+            # Create PDF
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
+            
+            # Container for the 'Flowable' objects
+            elements = []
+            
+            # Styles
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#DC2626'),
+                spaceAfter=30,
+                alignment=TA_CENTER
+            )
+            
+            # Title
+            title = Paragraph("RAPPORT DASHBOARD PETROX", title_style)
+            elements.append(title)
+            elements.append(Spacer(1, 12))
+            
+            # Report Info
+            report_info = [
+                ['Période:', period.upper()],
+                ['Devise:', devise],
+                ['Branche:', self._get_branch_name(branche_id)],
+                ['Date:', timezone.now().strftime('%d/%m/%Y %H:%M')],
+            ]
+            
+            info_table = Table(report_info, colWidths=[2*inch, 4*inch])
+            info_table.setStyle(TableStyle([
+                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('TEXTCOLOR', (0, 0), (0, -1), colors.grey),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ]))
+            elements.append(info_table)
+            elements.append(Spacer(1, 20))
+            
+            # KPIs Summary
+            symbol = '$' if devise == 'USD' else 'FC'
+            kpi_data = [
+                ['KPI', 'Valeur', 'Tendance'],
+                ['Ventes Totales', f'{symbol} {stats_data["total_sales"]:,.2f}', f'{stats_data.get("sales_trend", 0):+.1f}%'],
+                ['Dépenses Totales', f'{symbol} {stats_data["total_expenses"]:,.2f}', f'{stats_data.get("expenses_trend", 0):+.1f}%'],
+                ['Profit Net', f'{symbol} {stats_data["net_profit"]:,.2f}', f'{stats_data.get("profit_margin", 0):.1f}%'],
+                ['Impact Forex', f'$ {stats_data.get("forex_impact", 0):,.2f}', ''],
+            ]
+            
+            kpi_table = Table(kpi_data, colWidths=[2.5*inch, 2*inch, 1.5*inch])
+            kpi_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#DC2626')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+                ('ALIGN', (2, 0), (2, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ]))
+            elements.append(kpi_table)
+            elements.append(Spacer(1, 20))
+            
+            # Ventes par carburant
+            if stats_data.get('sales_by_fuel'):
+                elements.append(Paragraph("Ventes par Type de Carburant", styles['Heading2']))
+                elements.append(Spacer(1, 12))
+                
+                fuel_data = [['Carburant', 'Quantité (L)', f'Montant ({symbol})']]
+                for fuel in stats_data['sales_by_fuel']:
+                    fuel_data.append([
+                        fuel['fuel_type'],
+                        f"{fuel['quantity']:,.0f}",
+                        f"{fuel['amount']:,.2f}"
+                    ])
+                
+                fuel_table = Table(fuel_data, colWidths=[2.5*inch, 1.5*inch, 2*inch])
+                fuel_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 10),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+                ]))
+                elements.append(fuel_table)
+                elements.append(Spacer(1, 20))
+            
+            # Footer
+            footer_style = ParagraphStyle(
+                'Footer',
+                parent=styles['Normal'],
+                fontSize=8,
+                textColor=colors.grey,
+                alignment=TA_CENTER
+            )
+            footer = Paragraph(
+                f"Document généré par PETROX System - {timezone.now().strftime('%d/%m/%Y à %H:%M')}",
+                footer_style
+            )
+            elements.append(Spacer(1, 30))
+            elements.append(footer)
+            
+            # Build PDF
+            doc.build(elements)
+            
+            # Get PDF from buffer
+            pdf = buffer.getvalue()
+            buffer.close()
+            
+            # Return response
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="dashboard_petrox_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+            response.write(pdf)
+            
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la génération du PDF: {str(e)}'
+            }, status=500)
+    
+    def _get_dashboard_stats(self, request, branche_id, period, devise):
+        """Get dashboard statistics (reuse from DashboardStatsAPIView)"""
+        # Filter by branch
+        ventes = Vente.objects.filter(statut='validee')
+        depenses = Depense.objects.all()
+        
+        if branche_id != 'all':
+            try:
+                branche = Branche.objects.get(id=branche_id)
+                ventes = ventes.filter(branche=branche)
+                depenses = depenses.filter(branche=branche)
+            except Branche.DoesNotExist:
+                pass
+        
+        # Filter by period
+        now = timezone.now()
+        if period == 'day':
+            start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        elif period == 'week':
+            start_date = now - timedelta(days=now.weekday())
+        elif period == 'month':
+            start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        else:
+            start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        ventes = ventes.filter(created_at__gte=start_date)
+        depenses = depenses.filter(created_at__gte=start_date)
+        
+        # Calculate stats
+        if devise == 'USD':
+            total_sales = ventes.aggregate(total=Sum('montant_usd'))['total'] or Decimal('0')
+            total_expenses = depenses.filter(devise='USD').aggregate(total=Sum('montant'))['total'] or Decimal('0')
+        else:
+            total_sales = ventes.aggregate(total=Sum('montant_fc'))['total'] or Decimal('0')
+            total_expenses = depenses.filter(devise='FC').aggregate(total=Sum('montant'))['total'] or Decimal('0')
+        
+        net_profit = total_sales - total_expenses
+        profit_margin = (net_profit / total_sales * 100) if total_sales > 0 else Decimal('0')
+        
+        # Sales by fuel type
+        sales_by_fuel = []
+        fuel_types = TypeCarburant.objects.filter(is_active=True)
+        for fuel in fuel_types:
+            fuel_ventes = ventes.filter(type_carburant=fuel)
+            quantity = fuel_ventes.aggregate(total=Sum('quantite'))['total'] or Decimal('0')
+            if devise == 'USD':
+                amount = fuel_ventes.aggregate(total=Sum('montant_usd'))['total'] or Decimal('0')
+            else:
+                amount = fuel_ventes.aggregate(total=Sum('montant_fc'))['total'] or Decimal('0')
+            
+            if quantity > 0:
+                sales_by_fuel.append({
+                    'fuel_type': fuel.nom,
+                    'quantity': float(quantity),
+                    'amount': float(amount)
+                })
+        
+        # Forex impact
+        forex_impact = ventes.aggregate(
+            total=Sum(F('montant_usd') * (F('taux_change') - F('taux_change')))
+        )['total'] or Decimal('0')
+        
+        return {
+            'total_sales': float(total_sales),
+            'total_expenses': float(total_expenses),
+            'net_profit': float(net_profit),
+            'profit_margin': float(profit_margin),
+            'forex_impact': float(forex_impact),
+            'sales_by_fuel': sales_by_fuel,
+            'sales_trend': 0,  # Calculate from previous period if needed
+            'expenses_trend': 0,
+        }
+    
+    def _get_branch_name(self, branche_id):
+        """Get branch name"""
+        if branche_id == 'all':
+            return 'Toutes les branches'
+        try:
+            branche = Branche.objects.get(id=branche_id)
+            return branche.nom
+        except Branche.DoesNotExist:
+            return 'Inconnue'
+
+
+class ExportDashboardExcelView(AdminRequiredMixin, View):
+    """Export dashboard statistics as Excel"""
+    
+    def get(self, request):
+        try:
+            # Get filters
+            branche_id = request.GET.get('branche_id', 'all')
+            period = request.GET.get('period', 'month')
+            devise = request.GET.get('devise', 'USD')
+            
+            # Get data
+            stats_data = self._get_dashboard_stats(request, branche_id, period, devise)
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "Dashboard"
+            
+            # Header styling
+            header_fill = PatternFill(start_color="DC2626", end_color="DC2626", fill_type="solid")
+            header_font = Font(color="FFFFFF", bold=True, size=14)
+            center_align = Alignment(horizontal="center", vertical="center")
+            right_align = Alignment(horizontal="right", vertical="center")
+            
+            # Title
+            ws.merge_cells('A1:E1')
+            ws['A1'] = 'RAPPORT DASHBOARD PETROX'
+            ws['A1'].font = Font(bold=True, size=16, color="DC2626")
+            ws['A1'].alignment = center_align
+            
+            # Report info
+            ws['A3'] = 'Période:'
+            ws['B3'] = period.upper()
+            ws['A4'] = 'Devise:'
+            ws['B4'] = devise
+            ws['A5'] = 'Branche:'
+            ws['B5'] = self._get_branch_name(branche_id)
+            ws['A6'] = 'Date génération:'
+            ws['B6'] = timezone.now().strftime('%d/%m/%Y %H:%M')
+            
+            # Style report info
+            for row in range(3, 7):
+                ws[f'A{row}'].font = Font(bold=True)
+            
+            # KPIs Header
+            ws['A8'] = 'INDICATEURS CLÉS'
+            ws.merge_cells('A8:D8')
+            ws['A8'].font = Font(bold=True, size=12, color="DC2626")
+            ws['A8'].alignment = center_align
+            
+            # KPI Headers
+            headers = ['KPI', f'Valeur ({devise})', 'Tendance', '% Marge']
+            for col, header in enumerate(headers, start=1):
+                cell = ws.cell(row=9, column=col)
+                cell.value = header
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = center_align
+            
+            # KPI Data
+            symbol = '$' if devise == 'USD' else 'FC'
+            kpi_data = [
+                ['Ventes Totales', stats_data['total_sales'], f"{stats_data.get('sales_trend', 0):+.1f}%", ''],
+                ['Dépenses Totales', stats_data['total_expenses'], f"{stats_data.get('expenses_trend', 0):+.1f}%", ''],
+                ['Profit Net', stats_data['net_profit'], '', f"{stats_data.get('profit_margin', 0):.1f}%"],
+                ['Impact Forex', stats_data.get('forex_impact', 0), '', ''],
+            ]
+            
+            row_num = 10
+            for kpi_row in kpi_data:
+                ws.cell(row=row_num, column=1).value = kpi_row[0]
+                ws.cell(row=row_num, column=1).font = Font(bold=True)
+                
+                ws.cell(row=row_num, column=2).value = kpi_row[1]
+                ws.cell(row=row_num, column=2).number_format = '#,##0.00'
+                ws.cell(row=row_num, column=2).alignment = right_align
+                
+                ws.cell(row=row_num, column=3).value = kpi_row[2]
+                ws.cell(row=row_num, column=3).alignment = center_align
+                
+                ws.cell(row=row_num, column=4).value = kpi_row[3]
+                ws.cell(row=row_num, column=4).alignment = center_align
+                
+                row_num += 1
+            
+            # Ventes par carburant
+            if stats_data.get('sales_by_fuel'):
+                row_num += 2
+                ws[f'A{row_num}'] = 'VENTES PAR TYPE DE CARBURANT'
+                ws.merge_cells(f'A{row_num}:D{row_num}')
+                ws[f'A{row_num}'].font = Font(bold=True, size=12, color="DC2626")
+                ws[f'A{row_num}'].alignment = center_align
+                
+                row_num += 1
+                fuel_headers = ['Carburant', 'Quantité (L)', f'Montant ({symbol})', '% du Total']
+                for col, header in enumerate(fuel_headers, start=1):
+                    cell = ws.cell(row=row_num, column=col)
+                    cell.value = header
+                    cell.fill = header_fill
+                    cell.font = header_font
+                    cell.alignment = center_align
+                
+                row_num += 1
+                total_amount = sum(f['amount'] for f in stats_data['sales_by_fuel'])
+                
+                for fuel in stats_data['sales_by_fuel']:
+                    ws.cell(row=row_num, column=1).value = fuel['fuel_type']
+                    ws.cell(row=row_num, column=2).value = fuel['quantity']
+                    ws.cell(row=row_num, column=2).number_format = '#,##0'
+                    ws.cell(row=row_num, column=2).alignment = right_align
+                    
+                    ws.cell(row=row_num, column=3).value = fuel['amount']
+                    ws.cell(row=row_num, column=3).number_format = '#,##0.00'
+                    ws.cell(row=row_num, column=3).alignment = right_align
+                    
+                    percentage = (fuel['amount'] / total_amount * 100) if total_amount > 0 else 0
+                    ws.cell(row=row_num, column=4).value = percentage / 100
+                    ws.cell(row=row_num, column=4).number_format = '0.0%'
+                    ws.cell(row=row_num, column=4).alignment = center_align
+                    
+                    row_num += 1
+            
+            # Adjust column widths
+            ws.column_dimensions['A'].width = 25
+            ws.column_dimensions['B'].width = 18
+            ws.column_dimensions['C'].width = 15
+            ws.column_dimensions['D'].width = 15
+            
+            # Add borders
+            thin_border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            
+            for row in ws.iter_rows(min_row=9, max_row=row_num-1, min_col=1, max_col=4):
+                for cell in row:
+                    cell.border = thin_border
+            
+            # Save to buffer
+            buffer = io.BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+            
+            # Return response
+            response = HttpResponse(
+                buffer.getvalue(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="dashboard_petrox_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+            
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de la génération du fichier Excel: {str(e)}'
+            }, status=500)
+    
+    def _get_dashboard_stats(self, request, branche_id, period, devise):
+        """Same as PDF export"""
+        # Reuse the same logic from ExportDashboardPDFView
+        return ExportDashboardPDFView()._get_dashboard_stats(request, branche_id, period, devise)
+    
+    def _get_branch_name(self, branche_id):
+        """Same as PDF export"""
+        return ExportDashboardPDFView()._get_branch_name(branche_id)
+    
+
+# ============================================
+# NEW VIEW 1: Bulk Export PDF (Selected Sales)
+# ============================================
+
+class BulkExportSalesPDFView(AdminRequiredMixin, View):
+    """
+    Export selected sales to PDF
+    Allows selection of specific sales for export
+    """
+    
+    def get(self, request):
+        try:
+            # Get selected IDs
+            ids_param = request.GET.get('ids', '')
+            if not ids_param:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune vente sélectionnée'
+                }, status=400)
+            
+            sale_ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+            
+            # Get sales
+            ventes = Vente.objects.filter(
+                id__in=sale_ids
+            ).select_related(
+                'branche', 'pompiste', 'manager', 'caissier',
+                'type_carburant', 'moyen_paiement'
+            ).order_by('-created_at')
+            
+            if not ventes.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune vente trouvée'
+                }, status=404)
+            
+            # Create PDF
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="ventes_selection_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+            
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4)
+            elements = []
+            
+            # Styles
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#DC2626'),
+                spaceAfter=30,
+                alignment=1  # Center
+            )
+            
+            # Title
+            elements.append(Paragraph('PETROX - Rapport de Ventes', title_style))
+            elements.append(Paragraph(f'Sélection de {len(ventes)} vente(s)', styles['Normal']))
+            elements.append(Paragraph(f'Généré le: {timezone.now().strftime("%d/%m/%Y à %H:%M")}', styles['Normal']))
+            elements.append(Spacer(1, 0.5*inch))
+            
+            # Table data
+            data = [['Date', 'Branche', 'Pompiste', 'Carburant', 'Qté (L)', 'Montant USD', 'Statut']]
+            
+            for vente in ventes:
+                data.append([
+                    vente.created_at.strftime('%d/%m/%Y %H:%M'),
+                    vente.branche.nom,
+                    f"{vente.pompiste.prenom} {vente.pompiste.nom}",
+                    vente.type_carburant.nom,
+                    f"{float(vente.quantite):.2f}",
+                    f"${float(vente.montant_usd):.2f}",
+                    vente.get_statut_display()
+                ])
+            
+            # Create table
+            table = Table(data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 1*inch, 0.8*inch, 1*inch, 0.8*inch])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#DC2626')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ]))
+            
+            elements.append(table)
+            
+            # Summary
+            elements.append(Spacer(1, 0.5*inch))
+            total_usd = sum(float(v.montant_usd) for v in ventes)
+            total_fc = sum(float(v.montant_fc) for v in ventes)
+            
+            summary_data = [
+                ['Total USD:', f'${total_usd:.2f}'],
+                ['Total FC:', f'{total_fc:.0f} FC'],
+                ['Nombre de ventes:', str(len(ventes))]
+            ]
+            
+            summary_table = Table(summary_data, colWidths=[2*inch, 2*inch])
+            summary_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.lightblue),
+                ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 12),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]))
+            
+            elements.append(summary_table)
+            
+            # Build PDF
+            doc.build(elements)
+            pdf = buffer.getvalue()
+            buffer.close()
+            response.write(pdf)
+            
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de l\'export PDF: {str(e)}'
+            }, status=500)
+
+
+# ============================================
+# NEW VIEW 2: Bulk Export Excel (Selected Sales)
+# ============================================
+
+class BulkExportSalesExcelView(AdminRequiredMixin, View):
+    """
+    Export selected sales to Excel with formatting
+    """
+    
+    def get(self, request):
+        try:
+            # Get selected IDs
+            ids_param = request.GET.get('ids', '')
+            if not ids_param:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune vente sélectionnée'
+                }, status=400)
+            
+            sale_ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+            
+            # Get sales
+            ventes = Vente.objects.filter(
+                id__in=sale_ids
+            ).select_related(
+                'branche', 'pompiste', 'manager', 'caissier',
+                'type_carburant', 'moyen_paiement'
+            ).order_by('-created_at')
+            
+            if not ventes.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucune vente trouvée'
+                }, status=404)
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = 'Ventes Sélectionnées'
+            
+            # Header styling
+            header_fill = PatternFill(start_color='DC2626', end_color='DC2626', fill_type='solid')
+            header_font = Font(bold=True, color='FFFFFF', size=12)
+            border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            
+            # Headers
+            headers = [
+                'Date', 'Heure', 'Branche', 'Pompiste', 'Manager',
+                'Carburant', 'Quantité (L)', 'Prix Unit. USD', 'Montant USD',
+                'Montant FC', 'Moyen Paiement', 'Statut', 'Taux Change'
+            ]
+            
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.value = header
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+                cell.border = border
+            
+            # Data rows
+            for row_num, vente in enumerate(ventes, 2):
+                ws.cell(row=row_num, column=1).value = vente.created_at.strftime('%d/%m/%Y')
+                ws.cell(row=row_num, column=2).value = vente.created_at.strftime('%H:%M')
+                ws.cell(row=row_num, column=3).value = vente.branche.nom
+                ws.cell(row=row_num, column=4).value = f"{vente.pompiste.prenom} {vente.pompiste.nom}"
+                ws.cell(row=row_num, column=5).value = f"{vente.manager.prenom} {vente.manager.nom}"
+                ws.cell(row=row_num, column=6).value = vente.type_carburant.nom
+                ws.cell(row=row_num, column=7).value = float(vente.quantite)
+                ws.cell(row=row_num, column=8).value = float(vente.type_carburant.prix_unitaire_usd)
+                ws.cell(row=row_num, column=9).value = float(vente.montant_usd)
+                ws.cell(row=row_num, column=10).value = float(vente.montant_fc)
+                ws.cell(row=row_num, column=11).value = vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A'
+                ws.cell(row=row_num, column=12).value = vente.get_statut_display()
+                ws.cell(row=row_num, column=13).value = float(vente.taux_change)
+                
+                # Apply border to all cells
+                for col_num in range(1, 14):
+                    ws.cell(row=row_num, column=col_num).border = border
+            
+            # Adjust column widths
+            column_widths = [12, 8, 15, 20, 20, 12, 12, 12, 12, 12, 15, 12, 12]
+            for col_num, width in enumerate(column_widths, 1):
+                ws.column_dimensions[openpyxl.utils.get_column_letter(col_num)].width = width
+            
+            # Summary
+            summary_row = len(ventes) + 3
+            ws.cell(row=summary_row, column=1).value = 'TOTAL'
+            ws.cell(row=summary_row, column=1).font = Font(bold=True, size=12)
+            
+            total_usd = sum(float(v.montant_usd) for v in ventes)
+            total_fc = sum(float(v.montant_fc) for v in ventes)
+            
+            ws.cell(row=summary_row, column=9).value = total_usd
+            ws.cell(row=summary_row, column=9).font = Font(bold=True, size=12)
+            ws.cell(row=summary_row, column=10).value = total_fc
+            ws.cell(row=summary_row, column=10).font = Font(bold=True, size=12)
+            
+            # Save to response
+            response = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="ventes_selection_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+            
+            wb.save(response)
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de l\'export Excel: {str(e)}'
+            }, status=500)
+
+
+# ============================================
+# NEW VIEW 3: Print Single Sale Receipt
+# ============================================
+
+class PrintSaleReceiptView(AdminRequiredMixin, View):
+    """
+    Generate printable receipt for a single sale
+    Returns HTML that can be printed
+    """
+    
+    def get(self, request, vente_id):
+        try:
+            vente = get_object_or_404(
+                Vente.objects.select_related(
+                    'branche', 'pompiste', 'manager', 'caissier',
+                    'type_carburant', 'moyen_paiement', 'abonne'
+                ),
+                id=vente_id
+            )
+            
+            # Generate HTML receipt
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Reçu de Vente - {vente.id}</title>
+                <style>
+                    @media print {{
+                        @page {{ margin: 0.5cm; }}
+                        body {{ margin: 0; padding: 20px; }}
+                    }}
+                    body {{
+                        font-family: 'Arial', sans-serif;
+                        max-width: 80mm;
+                        margin: 0 auto;
+                        padding: 10px;
+                    }}
+                    .header {{
+                        text-align: center;
+                        border-bottom: 2px solid #DC2626;
+                        padding-bottom: 10px;
+                        margin-bottom: 15px;
+                    }}
+                    .logo {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #DC2626;
+                        margin-bottom: 5px;
+                    }}
+                    .branch {{
+                        font-size: 14px;
+                        color: #555;
+                    }}
+                    .section {{
+                        margin-bottom: 15px;
+                    }}
+                    .label {{
+                        font-size: 11px;
+                        color: #666;
+                        margin-bottom: 2px;
+                    }}
+                    .value {{
+                        font-size: 13px;
+                        font-weight: bold;
+                        margin-bottom: 8px;
+                    }}
+                    .amount {{
+                        text-align: center;
+                        border: 2px solid #DC2626;
+                        padding: 15px;
+                        margin: 15px 0;
+                    }}
+                    .amount-label {{
+                        font-size: 12px;
+                        color: #666;
+                        margin-bottom: 5px;
+                    }}
+                    .amount-value {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #DC2626;
+                    }}
+                    .footer {{
+                        text-align: center;
+                        font-size: 10px;
+                        color: #999;
+                        border-top: 1px solid #ddd;
+                        padding-top: 10px;
+                        margin-top: 15px;
+                    }}
+                    .status {{
+                        display: inline-block;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        font-size: 11px;
+                        font-weight: bold;
+                    }}
+                    .status-validee {{ background-color: #10B981; color: white; }}
+                    .status-en_attente {{ background-color: #F59E0B; color: white; }}
+                    .status-manquant {{ background-color: #EF4444; color: white; }}
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="logo">PETROX</div>
+                    <div class="branch">{vente.branche.nom}</div>
+                    <div style="font-size: 10px; color: #999;">
+                        {vente.branche.adresse}<br>
+                        {vente.branche.ville}, {vente.branche.province}
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="label">Numéro de Transaction</div>
+                    <div class="value">VTE-{vente.id:06d}</div>
+                    
+                    <div class="label">Date et Heure</div>
+                    <div class="value">{vente.created_at.strftime('%d/%m/%Y à %H:%M')}</div>
+                    
+                    <div class="label">Pompiste</div>
+                    <div class="value">{vente.pompiste.prenom} {vente.pompiste.nom}</div>
+                    
+                    {'<div class="label">Client Abonné</div>' if vente.abonne else ''}
+                    {'<div class="value">' + vente.abonne.nom + '</div>' if vente.abonne else ''}
+                </div>
+                
+                <div class="section">
+                    <div class="label">Type de Carburant</div>
+                    <div class="value">{vente.type_carburant.nom}</div>
+                    
+                    <div class="label">Quantité</div>
+                    <div class="value">{float(vente.quantite):.2f} Litres</div>
+                    
+                    <div class="label">Prix Unitaire</div>
+                    <div class="value">${float(vente.type_carburant.prix_unitaire_usd):.2f} / L</div>
+                    
+                    <div class="label">Moyen de Paiement</div>
+                    <div class="value">{vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A'}</div>
+                </div>
+                
+                <div class="amount">
+                    <div class="amount-label">MONTANT TOTAL</div>
+                    <div class="amount-value">${float(vente.montant_usd):.2f}</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                        {float(vente.montant_fc):.0f} FC
+                    </div>
+                    <div style="font-size: 10px; color: #999; margin-top: 5px;">
+                        Taux: {float(vente.taux_change):.2f} FC
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="label">Statut</div>
+                    <div class="status status-{vente.statut}">{vente.get_statut_display()}</div>
+                </div>
+                
+                {f'''
+                <div class="section" style="background-color: #FEE2E2; padding: 10px; border-radius: 4px;">
+                    <div class="label" style="color: #DC2626;">MANQUANT SIGNALÉ</div>
+                    <div class="value" style="color: #DC2626;">
+                        ${float(vente.manquant_usd):.2f} / {float(vente.manquant_fc):.0f} FC
+                    </div>
+                    {f'<div style="font-size: 10px; color: #991B1B;">{vente.raison_manquant}</div>' if vente.raison_manquant else ''}
+                </div>
+                ''' if vente.statut == 'manquant' else ''}
+                
+                <div class="footer">
+                    <div>Merci de votre visite!</div>
+                    <div>PETROX - Gestion de Stations</div>
+                    <div>Imprimé le {timezone.now().strftime('%d/%m/%Y à %H:%M')}</div>
+                </div>
+                
+                <script>
+                    window.onload = function() {{
+                        window.print();
+                    }};
+                </script>
+            </body>
+            </html>
+            """
+            
+            return HttpResponse(html_content, content_type='text/html')
+            
+        except Exception as e:
+            return HttpResponse(f'<html><body><h3>Erreur: {str(e)}</h3></body></html>')
+
+
+# ============================================
+# NEW VIEW 4: Bulk Print Selected Sales
+# ============================================
+
+class BulkPrintSalesView(AdminRequiredMixin, View):
+    """
+    Print multiple sales receipts in one document
+    """
+    
+    def get(self, request):
+        try:
+            # Get selected IDs
+            ids_param = request.GET.get('ids', '')
+            if not ids_param:
+                return HttpResponse('<html><body><h3>Aucune vente sélectionnée</h3></body></html>')
+            
+            sale_ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+            
+            # Get sales
+            ventes = Vente.objects.filter(
+                id__in=sale_ids
+            ).select_related(
+                'branche', 'pompiste', 'manager', 'type_carburant', 'moyen_paiement', 'abonne'
+            ).order_by('-created_at')
+            
+            if not ventes.exists():
+                return HttpResponse('<html><body><h3>Aucune vente trouvée</h3></body></html>')
+            
+            # Generate combined HTML
+            receipts_html = ''
+            for idx, vente in enumerate(ventes):
+                page_break = 'page-break-after: always;' if idx < len(ventes) - 1 else ''
+                receipts_html += f'''
+                <div style="{page_break}">
+                    <!-- Receipt content similar to single receipt -->
+                    <div style="border: 2px solid #DC2626; padding: 20px; margin-bottom: 20px;">
+                        <h2 style="text-align: center; color: #DC2626;">PETROX</h2>
+                        <p style="text-align: center;">{vente.branche.nom}</p>
+                        <hr>
+                        <p><strong>Transaction:</strong> VTE-{vente.id:06d}</p>
+                        <p><strong>Date:</strong> {vente.created_at.strftime('%d/%m/%Y %H:%M')}</p>
+                        <p><strong>Pompiste:</strong> {vente.pompiste.prenom} {vente.pompiste.nom}</p>
+                        <p><strong>Carburant:</strong> {vente.type_carburant.nom}</p>
+                        <p><strong>Quantité:</strong> {float(vente.quantite):.2f} L</p>
+                        <h3 style="text-align: center; color: #DC2626;">TOTAL: ${float(vente.montant_usd):.2f}</h3>
+                        <p style="text-align: center;">{float(vente.montant_fc):.0f} FC</p>
+                    </div>
+                </div>
+                '''
+            
+            html_content = f'''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Reçus de Ventes - Impression Multiple</title>
+                <style>
+                    @media print {{
+                        @page {{ margin: 1cm; }}
+                    }}
+                    body {{ font-family: Arial, sans-serif; }}
+                </style>
+            </head>
+            <body>
+                {receipts_html}
+                <script>
+                    window.onload = function() {{ window.print(); }};
+                </script>
+            </body>
+            </html>
+            '''
+            
+            return HttpResponse(html_content, content_type='text/html')
+            
+        except Exception as e:
+            return HttpResponse(f'<html><body><h3>Erreur: {str(e)}</h3></body></html>')
+
+# ============================================
+# NEW VIEW 1: Manquants Report with Analysis
+# ============================================
+
+class ManquantsReportAPIView(AdminRequiredMixin, View):
+    """
+    Complete manquants report with totals, analysis, and charts data
+    This is the MAIN API endpoint for the manquants validation page
+    """
+    
+    def get(self, request):
+        try:
+            # Get filter parameters
+            branche_id = request.GET.get('branche_id', 'all')
+            pompiste_id = request.GET.get('pompiste_id', 'all')
+            period = request.GET.get('period', 'month')
+            
+            # Base queryset - only manquants
+            manquants = Vente.objects.filter(statut='manquant').select_related(
+                'branche', 'pompiste', 'manager', 'caissier', 'type_carburant', 'moyen_paiement'
+            )
+            
+            # Apply filters
+            if branche_id and branche_id != 'all':
+                manquants = manquants.filter(branche_id=branche_id)
+            
+            if pompiste_id and pompiste_id != 'all':
+                manquants = manquants.filter(pompiste_id=pompiste_id)
+            
+            # Period filter
+            today = timezone.now().date()
+            if period == 'week':
+                start_date = today - timedelta(days=7)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            elif period == 'month':
+                start_date = today - timedelta(days=30)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            elif period == 'quarter':
+                start_date = today - timedelta(days=90)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            elif period == 'year':
+                start_date = today - timedelta(days=365)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            
+            # Calculate totals
+            totals = manquants.aggregate(
+                total_manquant_usd=Sum('manquant_usd'),
+                total_manquant_fc=Sum('manquant_fc'),
+                count=Count('id')
+            )
+            
+            # Analysis data for charts
+            
+            # 1. By Branch
+            by_branch = manquants.values('branche__nom').annotate(
+                count=Count('id'),
+                total_usd=Sum('manquant_usd'),
+                total_fc=Sum('manquant_fc')
+            ).order_by('-total_usd')
+            
+            # 2. By Pompiste (Top 10)
+            by_pompiste = manquants.values(
+                'pompiste__id',
+                'pompiste__prenom',
+                'pompiste__nom'
+            ).annotate(
+                count=Count('id'),
+                total_usd=Sum('manquant_usd'),
+                total_fc=Sum('manquant_fc')
+            ).order_by('-count')[:10]
+            
+            # 3. Trend (daily for last 30 days)
+            if period in ['week', 'month', 'quarter']:
+                trend_days = 30 if period == 'month' else 90 if period == 'quarter' else 7
+                trend_start = today - timedelta(days=trend_days)
+                
+                trend = manquants.filter(
+                    created_at__date__gte=trend_start
+                ).annotate(
+                    date=TruncDate('created_at')
+                ).values('date').annotate(
+                    count=Count('id'),
+                    total_usd=Sum('manquant_usd')
+                ).order_by('date')
+                
+                # Fill in missing dates with zeros
+                trend_dict = {str(t['date']): t for t in trend}
+                filled_trend = []
+                for i in range(trend_days + 1):
+                    check_date = trend_start + timedelta(days=i)
+                    date_str = str(check_date)
+                    if date_str in trend_dict:
+                        filled_trend.append({
+                            'date': check_date.strftime('%d/%m'),
+                            'count': trend_dict[date_str]['count'],
+                            'total_usd': float(trend_dict[date_str]['total_usd'] or 0)
+                        })
+                    else:
+                        filled_trend.append({
+                            'date': check_date.strftime('%d/%m'),
+                            'count': 0,
+                            'total_usd': 0
+                        })
+            else:
+                filled_trend = []
+            
+            # Detailed list (limited to 100 most recent)
+            manquants_list = []
+            for m in manquants.order_by('-created_at')[:100]:
+                manquants_list.append({
+                    'id': m.id,
+                    'date': m.created_at.strftime('%d/%m/%Y %H:%M'),
+                    'branche': m.branche.nom if m.branche else 'N/A',
+                    'pompiste': f"{m.pompiste.prenom} {m.pompiste.nom}" if m.pompiste else 'N/A',
+                    'manager': f"{m.manager.prenom} {m.manager.nom}" if m.manager else 'N/A',
+                    'caissier': f"{m.caissier.prenom} {m.caissier.nom}" if m.caissier else 'N/A',
+                    'carburant': m.type_carburant.nom if m.type_carburant else 'N/A',
+                    'montant_vente_usd': float(m.montant_usd),
+                    'montant_vente_fc': float(m.montant_fc),
+                    'manquant_usd': float(m.manquant_usd),
+                    'manquant_fc': float(m.manquant_fc),
+                    'raison': m.raison_manquant or 'Non spécifié'
+                })
+            
+            # Count unique branches
+            branches_count = manquants.values('branche').distinct().count()
+            
+            return JsonResponse({
+                'success': True,
+                'totals': {
+                    'total_manquant_usd': float(totals['total_manquant_usd'] or 0),
+                    'total_manquant_fc': float(totals['total_manquant_fc'] or 0),
+                    'count': totals['count']
+                },
+                'analysis': {
+                    'branches_count': branches_count,
+                    'by_branch': [
+                        {
+                            'branche': b['branche__nom'],
+                            'count': b['count'],
+                            'total_usd': float(b['total_usd'] or 0),
+                            'total_fc': float(b['total_fc'] or 0)
+                        }
+                        for b in by_branch
+                    ],
+                    'by_pompiste': [
+                        {
+                            'pompiste': f"{p['pompiste__prenom']} {p['pompiste__nom']}",
+                            'count': p['count'],
+                            'total_usd': float(p['total_usd'] or 0),
+                            'total_fc': float(p['total_fc'] or 0)
+                        }
+                        for p in by_pompiste
+                    ],
+                    'trend': filled_trend
+                },
+                'manquants': manquants_list
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================
+# NEW VIEW 2: Export Manquants to PDF
+# ============================================
+
+class ExportManquantsPDFView(AdminRequiredMixin, View):
+    """
+    Export manquants report to PDF with professional formatting
+    """
+    
+    def get(self, request):
+        try:
+            # Get filters (same as report view)
+            branche_id = request.GET.get('branche_id', 'all')
+            pompiste_id = request.GET.get('pompiste_id', 'all')
+            period = request.GET.get('period', 'month')
+            
+            # Get manquants
+            manquants = Vente.objects.filter(statut='manquant').select_related(
+                'branche', 'pompiste', 'manager', 'caissier', 'type_carburant'
+            )
+            
+            # Apply filters
+            if branche_id and branche_id != 'all':
+                manquants = manquants.filter(branche_id=branche_id)
+            if pompiste_id and pompiste_id != 'all':
+                manquants = manquants.filter(pompiste_id=pompiste_id)
+            
+            today = timezone.now().date()
+            if period == 'week':
+                start_date = today - timedelta(days=7)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            elif period == 'month':
+                start_date = today - timedelta(days=30)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            elif period == 'quarter':
+                start_date = today - timedelta(days=90)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            
+            if not manquants.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucun manquant trouvé pour les filtres sélectionnés'
+                }, status=404)
+            
+            # Create PDF
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="rapport_manquants_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+            
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4)
+            elements = []
+            
+            # Styles
+            styles = getSampleStyleSheet()
+            title_style = styles['Heading1']
+            title_style.textColor = colors.HexColor('#DC2626')
+            
+            # Title
+            elements.append(Paragraph('PETROX - Rapport des Manquants', title_style))
+            elements.append(Paragraph(f'Généré le: {timezone.now().strftime("%d/%m/%Y à %H:%M")}', styles['Normal']))
+            elements.append(Spacer(1, 0.3*inch))
+            
+            # Summary
+            totals = manquants.aggregate(
+                total_usd=Sum('manquant_usd'),
+                total_fc=Sum('manquant_fc'),
+                count=Count('id')
+            )
+            
+            summary_data = [
+                ['Métrique', 'Valeur'],
+                ['Nombre total de manquants', str(totals['count'])],
+                ['Total Manquant USD', f"${float(totals['total_usd'] or 0):.2f}"],
+                ['Total Manquant FC', f"{float(totals['total_fc'] or 0):.0f} FC"]
+            ]
+            
+            summary_table = Table(summary_data, colWidths=[3*inch, 2*inch])
+            summary_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#DC2626')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ]))
+            
+            elements.append(summary_table)
+            elements.append(Spacer(1, 0.4*inch))
+            
+            # Detailed table
+            elements.append(Paragraph('Détails des Manquants', styles['Heading2']))
+            elements.append(Spacer(1, 0.2*inch))
+            
+            data = [['Date', 'Branche', 'Pompiste', 'Vente USD', 'Manquant USD', 'Raison']]
+            
+            for m in manquants.order_by('-created_at')[:50]:  # Limit to 50 for PDF
+                data.append([
+                    m.created_at.strftime('%d/%m/%Y'),
+                    m.branche.nom[:15] if m.branche else 'N/A',
+                    f"{m.pompiste.prenom} {m.pompiste.nom}"[:20] if m.pompiste else 'N/A',
+                    f"${float(m.montant_usd):.2f}",
+                    f"${float(m.manquant_usd):.2f}",
+                    (m.raison_manquant or 'N/A')[:25]
+                ])
+            
+            detail_table = Table(data, colWidths=[0.9*inch, 1.2*inch, 1.3*inch, 0.9*inch, 1*inch, 1.5*inch])
+            detail_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1F2937')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 7),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ]))
+            
+            elements.append(detail_table)
+            
+            # Build PDF
+            doc.build(elements)
+            pdf = buffer.getvalue()
+            buffer.close()
+            response.write(pdf)
+            
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de l\'export PDF: {str(e)}'
+            }, status=500)
+
+
+# ============================================
+# NEW VIEW 3: Export Manquants to Excel
+# ============================================
+
+class ExportManquantsExcelView(AdminRequiredMixin, View):
+    """
+    Export manquants report to Excel with formatting and charts
+    """
+    
+    def get(self, request):
+        try:
+            # Get filters
+            branche_id = request.GET.get('branche_id', 'all')
+            pompiste_id = request.GET.get('pompiste_id', 'all')
+            period = request.GET.get('period', 'month')
+            
+            # Get manquants
+            manquants = Vente.objects.filter(statut='manquant').select_related(
+                'branche', 'pompiste', 'manager', 'caissier', 'type_carburant', 'moyen_paiement'
+            )
+            
+            # Apply filters
+            if branche_id and branche_id != 'all':
+                manquants = manquants.filter(branche_id=branche_id)
+            if pompiste_id and pompiste_id != 'all':
+                manquants = manquants.filter(pompiste_id=pompiste_id)
+            
+            today = timezone.now().date()
+            if period == 'week':
+                start_date = today - timedelta(days=7)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            elif period == 'month':
+                start_date = today - timedelta(days=30)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            elif period == 'quarter':
+                start_date = today - timedelta(days=90)
+                manquants = manquants.filter(created_at__date__gte=start_date)
+            
+            if not manquants.exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Aucun manquant trouvé'
+                }, status=404)
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = 'Manquants'
+            
+            # Header styling
+            header_fill = PatternFill(start_color='DC2626', end_color='DC2626', fill_type='solid')
+            header_font = Font(bold=True, color='FFFFFF', size=12)
+            border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            
+            # Headers
+            headers = [
+                'Date', 'Heure', 'Branche', 'Pompiste', 'Manager', 'Caissier',
+                'Carburant', 'Vente USD', 'Vente FC', 'Manquant USD', 
+                'Manquant FC', 'Moyen Paiement', 'Raison'
+            ]
+            
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.value = header
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+                cell.border = border
+            
+            # Data rows
+            for row_num, m in enumerate(manquants.order_by('-created_at'), 2):
+                ws.cell(row=row_num, column=1).value = m.created_at.strftime('%d/%m/%Y')
+                ws.cell(row=row_num, column=2).value = m.created_at.strftime('%H:%M')
+                ws.cell(row=row_num, column=3).value = m.branche.nom if m.branche else 'N/A'
+                ws.cell(row=row_num, column=4).value = f"{m.pompiste.prenom} {m.pompiste.nom}" if m.pompiste else 'N/A'
+                ws.cell(row=row_num, column=5).value = f"{m.manager.prenom} {m.manager.nom}" if m.manager else 'N/A'
+                ws.cell(row=row_num, column=6).value = f"{m.caissier.prenom} {m.caissier.nom}" if m.caissier else 'N/A'
+                ws.cell(row=row_num, column=7).value = m.type_carburant.nom if m.type_carburant else 'N/A'
+                ws.cell(row=row_num, column=8).value = float(m.montant_usd)
+                ws.cell(row=row_num, column=9).value = float(m.montant_fc)
+                ws.cell(row=row_num, column=10).value = float(m.manquant_usd)
+                ws.cell(row=row_num, column=11).value = float(m.manquant_fc)
+                ws.cell(row=row_num, column=12).value = m.moyen_paiement.nom if m.moyen_paiement else 'N/A'
+                ws.cell(row=row_num, column=13).value = m.raison_manquant or 'Non spécifié'
+                
+                # Apply border and highlight manquant cells
+                for col_num in range(1, 14):
+                    cell = ws.cell(row=row_num, column=col_num)
+                    cell.border = border
+                    if col_num in [10, 11]:  # Manquant columns
+                        cell.fill = PatternFill(start_color='FEE2E2', end_color='FEE2E2', fill_type='solid')
+                        cell.font = Font(bold=True, color='DC2626')
+            
+            # Adjust column widths
+            column_widths = [12, 8, 18, 20, 20, 20, 12, 12, 12, 12, 12, 15, 30]
+            for col_num, width in enumerate(column_widths, 1):
+                ws.column_dimensions[openpyxl.utils.get_column_letter(col_num)].width = width
+            
+            # Summary row
+            summary_row = len(list(manquants)) + 3
+            ws.cell(row=summary_row, column=1).value = 'TOTAUX'
+            ws.cell(row=summary_row, column=1).font = Font(bold=True, size=12)
+            
+            total_vente_usd = sum(float(m.montant_usd) for m in manquants)
+            total_vente_fc = sum(float(m.montant_fc) for m in manquants)
+            total_manquant_usd = sum(float(m.manquant_usd) for m in manquants)
+            total_manquant_fc = sum(float(m.manquant_fc) for m in manquants)
+            
+            ws.cell(row=summary_row, column=8).value = total_vente_usd
+            ws.cell(row=summary_row, column=8).font = Font(bold=True, size=12)
+            ws.cell(row=summary_row, column=9).value = total_vente_fc
+            ws.cell(row=summary_row, column=9).font = Font(bold=True, size=12)
+            ws.cell(row=summary_row, column=10).value = total_manquant_usd
+            ws.cell(row=summary_row, column=10).font = Font(bold=True, size=12, color='DC2626')
+            ws.cell(row=summary_row, column=11).value = total_manquant_fc
+            ws.cell(row=summary_row, column=11).font = Font(bold=True, size=12, color='DC2626')
+            
+            # Save to response
+            response = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="manquants_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+            
+            wb.save(response)
+            return response
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de l\'export Excel: {str(e)}'
+            }, status=500)
+
+
+class PaySalaryAdminView(AdminRequiredMixin, View):
+    """
+    Admin can pay salary to any employee (Pompiste or User)
+    Creates PaiementSalaire record and Depense record
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            required_fields = ['employee_type', 'employee_id', 'branche_id', 'montant', 'devise', 'periode']
+            for field in required_fields:
+                if not data.get(field):
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Le champ {field} est requis'
+                    }, status=400)
+            
+            # Validate employee type
+            if data['employee_type'] not in ['pompiste', 'user']:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Type d\'employé invalide (pompiste ou user)'
+                }, status=400)
+            
+            # Get employee
+            employee = None
+            employee_name = ''
+            
+            if data['employee_type'] == 'pompiste':
+                try:
+                    employee = Pompiste.objects.get(id=data['employee_id'], is_active=True)
+                    employee_name = employee.get_full_name()
+                except Pompiste.DoesNotExist:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Pompiste introuvable'
+                    }, status=404)
+            else:  # user
+                try:
+                    employee = User.objects.get(id=data['employee_id'], is_active=True)
+                    employee_name = employee.get_full_name()
+                except User.DoesNotExist:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Utilisateur introuvable'
+                    }, status=404)
+            
+            # Get branche
+            try:
+                branche = Branche.objects.get(id=data['branche_id'], is_active=True)
+            except Branche.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Branche introuvable'
+                }, status=404)
+            
+            # Validate amount
+            try:
+                montant = Decimal(str(data['montant']))
+                if montant <= 0:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Le montant doit être supérieur à 0'
+                    }, status=400)
+            except (ValueError, TypeError, InvalidOperation):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Montant invalide'
+                }, status=400)
+            
+            # Validate currency
+            if data['devise'] not in ['USD', 'FC']:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Devise invalide (USD ou FC)'
+                }, status=400)
+            
+            # Parse period (YYYY-MM format)
+            try:
+                periode = datetime.strptime(data['periode'], '%Y-%m').date()
+            except ValueError:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Format de période invalide (YYYY-MM attendu)'
+                }, status=400)
+            
+            # Check if salary already paid for this period
+            if data['employee_type'] == 'pompiste':
+                existing = PaiementSalaire.objects.filter(
+                    pompiste=employee,
+                    mois_paiement=periode,
+                    statut='paye'
+                ).exists()
+            else:
+                existing = PaiementSalaire.objects.filter(
+                    employe_user=employee,
+                    mois_paiement=periode,
+                    statut='paye'
+                ).exists()
+            
+            if existing:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Salaire déjà payé pour {periode.strftime("%m/%Y")}'
+                }, status=400)
+            
+            # Get current exchange rate
+            current_rate = TauxChange.objects.filter(is_active=True).first()
+            taux = current_rate.taux_usd_fc if current_rate else Decimal('2800.00')
+            
+            # Create payment record
+            payment_data = {
+                'branche': branche,
+                'caissier': request.user,
+                'mois_paiement': periode,
+                'montant_paye': montant,
+                'devise_paiement': data['devise'],
+                'taux_change': taux,
+                'methode_paiement': data.get('methode_paiement', 'cash'),
+                'notes': data.get('notes', ''),
+                'statut': 'paye',
+                'date_paiement': timezone.now()
+            }
+            
+            if data['employee_type'] == 'pompiste':
+                payment_data['pompiste'] = employee
+            else:
+                payment_data['employe_user'] = employee
+            
+            paiement = PaiementSalaire.objects.create(**payment_data)
+            
+            # Create expense record (salary as expense)
+            categorie, created = CategorieDepense.objects.get_or_create(
+                nom='Salaires',
+                defaults={
+                    'description': 'Paiements de salaires aux employés',
+                    'created_by': request.user
+                }
+            )
+            
+            Depense.objects.create(
+                branche=branche,
+                categorie=categorie,
+                description=f'Salaire {employee_name} - {periode.strftime("%m/%Y")}',
+                montant=montant,
+                devise=data['devise'],
+                methode_paiement=data.get('methode_paiement', 'cash'),
+                beneficiaire=employee_name,
+                created_by=request.user,
+                statut='approuvee'  # Auto-approved
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Salaire payé à {employee_name} pour {periode.strftime("%m/%Y")}',
+                'payment': {
+                    'id': paiement.id,
+                    'employee': employee_name,
+                    'branche': branche.nom,
+                    'montant': str(montant),
+                    'devise': data['devise'],
+                    'periode': periode.strftime('%m/%Y'),
+                    'date_paiement': paiement.date_paiement.strftime('%d/%m/%Y %H:%M')
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Format JSON invalide'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur: {str(e)}'
+            }, status=500)
+
+
+class EmployeesListView(AdminRequiredMixin, View):
+    """
+    Get list of all employees (Pompistes + Users) with salary info
+    """
+    
+    def get(self, request):
+        try:
+            branche_id = request.GET.get('branche_id')
+            employee_type = request.GET.get('employee_type', 'all')  # all, pompiste, user
+            
+            employees = []
+            current_month = timezone.now().date().replace(day=1)
+            
+            # Get Pompistes
+            if employee_type in ['all', 'pompiste']:
+                pompistes = Pompiste.objects.filter(is_active=True).select_related('branche')
+                
+                if branche_id and branche_id != 'all':
+                    pompistes = pompistes.filter(branche_id=branche_id)
+                
+                for pompiste in pompistes:
+                    # Check if paid this month
+                    last_payment = PaiementSalaire.objects.filter(
+                        pompiste=pompiste
+                    ).order_by('-date_paiement').first()
+                    
+                    paid_this_month = PaiementSalaire.objects.filter(
+                        pompiste=pompiste,
+                        mois_paiement=current_month,
+                        statut='paye'
+                    ).exists()
+                    
+                    employees.append({
+                        'id': pompiste.id,
+                        'type': 'pompiste',
+                        'name': pompiste.get_full_name(),
+                        'branche': pompiste.branche.nom if pompiste.branche else 'N/A',
+                        'branche_id': pompiste.branche.id if pompiste.branche else None,
+                        'salaire': float(pompiste.salaire),
+                        'devise': pompiste.devise_salaire,
+                        'last_payment_date': last_payment.date_paiement.strftime('%d/%m/%Y') if last_payment else 'Jamais',
+                        'last_payment_amount': str(last_payment.montant_paye) if last_payment else '0',
+                        'paid_this_month': paid_this_month,
+                        'status': 'Payé' if paid_this_month else 'En attente',
+                        'quart': pompiste.get_quart_display() if pompiste.quart else 'N/A'
+                    })
+            
+            # Get System Users (Manager, Caissier)
+            if employee_type in ['all', 'user']:
+                users = User.objects.filter(
+                    is_active=True,
+                    role__in=['manager', 'caissier']
+                ).select_related('branche')
+                
+                if branche_id and branche_id != 'all':
+                    users = users.filter(branche_id=branche_id)
+                
+                for user in users:
+                    last_payment = PaiementSalaire.objects.filter(
+                        employe_user=user
+                    ).order_by('-date_paiement').first()
+                    
+                    paid_this_month = PaiementSalaire.objects.filter(
+                        employe_user=user,
+                        mois_paiement=current_month,
+                        statut='paye'
+                    ).exists()
+                    
+                    employees.append({
+                        'id': user.id,
+                        'type': 'user',
+                        'name': user.get_full_name(),
+                        'branche': user.branche.nom if user.branche else 'N/A',
+                        'branche_id': user.branche.id if user.branche else None,
+                        'salaire': float(user.salaire) if user.salaire else 0,
+                        'devise': user.devise_salaire if user.devise_salaire else 'USD',
+                        'last_payment_date': last_payment.date_paiement.strftime('%d/%m/%Y') if last_payment else 'Jamais',
+                        'last_payment_amount': str(last_payment.montant_paye) if last_payment else '0',
+                        'paid_this_month': paid_this_month,
+                        'status': 'Payé' if paid_this_month else 'En attente',
+                        'role': user.get_role_display()
+                    })
+            
+            return JsonResponse({
+                'success': True,
+                'employees': employees,
+                'count': len(employees)
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class SalaryStatisticsView(AdminRequiredMixin, View):
+    """
+    Get salary statistics (totals, counts, pending)
+    """
+    
+    def get(self, request):
+        try:
+            branche_id = request.GET.get('branche_id')
+            period = request.GET.get('period', 'month')  # month, year
+            
+            # Calculate date range
+            today = timezone.now().date()
+            if period == 'month':
+                start_date = today.replace(day=1)
+            else:  # year
+                start_date = today.replace(month=1, day=1)
+            
+            # Base query
+            payments = PaiementSalaire.objects.filter(
+                date_paiement__date__gte=start_date,
+                statut='paye'
+            )
+            
+            if branche_id and branche_id != 'all':
+                payments = payments.filter(branche_id=branche_id)
+            
+            # Calculate totals
+            total_usd = payments.filter(devise_paiement='USD').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or Decimal('0')
+            
+            total_fc = payments.filter(devise_paiement='FC').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or Decimal('0')
+            
+            # Count employees paid
+            employees_paid = payments.values('pompiste', 'employe_user').distinct().count()
+            
+            # Get pending payments (employees not paid this month)
+            current_month = today.replace(day=1)
+            
+            # Count pompistes not paid
+            all_pompistes = Pompiste.objects.filter(is_active=True)
+            if branche_id and branche_id != 'all':
+                all_pompistes = all_pompistes.filter(branche_id=branche_id)
+            
+            paid_pompistes = PaiementSalaire.objects.filter(
+                mois_paiement=current_month,
+                statut='paye',
+                pompiste__isnull=False
+            ).values_list('pompiste_id', flat=True)
+            
+            pending_pompistes = all_pompistes.exclude(id__in=paid_pompistes).count()
+            
+            # Count users not paid
+            all_users = User.objects.filter(
+                is_active=True,
+                role__in=['manager', 'caissier']
+            )
+            if branche_id and branche_id != 'all':
+                all_users = all_users.filter(branche_id=branche_id)
+            
+            paid_users = PaiementSalaire.objects.filter(
+                mois_paiement=current_month,
+                statut='paye',
+                employe_user__isnull=False
+            ).values_list('employe_user_id', flat=True)
+            
+            pending_users = all_users.exclude(id__in=paid_users).count()
+            
+            pending_total = pending_pompistes + pending_users
+            
+            # Get payment trends (last 6 months)
+            trends = []
+            for i in range(5, -1, -1):
+                month_date = (today.replace(day=1) - timedelta(days=i*30)).replace(day=1)
+                
+                month_payments = PaiementSalaire.objects.filter(
+                    mois_paiement=month_date,
+                    statut='paye'
+                )
+                
+                if branche_id and branche_id != 'all':
+                    month_payments = month_payments.filter(branche_id=branche_id)
+                
+                month_usd = month_payments.filter(devise_paiement='USD').aggregate(
+                    Sum('montant_paye'))['montant_paye__sum'] or Decimal('0')
+                
+                month_fc = month_payments.filter(devise_paiement='FC').aggregate(
+                    Sum('montant_paye'))['montant_paye__sum'] or Decimal('0')
+                
+                trends.append({
+                    'month': month_date.strftime('%b %Y'),
+                    'total_usd': float(month_usd),
+                    'total_fc': float(month_fc),
+                    'count': month_payments.count()
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'statistics': {
+                    'total_usd': float(total_usd),
+                    'total_fc': float(total_fc),
+                    'employees_paid': employees_paid,
+                    'pending_payments': pending_total,
+                    'pending_pompistes': pending_pompistes,
+                    'pending_users': pending_users,
+                    'period': period
+                },
+                'trends': trends
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class EmployeeSalaryHistoryView(AdminRequiredMixin, View):
+    """
+    Get complete salary history for a specific employee
+    """
+    
+    def get(self, request, employee_type, employee_id):
+        try:
+            # Get employee
+            employee = None
+            employee_name = ''
+            
+            if employee_type == 'pompiste':
+                try:
+                    employee = Pompiste.objects.get(id=employee_id)
+                    employee_name = employee.get_full_name()
+                    payments = PaiementSalaire.objects.filter(pompiste=employee)
+                except Pompiste.DoesNotExist:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Pompiste introuvable'
+                    }, status=404)
+            elif employee_type == 'user':
+                try:
+                    employee = User.objects.get(id=employee_id)
+                    employee_name = employee.get_full_name()
+                    payments = PaiementSalaire.objects.filter(employe_user=employee)
+                except User.DoesNotExist:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Utilisateur introuvable'
+                    }, status=404)
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Type d\'employé invalide'
+                }, status=400)
+            
+            # Get all payments
+            payments = payments.select_related('branche', 'caissier').order_by('-date_paiement')
+            
+            # Serialize
+            payments_data = [{
+                'id': p.id,
+                'branche': p.branche.nom if p.branche else 'N/A',
+                'periode': p.mois_paiement.strftime('%m/%Y') if p.mois_paiement else 'N/A',
+                'montant': str(p.montant_paye),
+                'devise': p.devise_paiement,
+                'methode': p.get_methode_paiement_display(),
+                'paid_by': p.caissier.get_full_name() if p.caissier else 'N/A',
+                'date_paiement': p.date_paiement.strftime('%d/%m/%Y %H:%M'),
+                'statut': p.get_statut_display(),
+                'notes': p.notes
+            } for p in payments]
+            
+            # Calculate totals
+            total_usd = payments.filter(devise_paiement='USD').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or Decimal('0')
+            
+            total_fc = payments.filter(devise_paiement='FC').aggregate(
+                Sum('montant_paye'))['montant_paye__sum'] or Decimal('0')
+            
+            return JsonResponse({
+                'success': True,
+                'employee': {
+                    'name': employee_name,
+                    'type': employee_type,
+                    'id': employee_id
+                },
+                'payments': payments_data,
+                'summary': {
+                    'total_payments': payments.count(),
+                    'total_usd': float(total_usd),
+                    'total_fc': float(total_fc)
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
             }, status=500)

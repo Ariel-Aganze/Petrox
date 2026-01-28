@@ -17,6 +17,8 @@ urlpatterns = [
     
     # Dashboard
     path('', views_templates.AdminDashboardView.as_view(), name='dashboard'),
+    path('api/dashboard/export/pdf/', views.ExportDashboardPDFView.as_view(), name='export_dashboard_pdf'),
+path('api/dashboard/export/excel/', views.ExportDashboardExcelView.as_view(), name='export_dashboard_excel'),
     
     # Branches Management
     path('branches/', views_templates.BranchesListView.as_view(), name='branches'),
@@ -34,6 +36,13 @@ urlpatterns = [
     # Subscribers (Abonnés)
     path('abonnes/', views_templates.AbonnesListView.as_view(), name='abonnes'),
     path('abonnes/<int:abonne_id>/', views_templates.AbonneDetailView.as_view(), name='abonne_detail'),
+
+    # Export Functions
+   path('api/abonnes/export/pdf/', views.ExportAbonnesPDFView.as_view(), name='export_abonnes_pdf'),
+   path('api/abonnes/export/excel/', views.ExportAbonnesExcelView.as_view(), name='export_abonnes_excel'),
+
+   #  Payment History
+   path('api/abonnes/<int:abonne_id>/payment-history/', views.AbonnePaymentHistoryView.as_view(), name='abonne_payment_history'),
     
     # Users Management (Utilisateurs)
     path('utilisateurs/', views_templates.UtilisateursListView.as_view(), name='utilisateurs'),
@@ -67,6 +76,8 @@ urlpatterns = [
     # Branches Template Views
    path('branches/', views_templates.BranchesListView.as_view(), name='branches'),
    path('branches/<int:branch_id>/', views_templates.BranchDetailView.as_view(), name='branch_detail'),
+   path('api/branches/<int:branch_id>/history/', views.BranchHistoryView.as_view(), name='branch_history'),
+   path('api/branches/comparison/', views.BranchComparisonView.as_view(), name='branch_comparison'),
 
    # Branches API Views
    path('api/branches/create/', views.CreateBranchView.as_view(), name='create_branch'),
@@ -87,6 +98,17 @@ urlpatterns = [
    path('api/ventes/stats/', views.VentesStatsView.as_view(), name='ventes_stats'),
    path('api/ventes/by-pompiste/', views.SalesByPompisteView.as_view(), name='ventes_by_pompiste'),
    path('api/ventes/manquants/', views.ManquantsReportView.as_view(), name='manquants_report'),
+
+   path('api/ventes/export/pdf/', views.BulkExportSalesPDFView.as_view(), name='bulk_export_sales_pdf'),
+   path('api/ventes/export/excel/', views.BulkExportSalesExcelView.as_view(), name='bulk_export_sales_excel'),
+   path('api/ventes/<int:vente_id>/print/', views.PrintSaleReceiptView.as_view(), name='print_sale_receipt'),
+   path('api/ventes/print/', views.BulkPrintSalesView.as_view(), name='bulk_print_sales'),
+
+   # ---------- Manquants Validation URLs ----------
+   path('validation-manquants/', views_templates.ValidationManquantsView.as_view(), name='validation_manquants'),
+   path('api/manquants/report/', views.ManquantsReportAPIView.as_view(), name='manquants_report_api'),
+   path('api/manquants/export/pdf/', views.ExportManquantsPDFView.as_view(), name='export_manquants_pdf'),
+   path('api/manquants/export/excel/', views.ExportManquantsExcelView.as_view(), name='export_manquants_excel'),
     
     # # ---------- Expenses (Dépenses) APIs ----------
     # Dépenses (Expenses) Template View
@@ -99,6 +121,20 @@ urlpatterns = [
    path('api/depenses/<int:depense_id>/update/', views.UpdateDepenseView.as_view(), name='update_depense'),
    path('api/depenses/<int:depense_id>/delete/', views.DeleteDepenseView.as_view(), name='delete_depense'),
    path('api/depenses/stats/', views.ExpensesStatsView.as_view(), name='expenses_stats'),
+
+   # Add in Dépenses API section:
+   # Analytics
+   path('api/depenses/analytics/', views.ExpensesAnalyticsAPIView.as_view(), name='expenses_analytics'),
+
+   # Bulk Actions
+   path('api/depenses/bulk-delete/', views.BulkDeleteExpensesView.as_view(), name='bulk_delete_expenses'),
+
+   #  Export Functions
+   path('api/depenses/export/pdf/', views.BulkExportExpensesPDFView.as_view(), name='bulk_export_expenses_pdf'),
+   path('api/depenses/export/excel/', views.BulkExportExpensesExcelView.as_view(), name='bulk_export_expenses_excel'),
+
+   # Print Single Expense
+   path('api/depenses/<int:expense_id>/print/', views.PrintExpenseReceiptView.as_view(), name='print_expense_receipt'),
 
 # Categories APIs
    path('api/categories/', views.CategoriesListAPIView.as_view(), name='categories_api'),
@@ -145,6 +181,7 @@ urlpatterns = [
    path('api/abonnes/<int:abonne_id>/payment/', views.AddPaymentView.as_view(), name='add_abonne_payment'),
    path('api/abonnes/<int:abonne_id>/stats/', views.AbonneConsumptionStatsView.as_view(), name='abonne_stats'),
    path('api/abonnes/by-type/', views.AbonnesByTypeView.as_view(), name='abonnes_by_type'),
+   path('api/payments/create/', views.CreatePaymentView.as_view(), name='create_payment'),
     
     # # ---------- Users Management APIs ----------
     # Utilisateurs Template View
@@ -206,6 +243,11 @@ urlpatterns = [
    path('api/payments/<int:payment_id>/', views.PaymentDetailAPIView.as_view(), name='payment_detail'),
    path('api/payments/history/', views.SalaryHistoryAPIView.as_view(), name='salary_history'),
    path('api/payments/report/', views.EmployeeSalaryReportAPIView.as_view(), name='employee_salary_report'),
+
+   path('api/salaries/pay/', views.PaySalaryAdminView.as_view(), name='pay_salary_admin'),
+   path('api/salaries/employees/', views.EmployeesListView.as_view(), name='employees_list'),
+   path('api/salaries/statistics/', views.SalaryStatisticsView.as_view(), name='salary_statistics'),
+   path('api/salaries/employee/<str:employee_type>/<int:employee_id>/history/', views.EmployeeSalaryHistoryView.as_view(), name='employee_salary_history'),
     
     # # ---------- Reports APIs ----------
     # Reports URLs

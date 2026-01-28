@@ -1,0 +1,647 @@
+{% extends 'base/base.html' %}
+
+{% block title %}PETROX | Validation des Manquants{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:validation_manquants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Manquants</a>
+<a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
+<a href="{% url 'admin_module:salaires' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Salaires</a>
+<a href="{% url 'admin_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'admin_module:forex' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Forex</a>
+<a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span class="text-xs mt-1">Dashboard</span>
+</a>
+<a href="{% url 'admin_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+    <span class="text-xs mt-1">Ventes</span>
+</a>
+<a href="{% url 'admin_module:validation_manquants' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <span class="text-xs mt-1">Manquants</span>
+</a>
+<a href="{% url 'admin_module:carburants' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>
+    <span class="text-xs mt-1">Stock</span>
+</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <span class="text-xs mt-1">Users</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Validation des Manquants
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Suivi et analyse des manquants signalés par les caissiers
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+        <button onclick="exportManquantsPDF()" class="inline-flex items-center px-4 py-2 border border-petrox-red rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Export PDF
+        </button>
+        <button onclick="exportManquantsExcel()" class="inline-flex items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Total Manquants Count -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Manquants</dt>
+                        <dd class="text-lg font-bold text-red-600" id="total-manquants">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Manquant USD -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-orange-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Manquant USD</dt>
+                        <dd class="text-lg font-bold text-orange-600" id="total-manquant-usd">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Manquant FC -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Manquant FC</dt>
+                        <dd class="text-lg font-bold text-purple-600" id="total-manquant-fc">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Branches Affected -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Branches Concernées</dt>
+                        <dd class="text-lg font-bold text-blue-600" id="branches-count">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Manquants by Branch Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Manquants par Branche</h3>
+        <div style="height: 300px;">
+            <canvas id="manquants-by-branch-chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Manquants by Pompiste Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Top 10 Pompistes avec Manquants</h3>
+        <div style="height: 300px;">
+            <canvas id="manquants-by-pompiste-chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Trend Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6 lg:col-span-2">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Évolution des Manquants (30 derniers jours)</h3>
+        <div style="height: 300px;">
+            <canvas id="manquants-trend-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Branch Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Branche</label>
+            <select onchange="applyFilters()" id="filter-branch" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toutes les branches</option>
+                {% for branch in all_branches %}
+                <option value="{{ branch.id }}">{{ branch.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Period Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Période</label>
+            <select onchange="applyFilters()" id="filter-period" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="week">7 derniers jours</option>
+                <option value="month" selected>30 derniers jours</option>
+                <option value="quarter">3 derniers mois</option>
+                <option value="year">12 derniers mois</option>
+                <option value="all">Toute la période</option>
+            </select>
+        </div>
+        
+        <!-- Pompiste Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pompiste</label>
+            <select onchange="applyFilters()" id="filter-pompiste" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Tous les pompistes</option>
+                {% for pompiste in all_pompistes %}
+                <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Sort By -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Trier par</label>
+            <select onchange="applyFilters()" id="filter-sort" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="date_desc">Date (récent → ancien)</option>
+                <option value="date_asc">Date (ancien → récent)</option>
+                <option value="amount_desc">Montant (élevé → faible)</option>
+                <option value="amount_asc">Montant (faible → élevé)</option>
+            </select>
+        </div>
+        
+        <!-- Search -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+            <input type="text" id="search-input" onkeyup="searchManquants()" placeholder="Rechercher..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+        </div>
+    </div>
+</div>
+
+<!-- Manquants Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">
+            Liste des Manquants (<span id="manquants-list-count">0</span>)
+        </h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pompiste</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Caissier</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vente</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manquant</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="manquants-table-body">
+                <!-- Will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- View Manquant Detail Modal -->
+<div id="view-manquant-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('view-manquant-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Détails du Manquant
+                    </h3>
+                    <button onclick="closeModal('view-manquant-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="manquant-detail-content">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+let manquantsData = [];
+let charts = {
+    byBranch: null,
+    byPompiste: null,
+    trend: null
+};
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadManquantsData();
+});
+
+// Load manquants data
+function loadManquantsData() {
+    const branch = document.getElementById('filter-branch').value;
+    const period = document.getElementById('filter-period').value;
+    const pompiste = document.getElementById('filter-pompiste').value;
+    
+    const params = new URLSearchParams();
+    if (branch !== 'all') params.append('branche_id', branch);
+    if (period !== 'all') params.append('period', period);
+    if (pompiste !== 'all') params.append('pompiste_id', pompiste);
+    
+    fetch(`/dashboard/api/manquants/report/?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                manquantsData = data.manquants;
+                updateStats(data.totals, data.analysis);
+                updateTable(data.manquants);
+                updateCharts(data.analysis);
+            }
+        })
+        .catch(error => console.error('Error loading manquants:', error));
+}
+
+// Update stats cards
+function updateStats(totals, analysis) {
+    document.getElementById('total-manquants').textContent = totals.count;
+    document.getElementById('total-manquant-usd').textContent = `$${totals.total_manquant_usd.toFixed(2)}`;
+    document.getElementById('total-manquant-fc').textContent = `${totals.total_manquant_fc.toFixed(0)} FC`;
+    document.getElementById('branches-count').textContent = analysis.branches_count || 0;
+}
+
+// Update table
+function updateTable(manquants) {
+    const tbody = document.getElementById('manquants-table-body');
+    document.getElementById('manquants-list-count').textContent = manquants.length;
+    
+    if (manquants.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm">Aucun manquant pour les filtres sélectionnés</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = manquants.map(m => `
+        <tr class="hover:bg-gray-50 manquant-row" data-branch="${m.branche}" data-pompiste="${m.pompiste}">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${m.date}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${m.branche}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${m.pompiste}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${m.caissier}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">$${m.montant_vente_usd.toFixed(2)}</div>
+                <div class="text-xs text-gray-500">${m.montant_vente_fc.toFixed(0)} FC</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-bold text-red-600">$${m.manquant_usd.toFixed(2)}</div>
+                <div class="text-xs text-red-500">${m.manquant_fc.toFixed(0)} FC</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="viewManquantDetail(${m.id})" class="text-blue-600 hover:text-blue-900">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Update charts
+function updateCharts(analysis) {
+    // Destroy existing charts
+    Object.values(charts).forEach(chart => {
+        if (chart) chart.destroy();
+    });
+    
+    // By Branch Chart
+    if (analysis.by_branch && analysis.by_branch.length > 0) {
+        const ctx1 = document.getElementById('manquants-by-branch-chart').getContext('2d');
+        charts.byBranch = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: analysis.by_branch.map(b => b.branche),
+                datasets: [{
+                    label: 'Manquants USD',
+                    data: analysis.by_branch.map(b => b.total_usd),
+                    backgroundColor: 'rgba(220, 38, 38, 0.8)',
+                    borderColor: 'rgb(220, 38, 38)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+    
+    // By Pompiste Chart
+    if (analysis.by_pompiste && analysis.by_pompiste.length > 0) {
+        const ctx2 = document.getElementById('manquants-by-pompiste-chart').getContext('2d');
+        charts.byPompiste = new Chart(ctx2, {
+            type: 'horizontalBar',
+            data: {
+                labels: analysis.by_pompiste.map(p => p.pompiste),
+                datasets: [{
+                    label: 'Nombre de Manquants',
+                    data: analysis.by_pompiste.map(p => p.count),
+                    backgroundColor: 'rgba(234, 88, 12, 0.8)',
+                    borderColor: 'rgb(234, 88, 12)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+    }
+    
+    // Trend Chart
+    if (analysis.trend && analysis.trend.length > 0) {
+        const ctx3 = document.getElementById('manquants-trend-chart').getContext('2d');
+        charts.trend = new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: analysis.trend.map(t => t.date),
+                datasets: [{
+                    label: 'Nombre de Manquants',
+                    data: analysis.trend.map(t => t.count),
+                    borderColor: 'rgb(220, 38, 38)',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    }
+}
+
+// View manquant detail
+function viewManquantDetail(manquantId) {
+    fetch(`/dashboard/api/ventes/${manquantId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const m = data.sale;
+                const content = `
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2 bg-red-50 border border-red-200 rounded-lg p-4">
+                            <h4 class="text-sm font-semibold text-red-800 mb-3">⚠️ Manquant Signalé</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <span class="text-xs text-red-600">Manquant USD</span>
+                                    <div class="text-2xl font-bold text-red-900">$${m.manquant_usd}</div>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-red-600">Manquant FC</span>
+                                    <div class="text-2xl font-bold text-red-900">${m.manquant_fc} FC</div>
+                                </div>
+                            </div>
+                            ${m.raison_manquant ? `
+                            <div class="mt-3 pt-3 border-t border-red-300">
+                                <span class="text-xs text-red-600">Raison:</span>
+                                <p class="text-sm text-red-900 mt-1">${m.raison_manquant}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Transaction Originale</h4>
+                            <dl class="space-y-2">
+                                <div>
+                                    <dt class="text-xs text-gray-500">Date</dt>
+                                    <dd class="text-sm font-medium text-gray-900">${m.date}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Branche</dt>
+                                    <dd class="text-sm text-gray-900">${m.branche}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Pompiste</dt>
+                                    <dd class="text-sm text-gray-900">${m.pompiste}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Carburant</dt>
+                                    <dd class="text-sm text-gray-900">${m.fuel_type}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Quantité</dt>
+                                    <dd class="text-sm font-semibold text-gray-900">${m.quantite} L</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Validation</h4>
+                            <dl class="space-y-2">
+                                <div>
+                                    <dt class="text-xs text-gray-500">Caissier</dt>
+                                    <dd class="text-sm text-gray-900">${m.validated_by || 'N/A'}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Date de Validation</dt>
+                                    <dd class="text-sm text-gray-900">${m.validated_at || 'N/A'}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Montant Vente USD</dt>
+                                    <dd class="text-sm font-semibold text-green-600">$${m.montant_usd}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Montant Vente FC</dt>
+                                    <dd class="text-sm font-semibold text-purple-600">${m.montant_fc} FC</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs text-gray-500">Moyen de Paiement</dt>
+                                    <dd class="text-sm text-gray-900">${m.moyen_paiement}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('manquant-detail-content').innerHTML = content;
+                openModal('view-manquant-modal');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Apply filters
+function applyFilters() {
+    loadManquantsData();
+}
+
+// Search manquants
+function searchManquants() {
+    const searchText = document.getElementById('search-input').value.toLowerCase();
+    const rows = document.querySelectorAll('.manquant-row');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchText) ? '' : 'none';
+    });
+}
+
+// Export PDF
+function exportManquantsPDF() {
+    const branch = document.getElementById('filter-branch').value;
+    const period = document.getElementById('filter-period').value;
+    const pompiste = document.getElementById('filter-pompiste').value;
+    
+    const params = new URLSearchParams();
+    if (branch !== 'all') params.append('branche_id', branch);
+    if (period !== 'all') params.append('period', period);
+    if (pompiste !== 'all') params.append('pompiste_id', pompiste);
+    
+    window.location.href = `/dashboard/api/manquants/export/pdf/?${params.toString()}`;
+    showNotification('Export PDF en cours...', 'success');
+}
+
+// Export Excel
+function exportManquantsExcel() {
+    const branch = document.getElementById('filter-branch').value;
+    const period = document.getElementById('filter-period').value;
+    const pompiste = document.getElementById('filter-pompiste').value;
+    
+    const params = new URLSearchParams();
+    if (branch !== 'all') params.append('branche_id', branch);
+    if (period !== 'all') params.append('period', period);
+    if (pompiste !== 'all') params.append('pompiste_id', pompiste);
+    
+    window.location.href = `/dashboard/api/manquants/export/excel/?${params.toString()}`;
+    showNotification('Export Excel en cours...', 'success');
+}
+
+// Modal controls
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+// Show notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+</script>
+{% endblock %}
