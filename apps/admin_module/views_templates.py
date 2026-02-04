@@ -772,15 +772,13 @@ class AbonnesListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
 
 
 class AbonneDetailView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """
-    Detailed view of a single abonné with consumptions history and pagination
-    """
+    """Detailed view of a subscriber with consumption history"""
     template_name = 'admin/abonne_detail.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        abonne_id = kwargs.get('abonne_id')
+        abonne_id = self.kwargs.get('abonne_id')
         
         # Get abonné
         try:
@@ -790,15 +788,16 @@ class AbonneDetailView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         
         context['abonne'] = abonne
         
-        # Get all consumptions for this abonné
-        # FIXED: Removed 'created_by' from select_related
+        # Get consumptions - NO VENTE FIELD
         consumptions_list = ConsommationAbonne.objects.filter(
             abonne=abonne
         ).select_related(
-            'branche', 'type_carburant'
+            'branche', 
+            'type_carburant'
         ).order_by('-created_at')
         
         # Pagination - 20 items per page
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         paginator = Paginator(consumptions_list, 20)
         page = self.request.GET.get('page', 1)
         
@@ -814,10 +813,11 @@ class AbonneDetailView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         # Total consumptions count
         context['total_consumptions'] = consumptions_list.count()
         
-        # Count unique branches where abonné consumed
+        # Count unique branches
         context['branches_count'] = consumptions_list.values('branche').distinct().count()
         
         # Current month consumption
+        from django.utils import timezone
         today = timezone.now().date()
         month_start = today.replace(day=1)
         
@@ -825,20 +825,20 @@ class AbonneDetailView(AdminRequiredMixin, AdminContextMixin, TemplateView):
             created_at__date__gte=month_start
         )
         
-        context['month_consumption_usd'] = month_consumptions.filter(
-            devise='USD'
-        ).aggregate(Sum('montant'))['montant__sum'] or 0
+        # Calculate month totals
+        context['month_consumption_usd'] = sum(
+            c.montant for c in month_consumptions if c.devise == 'USD'
+        )
         
-        context['month_consumption_fc'] = month_consumptions.filter(
-            devise='FC'
-        ).aggregate(Sum('montant'))['montant__sum'] or 0
+        context['month_consumption_fc'] = sum(
+            c.montant for c in month_consumptions if c.devise == 'FC'
+        )
         
         # Last consumption date
         last_consumption = consumptions_list.first()
         context['last_consumption_date'] = last_consumption.created_at.strftime('%d/%m/%Y') if last_consumption else None
         
         return context
-
 
 
 class UtilisateursListView(AdminRequiredMixin, AdminContextMixin, TemplateView):

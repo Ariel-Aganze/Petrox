@@ -1,0 +1,818 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}PETROX | Abonnés - Gestionnaire{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'manager_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'manager_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'manager_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'manager_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Abonnés</a>
+<a href="{% url 'manager_module:planning' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Planning</a>
+<a href="{% url 'manager_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'manager_module:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span class="text-xs mt-1">Dashboard</span>
+</a>
+<a href="{% url 'manager_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-xs mt-1">Ventes</span>
+</a>
+<a href="{% url 'manager_module:carburants' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>
+    <span class="text-xs mt-1">Stock</span>
+</a>
+<a href="{% url 'manager_module:abonnes' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <span class="text-xs mt-1">Abonnés</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Gestion des Abonnés
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Enregistrement des consommations et suivi - Branche: <span class="font-semibold">{{ branche.nom }}</span>
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <button onclick="openModal('consumption-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Enregistrer Consommation
+        </button>
+    </div>
+</div>
+
+<!-- Info Alert -->
+<div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-800">À propos des abonnés</h3>
+            <div class="mt-2 text-sm text-blue-700">
+                <p>Les abonnés peuvent consommer dans <strong>n'importe quelle branche</strong>. Vous voyez ici tous les abonnés du système, mais vous ne pouvez enregistrer des consommations que pour votre branche.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter & Search -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Recherche et Filtres</h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Search -->
+            <div class="lg:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
+                <input type="text" id="search-input" placeholder="Nom, code client, contact..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+            </div>
+            
+            <!-- Type Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Type d'abonnement</label>
+                <select id="type-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <option value="">Tous</option>
+                    <option value="prepaye">Prépayé</option>
+                    <option value="postpaye">Postpayé</option>
+                    <option value="credit">Crédit</option>
+                </select>
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                <select id="status-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <option value="">Tous</option>
+                    <option value="active">Solde positif</option>
+                    <option value="debt">En dette</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mt-4 flex justify-end space-x-3">
+            <button onclick="resetFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                Réinitialiser
+            </button>
+            <button onclick="applyFilters()" class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                Appliquer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Subscribers Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">Liste des Abonnés</h3>
+        <div class="text-sm text-gray-500">
+            Total: <span id="total-abonnes" class="font-semibold">0</span> abonné(s)
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entreprise</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code Client</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde USD</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde FC</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conso. Mois</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="abonnes-table-body">
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center">
+                        <svg class="animate-spin h-8 w-8 text-petrox-red mx-auto" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-500">Chargement des abonnés...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Record Consumption Modal -->
+<div id="consumption-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-900">Enregistrer une Consommation</h3>
+            <button onclick="closeModal('consumption-modal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <form id="consumption-form" class="mt-6" onsubmit="submitConsumption(event)">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Select Subscriber -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Abonné <span class="text-red-600">*</span>
+                    </label>
+                    <select id="consumption-subscriber" required onchange="updateSubscriberInfo()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner un abonné</option>
+                    </select>
+                    <div id="subscriber-info" class="hidden mt-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                        <!-- Subscriber info will be displayed here -->
+                    </div>
+                </div>
+
+                <!-- Pompiste -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Pompiste <span class="text-red-600">*</span>
+                    </label>
+                    <select id="consumption-pompiste" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner un pompiste</option>
+                        {% for pompiste in pompistes %}
+                        <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Fuel Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Type de Carburant <span class="text-red-600">*</span>
+                    </label>
+                    <select id="consumption-fuel" required onchange="calculateAmount()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner un carburant</option>
+                        {% for fuel in types_carburant %}
+                        <option value="{{ fuel.id }}" 
+                                data-price-usd="{{ fuel.prix_vente_usd|unlocalize }}" 
+                                data-price-fc="{{ fuel.prix_vente_fc|unlocalize }}">
+                            {{ fuel.nom }} (USD: ${{ fuel.prix_vente_usd|floatformat:2 }} | FC: {{ fuel.prix_vente_fc|floatformat:0 }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Quantity -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Quantité (Litres) <span class="text-red-600">*</span>
+                    </label>
+                    <input type="number" id="consumption-quantity" step="0.01" min="0.01" required 
+                           oninput="calculateAmount()"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
+                           placeholder="0.00">
+                </div>
+
+                <!-- Currency Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Devise de Paiement <span class="text-red-600">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center p-3 border-2 rounded cursor-pointer hover:border-petrox-red">
+                            <input type="radio" name="currency" value="USD" required onchange="calculateAmount()" class="h-4 w-4 text-petrox-red">
+                            <span class="ml-3 font-medium">USD ($)</span>
+                        </label>
+                        <label class="flex items-center p-3 border-2 rounded cursor-pointer hover:border-petrox-red">
+                            <input type="radio" name="currency" value="FC" required onchange="calculateAmount()" class="h-4 w-4 text-petrox-red">
+                            <span class="ml-3 font-medium">FC (Franc Congolais)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Calculated Amount (Read-only) -->
+                <div id="amount-display" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant Calculé</label>
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Montant total à payer:</p>
+                                <p id="calculated-amount" class="text-2xl font-bold text-petrox-red">$0.00</p>
+                            </div>
+                            <svg class="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div id="balance-impact" class="mt-3 pt-3 border-t border-blue-300 text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Moyen de Paiement <span class="text-red-600">*</span>
+                    </label>
+                    <select id="consumption-payment-method" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner</option>
+                        {% for method in moyens_paiement %}
+                        <option value="{{ method.id }}">{{ method.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Hidden fields for submission -->
+                <input type="hidden" id="final-amount-usd">
+                <input type="hidden" id="final-amount-fc">
+            </div>
+
+            <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-yellow-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700" id="subscriber-type-note">
+                            Sélectionnez un abonné pour voir le type de facturation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('consumption-modal')" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Annuler
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                    <span id="consumption-submit-text">Enregistrer Consommation</span>
+                    <span id="consumption-submit-loading" class="hidden">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Enregistrement...
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Subscriber Detail Modal -->
+<div id="subscriber-detail-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-900">Détails de l'Abonné</h3>
+            <button onclick="closeModal('subscriber-detail-modal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mt-6" id="subscriber-detail-content">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script>
+const csrfToken = '{{ csrf_token }}';
+let allSubscribers = [];
+let filteredSubscribers = [];
+let selectedSubscriber = null;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadSubscribers();
+});
+
+// Load subscribers
+function loadSubscribers() {
+    fetch('{% url "manager_module:abonnes_api" %}')
+        .then(r => r.json())
+        .then(data => {
+            if (data.abonnes) {
+                allSubscribers = data.abonnes;
+                filteredSubscribers = allSubscribers;
+                renderSubscribersTable(filteredSubscribers);
+                populateSubscriberDropdown(allSubscribers);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur de chargement des abonnés');
+        });
+}
+
+// Render table
+function renderSubscribersTable(subscribers) {
+    const tbody = document.getElementById('abonnes-table-body');
+    document.getElementById('total-abonnes').textContent = subscribers.length;
+    
+    if (subscribers.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center">
+                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p class="text-sm text-gray-500">Aucun abonné trouvé</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = subscribers.map(sub => {
+        const typeBadges = {
+            'prepaye': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Prépayé</span>',
+            'postpaye': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Postpayé</span>',
+            'credit': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Crédit</span>'
+        };
+        
+        const soldeUsdClass = parseFloat(sub.solde_usd) < 0 ? 'text-red-600 font-semibold' : 'text-gray-900';
+        const soldeFcClass = parseFloat(sub.solde_fc) < 0 ? 'text-red-600 font-semibold' : 'text-gray-900';
+        
+        return `
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewSubscriberDetail(${sub.id})">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sub.nom_entreprise}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sub.code_client}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${typeBadges[sub.type_abonnement]}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${sub.contact_nom}</div>
+                    <div class="text-xs text-gray-500">${sub.contact_telephone || 'N/A'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm ${soldeUsdClass}">
+                    $${parseFloat(sub.solde_usd).toFixed(2)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm ${soldeFcClass}">
+                    ${parseFloat(sub.solde_fc).toFixed(0)} FC
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${sub.branch_consumption ? sub.branch_consumption.transactions_count + ' txn(s)' : 'Aucune'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button onclick="event.stopPropagation(); recordConsumptionFor(${sub.id})" 
+                            class="text-petrox-red hover:text-petrox-hover font-medium">
+                        Consommation
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Populate dropdown
+function populateSubscriberDropdown(subscribers) {
+    const select = document.getElementById('consumption-subscriber');
+    select.innerHTML = '<option value="">Sélectionner un abonné</option>';
+    
+    subscribers.forEach(sub => {
+        const option = document.createElement('option');
+        option.value = sub.id;
+        option.textContent = `${sub.nom_entreprise} (${sub.code_client})`;
+        option.dataset.subscriber = JSON.stringify(sub);
+        select.appendChild(option);
+    });
+}
+
+// Update subscriber info when selected
+function updateSubscriberInfo() {
+    const select = document.getElementById('consumption-subscriber');
+    const infoDiv = document.getElementById('subscriber-info');
+    const noteP = document.getElementById('subscriber-type-note');
+    
+    if (!select.value) {
+        infoDiv.classList.add('hidden');
+        selectedSubscriber = null;
+        noteP.textContent = 'Sélectionnez un abonné pour voir le type de facturation.';
+        return;
+    }
+    
+    selectedSubscriber = allSubscribers.find(s => s.id == select.value);
+    
+    if (!selectedSubscriber) return;
+    
+    infoDiv.classList.remove('hidden');
+    infoDiv.innerHTML = `
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="text-gray-500">Type:</span>
+                <span class="font-semibold">${selectedSubscriber.type_abonnement_display}</span>
+            </div>
+            <div>
+                <span class="text-gray-500">Solde USD:</span>
+                <span class="font-semibold ${parseFloat(selectedSubscriber.solde_usd) < 0 ? 'text-red-600' : 'text-green-600'}">
+                    $${parseFloat(selectedSubscriber.solde_usd).toFixed(2)}
+                </span>
+            </div>
+            <div>
+                <span class="text-gray-500">Solde FC:</span>
+                <span class="font-semibold ${parseFloat(selectedSubscriber.solde_fc) < 0 ? 'text-red-600' : 'text-green-600'}">
+                    ${parseFloat(selectedSubscriber.solde_fc).toFixed(0)} FC
+                </span>
+            </div>
+            ${selectedSubscriber.type_abonnement === 'credit' ? `
+            <div>
+                <span class="text-gray-500">Limite crédit:</span>
+                <span class="font-semibold">$${parseFloat(selectedSubscriber.limite_credit || 0).toFixed(2)}</span>
+            </div>
+            ` : ''}
+        </div>
+    `;
+    
+    // Update note based on subscriber type
+    if (selectedSubscriber.type_abonnement === 'prepaye') {
+        noteP.innerHTML = '<strong>Prépayé:</strong> Le montant sera <strong>déduit du solde</strong> de l\'abonné. Solde actuel: <strong class="' + (parseFloat(selectedSubscriber.solde_usd) < 0 ? 'text-red-600' : 'text-green-600') + '">$' + parseFloat(selectedSubscriber.solde_usd).toFixed(2) + '</strong>';
+    } else if (selectedSubscriber.type_abonnement === 'postpaye') {
+        noteP.innerHTML = '<strong>Postpayé:</strong> Le montant sera <strong>ajouté à la dette</strong> de l\'abonné. Dette actuelle: <strong class="text-red-600">$' + Math.abs(parseFloat(selectedSubscriber.solde_usd)).toFixed(2) + '</strong>';
+    } else if (selectedSubscriber.type_abonnement === 'credit') {
+        const availableCredit = parseFloat(selectedSubscriber.limite_credit || 0) + parseFloat(selectedSubscriber.solde_usd);
+        noteP.innerHTML = '<strong>Crédit:</strong> Le montant sera <strong>déduit de la limite de crédit</strong>. Crédit disponible: <strong>$' + availableCredit.toFixed(2) + '</strong>';
+    }
+    
+    // Recalculate if other fields are filled
+    calculateAmount();
+}
+
+// Calculate amount based on quantity, fuel price, and currency
+function calculateAmount() {
+    const fuelSelect = document.getElementById('consumption-fuel');
+    const quantity = parseFloat(document.getElementById('consumption-quantity').value) || 0;
+    const currency = document.querySelector('input[name="currency"]:checked')?.value;
+    
+    const amountDisplay = document.getElementById('amount-display');
+    const calculatedAmount = document.getElementById('calculated-amount');
+    const balanceImpact = document.getElementById('balance-impact');
+    const finalAmountUSD = document.getElementById('final-amount-usd');
+    const finalAmountFC = document.getElementById('final-amount-fc');
+    
+    // Hide if not enough data
+    if (!fuelSelect.value || !quantity || !currency) {
+        amountDisplay.classList.add('hidden');
+        return;
+    }
+    
+    // Get fuel prices from selected option
+    const selectedOption = fuelSelect.options[fuelSelect.selectedIndex];
+    const priceUSD = parseFloat(selectedOption.dataset.priceUsd) || 0;
+    const priceFC = parseFloat(selectedOption.dataset.priceFc) || 0;
+    
+    // Calculate total amount
+    let totalAmount = 0;
+    let displayCurrency = '';
+    
+    if (currency === 'USD') {
+        totalAmount = priceUSD * quantity;
+        displayCurrency = '$' + totalAmount.toFixed(2);
+        finalAmountUSD.value = totalAmount.toFixed(2);
+        finalAmountFC.value = '0';
+    } else {
+        totalAmount = priceFC * quantity;
+        displayCurrency = totalAmount.toFixed(0) + ' FC';
+        finalAmountUSD.value = '0';
+        finalAmountFC.value = totalAmount.toFixed(0);
+    }
+    
+    // Show calculated amount
+    calculatedAmount.textContent = displayCurrency;
+    amountDisplay.classList.remove('hidden');
+    
+    // Show balance impact if subscriber is selected
+    if (selectedSubscriber && currency === 'USD') {
+        const currentBalance = parseFloat(selectedSubscriber.solde_usd);
+        let newBalance = 0;
+        let impactHTML = '';
+        
+        if (selectedSubscriber.type_abonnement === 'prepaye') {
+            newBalance = currentBalance - totalAmount;
+            impactHTML = `
+                <p class="text-gray-700">
+                    <strong>Impact sur le solde:</strong><br>
+                    Solde actuel: <span class="${currentBalance < 0 ? 'text-red-600' : 'text-green-600'} font-semibold">$${currentBalance.toFixed(2)}</span><br>
+                    Nouveau solde: <span class="${newBalance < 0 ? 'text-red-600' : 'text-green-600'} font-semibold">$${newBalance.toFixed(2)}</span>
+                </p>
+                ${newBalance < 0 ? '<p class="mt-2 text-red-600 font-semibold">⚠️ Solde insuffisant! Cette transaction mettra le compte en négatif.</p>' : ''}
+            `;
+        } else if (selectedSubscriber.type_abonnement === 'postpaye') {
+            newBalance = currentBalance - totalAmount;
+            impactHTML = `
+                <p class="text-gray-700">
+                    <strong>Impact sur la dette:</strong><br>
+                    Dette actuelle: <span class="text-red-600 font-semibold">$${Math.abs(currentBalance).toFixed(2)}</span><br>
+                    Nouvelle dette: <span class="text-red-600 font-semibold">$${Math.abs(newBalance).toFixed(2)}</span>
+                </p>
+            `;
+        } else if (selectedSubscriber.type_abonnement === 'credit') {
+            const creditLimit = parseFloat(selectedSubscriber.limite_credit || 0);
+            const availableCredit = creditLimit + currentBalance;
+            const newAvailableCredit = availableCredit - totalAmount;
+            
+            impactHTML = `
+                <p class="text-gray-700">
+                    <strong>Impact sur le crédit:</strong><br>
+                    Crédit disponible: <span class="font-semibold">$${availableCredit.toFixed(2)}</span><br>
+                    Après transaction: <span class="font-semibold">$${newAvailableCredit.toFixed(2)}</span>
+                </p>
+                ${newAvailableCredit < 0 ? '<p class="mt-2 text-red-600 font-semibold">⚠️ Crédit insuffisant! Cette transaction dépassera la limite de crédit.</p>' : ''}
+            `;
+        }
+        
+        balanceImpact.innerHTML = impactHTML;
+    } else if (selectedSubscriber && currency === 'FC') {
+        const currentBalance = parseFloat(selectedSubscriber.solde_fc);
+        let newBalance = 0;
+        let impactHTML = '';
+        
+        if (selectedSubscriber.type_abonnement === 'prepaye') {
+            newBalance = currentBalance - totalAmount;
+            impactHTML = `
+                <p class="text-gray-700">
+                    <strong>Impact sur le solde FC:</strong><br>
+                    Solde actuel: <span class="${currentBalance < 0 ? 'text-red-600' : 'text-green-600'} font-semibold">${currentBalance.toFixed(0)} FC</span><br>
+                    Nouveau solde: <span class="${newBalance < 0 ? 'text-red-600' : 'text-green-600'} font-semibold">${newBalance.toFixed(0)} FC</span>
+                </p>
+                ${newBalance < 0 ? '<p class="mt-2 text-red-600 font-semibold">⚠️ Solde insuffisant! Cette transaction mettra le compte en négatif.</p>' : ''}
+            `;
+        } else if (selectedSubscriber.type_abonnement === 'postpaye') {
+            newBalance = currentBalance - totalAmount;
+            impactHTML = `
+                <p class="text-gray-700">
+                    <strong>Impact sur la dette FC:</strong><br>
+                    Dette actuelle: <span class="text-red-600 font-semibold">${Math.abs(currentBalance).toFixed(0)} FC</span><br>
+                    Nouvelle dette: <span class="text-red-600 font-semibold">${Math.abs(newBalance).toFixed(0)} FC</span>
+                </p>
+            `;
+        }
+        
+        balanceImpact.innerHTML = impactHTML;
+    } else {
+        balanceImpact.innerHTML = '<p class="text-gray-500 text-sm">Sélectionnez un abonné pour voir l\'impact sur le solde.</p>';
+    }
+}
+
+// Record consumption for specific subscriber
+function recordConsumptionFor(subscriberId) {
+    document.getElementById('consumption-subscriber').value = subscriberId;
+    updateSubscriberInfo();
+    openModal('consumption-modal');
+}
+
+// Submit consumption
+function submitConsumption(e) {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const btnText = document.getElementById('consumption-submit-text');
+    const btnLoading = document.getElementById('consumption-submit-loading');
+    
+    // Validate subscriber is selected
+    if (!selectedSubscriber) {
+        alert('Veuillez sélectionner un abonné');
+        return;
+    }
+    
+    // Validate currency is selected
+    const currency = document.querySelector('input[name="currency"]:checked');
+    if (!currency) {
+        alert('Veuillez sélectionner une devise');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    btnText.classList.add('hidden');
+    btnLoading.classList.remove('hidden');
+    
+    const data = {
+        abonne_id: document.getElementById('consumption-subscriber').value,
+        pompiste_id: document.getElementById('consumption-pompiste').value,
+        fuel_type_id: document.getElementById('consumption-fuel').value,
+        quantity: parseFloat(document.getElementById('consumption-quantity').value),
+        currency: currency.value,
+        payment_method_id: document.getElementById('consumption-payment-method').value,
+        amount_usd: parseFloat(document.getElementById('final-amount-usd').value) || 0,
+        amount_fc: parseFloat(document.getElementById('final-amount-fc').value) || 0
+    };
+    
+    fetch('{% url "manager_module:record_consumption" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Consommation enregistrée avec succès!\n\n' + data.message);
+            closeModal('consumption-modal');
+            document.getElementById('consumption-form').reset();
+            document.getElementById('subscriber-info').classList.add('hidden');
+            document.getElementById('amount-display').classList.add('hidden');
+            selectedSubscriber = null;
+            loadSubscribers();
+        } else {
+            alert('❌ Erreur: ' + (data.message || 'Impossible d\'enregistrer la consommation'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ Erreur de connexion au serveur');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        btnText.classList.remove('hidden');
+        btnLoading.classList.add('hidden');
+    });
+}
+
+// View subscriber detail
+function viewSubscriberDetail(subscriberId) {
+    openModal('subscriber-detail-modal');
+    
+    const content = document.getElementById('subscriber-detail-content');
+    content.innerHTML = '<p class="text-center py-8 text-gray-500">Chargement...</p>';
+    
+    fetch(`{% url 'manager_module:abonne_detail' 0 %}`.replace('0', subscriberId))
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                renderSubscriberDetail(data.data);
+            } else {
+                content.innerHTML = `<p class="text-center py-8 text-red-500">${data.message}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = '<p class="text-center py-8 text-red-500">Erreur de chargement</p>';
+        });
+}
+
+// Render subscriber detail
+function renderSubscriberDetail(sub) {
+    const content = document.getElementById('subscriber-detail-content');
+    
+    content.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Informations</h4>
+                <dl class="space-y-2 text-sm">
+                    <div><dt class="text-gray-500">Code:</dt><dd class="font-semibold">${sub.code_client}</dd></div>
+                    <div><dt class="text-gray-500">Type:</dt><dd>${sub.type_abonnement_display}</dd></div>
+                    <div><dt class="text-gray-500">Contact:</dt><dd>${sub.contact_nom}</dd></div>
+                    <div><dt class="text-gray-500">Téléphone:</dt><dd>${sub.contact_telephone || 'N/A'}</dd></div>
+                </dl>
+            </div>
+            
+            <div class="bg-green-50 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-green-800 mb-2">Solde USD</h4>
+                <p class="text-3xl font-bold ${parseFloat(sub.solde_usd) < 0 ? 'text-red-600' : 'text-green-600'}">
+                    $${parseFloat(sub.solde_usd).toFixed(2)}
+                </p>
+            </div>
+            
+            <div class="bg-blue-50 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-blue-800 mb-2">Solde FC</h4>
+                <p class="text-3xl font-bold ${parseFloat(sub.solde_fc) < 0 ? 'text-red-600' : 'text-blue-600'}">
+                    ${parseFloat(sub.solde_fc).toFixed(0)} FC
+                </p>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+            <h4 class="text-lg font-medium text-gray-900 mb-4">Consommations dans cette branche</h4>
+            ${sub.consumption_this_branch && sub.consumption_this_branch.length > 0 ? `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Date</th>
+                                <th class="px-4 py-2 text-left">Carburant</th>
+                                <th class="px-4 py-2 text-right">Montant USD</th>
+                                <th class="px-4 py-2 text-right">Montant FC</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${sub.consumption_this_branch.map(c => `
+                                <tr>
+                                    <td class="px-4 py-2">${c.date}</td>
+                                    <td class="px-4 py-2">${c.fuel}</td>
+                                    <td class="px-4 py-2 text-right">$${parseFloat(c.amount_usd).toFixed(2)}</td>
+                                    <td class="px-4 py-2 text-right">${parseFloat(c.amount_fc).toFixed(0)} FC</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            ` : '<p class="text-gray-500 text-center py-4">Aucune consommation dans cette branche</p>'}
+        </div>
+    `;
+}
+
+// Apply filters
+function applyFilters() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const typeFilter = document.getElementById('type-filter').value;
+    const statusFilter = document.getElementById('status-filter').value;
+    
+    filteredSubscribers = allSubscribers.filter(sub => {
+        const matchesSearch = !searchTerm || 
+            sub.nom_entreprise.toLowerCase().includes(searchTerm) ||
+            sub.code_client.toLowerCase().includes(searchTerm) ||
+            sub.contact_nom.toLowerCase().includes(searchTerm);
+        
+        const matchesType = !typeFilter || sub.type_abonnement === typeFilter;
+        
+        const matchesStatus = !statusFilter || 
+            (statusFilter === 'active' && parseFloat(sub.solde_usd) >= 0 && parseFloat(sub.solde_fc) >= 0) ||
+            (statusFilter === 'debt' && (parseFloat(sub.solde_usd) < 0 || parseFloat(sub.solde_fc) < 0));
+        
+        return matchesSearch && matchesType && matchesStatus;
+    });
+    
+    renderSubscribersTable(filteredSubscribers);
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('type-filter').value = '';
+    document.getElementById('status-filter').value = '';
+    filteredSubscribers = allSubscribers;
+    renderSubscribersTable(filteredSubscribers);
+}
+
+// Modal functions
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+</script>
+{% endblock %}

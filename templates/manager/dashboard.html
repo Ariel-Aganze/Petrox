@@ -1,666 +1,452 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block title %}PETROX | Dashboard Gestionnaire{% endblock %}
 
 {% block desktop_nav %}
 <a href="{% url 'manager_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Dashboard</a>
-<a href="#" onclick="toggleModal('ventes-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
-<a href="#" onclick="toggleModal('stock-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Stock</a>
-<a href="#" onclick="toggleModal('livraisons-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Livraisons</a>
-<a href="#" onclick="toggleModal('planning-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Planning</a>
-<a href="#" onclick="toggleModal('abonnes-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
-<a href="#" onclick="toggleModal('documents-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'manager_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'manager_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'manager_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'manager_module:planning' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Planning</a>
+<a href="{% url 'manager_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
 {% endblock %}
 
-{% block mobile_nav %}
-<a href="{% url 'manager_module:dashboard' %}" class="mobile-nav-item mobile-nav-active">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+{% block mobile_bottom_nav %}
+<a href="{% url 'manager_module:dashboard' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
     </svg>
-    <span>Dashboard</span>
+    <span class="text-xs mt-1">Dashboard</span>
 </a>
-<a href="#" onclick="toggleModal('ventes-modal')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="{% url 'manager_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
-    <span>Ventes</span>
+    <span class="text-xs mt-1">Ventes</span>
 </a>
-<a href="#" onclick="toggleModal('stock-modal')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="{% url 'manager_module:carburants' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
     </svg>
-    <span>Stock</span>
+    <span class="text-xs mt-1">Stock</span>
 </a>
-<a href="#" onclick="toggleModal('livraisons-modal')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span>Livraisons</span>
-</a>
-<a href="#" onclick="toggleModal('planning-modal')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<a href="{% url 'manager_module:planning' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
-    <span>Planning</span>
+    <span class="text-xs mt-1">Planning</span>
 </a>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
-    <!-- Header Section -->
-    <div class="md:flex md:items-center md:justify-between mb-8">
-        <div class="flex-1 min-w-0">
-            <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
-                Dashboard Gestionnaire
-            </h2>
-            <p class="mt-1 text-sm text-gray-500">
-                Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span>
-            </p>
-        </div>
-        <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
-            <button onclick="toggleModal('vente-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
-                + Nouvelle Vente
-            </button>
-            <button onclick="toggleModal('livraison-modal')" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
-                Confirmer Livraison
-            </button>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Dashboard Opérationnel
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Branche: <span class="font-semibold">{{ branche.nom }}</span> ({{ branche.code }})
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <button onclick="openModal('create-sale-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nouvelle Vente
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Card 1: Ventes USD -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="rounded-md bg-green-100 p-3">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Ventes USD</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-ventes-usd">
+                                ${{ stats.ventes_today_usd|floatformat:2 }}
+                            </div>
+                        </dd>
+                        <dt class="text-xs text-gray-400 mt-1">Aujourd'hui</dt>
+                    </dl>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- KPI Cards Grid -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <!-- Ventes du jour -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+    <!-- Card 2: Ventes FC -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="rounded-md bg-blue-100 p-3">
                         <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Ventes Aujourd'hui</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="sales-today">$0.00</div>
-                            </dd>
-                        </dl>
-                    </div>
                 </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500" id="transactions-count">0 transactions</span>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Ventes FC</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-ventes-fc">
+                                {{ stats.ventes_today_fc|floatformat:0 }} FC
+                            </div>
+                        </dd>
+                        <dt class="text-xs text-gray-400 mt-1">Aujourd'hui</dt>
+                    </dl>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- En attente validation -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+    <!-- Card 3: En attente -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="rounded-md bg-yellow-100 p-3">
                         <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">En Attente</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="pending-validations">0</div>
-                            </dd>
-                        </dl>
-                    </div>
                 </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500">Validations caissier</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stock Total -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Stock Total</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="total-stock">0 L</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500" id="stock-status">Normal</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pompistes Actifs -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Pompistes</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="active-pompistes">0</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500" id="shift-info">Service jour</span>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">En attente</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-pending">
+                                {{ stats.pending_validation }}
+                            </div>
+                        </dd>
+                        <dt class="text-xs text-gray-400 mt-1">Validation caissier</dt>
+                    </dl>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts and Tables -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        
-        <!-- Ventes Chart -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Ventes par Carburant</h3>
-                <select id="sales-period" class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red">
-                    <option value="today">Aujourd'hui</option>
-                    <option value="week">Cette Semaine</option>
-                    <option value="month">Ce Mois</option>
-                </select>
-            </div>
-            <div class="h-64" id="fuel-sales-chart">
-                <!-- Chart will be rendered here -->
-                <div class="flex items-center justify-center h-full text-gray-500">
-                    Graphique des ventes par carburant
+    <!-- Card 4: Alertes Stock -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="rounded-md bg-red-100 p-3">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Alertes Stock</dt>
+                        <dd class="flex items-baseline">
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-alerts">
+                                {{ stock_alerts }}
+                            </div>
+                        </dd>
+                        <dt class="text-xs text-gray-400 mt-1">Niveaux bas</dt>
+                    </dl>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Stock par Carburant -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">État du Stock</h3>
-                <button onclick="refreshStock()" class="text-petrox-red hover:text-petrox-hover text-sm font-medium">
-                    Actualiser
+<!-- Charts & Stock -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Sales Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Évolution des Ventes</h3>
+                <div class="flex space-x-2">
+                    <select id="chart-period" onchange="updateChart()" class="text-sm border-gray-300 rounded-md">
+                        <option value="today">Aujourd'hui</option>
+                        <option value="week" selected>Semaine</option>
+                        <option value="month">Mois</option>
+                    </select>
+                    <select id="chart-currency" onchange="updateChart()" class="text-sm border-gray-300 rounded-md">
+                        <option value="USD" selected>USD</option>
+                        <option value="FC">FC</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <canvas id="sales-chart" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Stock Levels -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Niveaux de Stock</h3>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for stock in stocks %}
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-gray-700">{{ stock.type_carburant.nom }}</span>
+                        <span class="{% if stock.quantite_actuelle <= stock.seuil_alerte %}text-red-600{% else %}text-green-600{% endif %} font-semibold">
+                            {{ stock.quantite_actuelle|floatformat:0 }} L
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        {% widthratio stock.quantite_actuelle stock.capacite_max 100 as percentage %}
+                        <div class="h-2 rounded-full {% if stock.quantite_actuelle <= stock.seuil_alerte %}bg-red-600{% else %}bg-green-600{% endif %}" 
+                             style="width: {{ percentage }}%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Seuil: {{ stock.seuil_alerte|floatformat:0 }} L</span>
+                        <span>Max: {{ stock.capacite_max|floatformat:0 }} L</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-sm text-gray-500 text-center py-8">Aucun stock configuré</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pompiste</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carburant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="transactions-body">
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Chargement...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Sale Modal -->
+<div id="create-sale-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b">
+            <h3 class="text-xl font-semibold text-gray-900">Enregistrer une Vente</h3>
+            <button onclick="closeModal('create-sale-modal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <form id="create-sale-form" class="mt-4" onsubmit="submitSale(event)">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pompiste *</label>
+                    <select id="sale-pompiste" required class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="">Sélectionner</option>
+                        {% for pompiste in pompistes %}
+                        <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Carburant *</label>
+                    <select id="sale-fuel-type" required class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="">Sélectionner</option>
+                        {% for fuel in types_carburant %}
+                        <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Quantité (L) *</label>
+                    <input type="number" id="sale-quantity" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Moyen de Paiement *</label>
+                    <select id="sale-payment-method" required class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="">Sélectionner</option>
+                        {% for method in moyens_paiement %}
+                        <option value="{{ method.id }}">{{ method.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Montant USD</label>
+                    <input type="number" id="sale-amount-usd" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Montant FC</label>
+                    <input type="number" id="sale-amount-fc" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('create-sale-modal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                    Annuler
+                </button>
+                <button type="submit" class="px-4 py-2 bg-petrox-red text-white rounded-md hover:bg-petrox-hover">
+                    Enregistrer
                 </button>
             </div>
-            <div class="space-y-3" id="stock-list">
-                <!-- Stock items will be loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Sales Table -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">Ventes Récentes</h3>
-            <div class="flex space-x-2">
-                <button onclick="filterSales('all')" class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">Toutes</button>
-                <button onclick="filterSales('pending')" class="px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">En Attente</button>
-                <button onclick="filterSales('validated')" class="px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Validées</button>
-            </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pompiste</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carburant</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="sales-table-body">
-                    <!-- Sales will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block modals %}
-<!-- Nouvelle Vente Modal -->
-<div id="vente-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('vente-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-            <form id="vente-form" onsubmit="registerSale(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Enregistrer une Vente</h3>
-                            <div class="mt-4 space-y-4">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Pompiste</label>
-                                        <select name="pompiste" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                            <option value="">Sélectionner un pompiste</option>
-                                            <!-- Pompistes will be loaded dynamically -->
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Type de Carburant</label>
-                                        <select name="type_carburant" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                            <option value="">Sélectionner un carburant</option>
-                                            {% for carburant in types_carburant %}
-                                                <option value="{{ carburant.id }}">{{ carburant.nom }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Quantité (Litres)</label>
-                                        <input type="number" step="0.01" name="quantite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Moyen de Paiement</label>
-                                        <select name="moyen_paiement" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                            <option value="cash">Espèces</option>
-                                            <option value="om">Orange Money</option>
-                                            <option value="am">Airtel Money</option>
-                                            <option value="mpesa">M-Pesa</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="border-t border-gray-200 pt-4">
-                                    <h4 class="text-sm font-medium text-gray-900 mb-3">Montants</h4>
-                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Montant USD</label>
-                                            <input type="number" step="0.01" name="montant_usd" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Montant FC</label>
-                                            <input type="number" step="0.01" name="montant_fc" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Abonné (Optionnel)</label>
-                                    <select name="abonne" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                        <option value="">Vente au comptant</option>
-                                        <!-- Abonnés will be loaded dynamically -->
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Observations</label>
-                                    <textarea name="observations" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Observations..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red sm:ml-3 sm:w-auto sm:text-sm">
-                        Enregistrer la Vente
-                    </button>
-                    <button type="button" onclick="closeModal('vente-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Annuler
-                    </button>
-                </div>
-            </form>
-        </div>
+        </form>
     </div>
 </div>
 
-<!-- Confirmer Livraison Modal -->
-<div id="livraison-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('livraison-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="livraison-form" onsubmit="confirmDelivery(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Confirmer une Livraison</h3>
-                            <div class="mt-4 space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Type de Carburant</label>
-                                    <select name="type_carburant" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                        <option value="">Sélectionner un carburant</option>
-                                        {% for carburant in types_carburant %}
-                                            <option value="{{ carburant.id }}">{{ carburant.nom }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Quantité Livrée (Litres)</label>
-                                    <input type="number" step="0.01" name="quantite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Fournisseur</label>
-                                    <select name="fournisseur" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                        <option value="">Sélectionner un fournisseur</option>
-                                        <option value="interne">Fournisseur Interne</option>
-                                        <option value="externe">Fournisseur Externe</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Référence Document</label>
-                                    <input type="text" name="reference" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="BON-001">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Date de Livraison</label>
-                                    <input type="datetime-local" name="date_livraison" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Notes</label>
-                                    <textarea name="notes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Notes sur la livraison..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Confirmer Livraison
-                    </button>
-                    <button type="button" onclick="closeModal('livraison-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Annuler
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-// Manager Dashboard JavaScript
+const csrfToken = '{{ csrf_token }}';
+let salesChart;
+
 document.addEventListener('DOMContentLoaded', function() {
-    loadManagerDashboard();
-    setupEventListeners();
+    initializeChart();
+    loadRecentTransactions();
+    setInterval(refreshDashboard, 30000);
 });
 
-function loadManagerDashboard() {
-    fetch('/manager/api/stats/')
-        .then(response => response.json())
-        .then(data => {
-            updateManagerKPIs(data);
-            loadRecentSales();
-            loadStockData();
-        })
-        .catch(error => {
-            console.error('Erreur chargement dashboard manager:', error);
-        });
-}
-
-function updateManagerKPIs(data) {
-    document.getElementById('sales-today').textContent = `$${data.total_sales_today || '0.00'}`;
-    document.getElementById('pending-validations').textContent = data.pending_validations || '0';
-    document.getElementById('total-stock').textContent = `${data.total_stock || '0'} L`;
-    document.getElementById('active-pompistes').textContent = data.active_pompistes || '0';
-    document.getElementById('transactions-count').textContent = `${data.transactions_count || '0'} transactions`;
-    document.getElementById('stock-status').textContent = data.stock_status || 'Normal';
-    document.getElementById('shift-info').textContent = data.current_shift || 'Service jour';
-}
-
-function loadRecentSales() {
-    fetch('/manager/api/sales/')
-        .then(response => response.json())
-        .then(data => {
-            updateSalesTable(data.sales);
-        })
-        .catch(error => {
-            console.error('Erreur chargement ventes:', error);
-        });
-}
-
-function updateSalesTable(sales) {
-    const tbody = document.getElementById('sales-table-body');
-    tbody.innerHTML = '';
-    
-    sales.forEach(sale => {
-        const row = `
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.time}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.pompiste}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.carburant}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.quantite} L</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sale.montant}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(sale.statut)}">
-                        ${sale.statut}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${sale.statut === 'En attente' ? 
-                        '<button class="text-petrox-red hover:text-petrox-hover">Modifier</button>' : 
-                        '<span class="text-gray-400">-</span>'
-                    }
-                </td>
-            </tr>
-        `;
-        tbody.insertAdjacentHTML('beforeend', row);
-    });
-}
-
-function loadStockData() {
-    fetch('/manager/api/stock/')
-        .then(response => response.json())
-        .then(data => {
-            updateStockDisplay(data.stock_items);
-        })
-        .catch(error => {
-            console.error('Erreur chargement stock:', error);
-        });
-}
-
-function updateStockDisplay(stockItems) {
-    const container = document.getElementById('stock-list');
-    container.innerHTML = '';
-    
-    stockItems.forEach(item => {
-        const stockItem = `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div class="flex items-center">
-                    <div class="h-3 w-3 rounded-full mr-3" style="background-color: ${item.color}"></div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-900">${item.name}</p>
-                        <p class="text-xs text-gray-500">Seuil: ${item.seuil_alerte} L</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <p class="text-sm font-bold ${item.quantity < item.seuil_alerte ? 'text-red-600' : 'text-gray-900'}">
-                        ${item.quantity} L
-                    </p>
-                    <p class="text-xs ${item.quantity < item.seuil_alerte ? 'text-red-500' : 'text-gray-500'}">
-                        ${item.percentage}%
-                    </p>
-                </div>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', stockItem);
-    });
-}
-
-function registerSale(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const saleData = Object.fromEntries(formData);
-    
-    fetch('/manager/api/sales/register/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+function initializeChart() {
+    const ctx = document.getElementById('sales-chart').getContext('2d');
+    salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Ventes',
+                data: [],
+                borderColor: '#DC2626',
+                backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                tension: 0.4
+            }]
         },
-        body: JSON.stringify(saleData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal('vente-modal');
-            showNotification('Vente enregistrée avec succès', 'success');
-            loadRecentSales();
-            loadManagerDashboard();
-        } else {
-            showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur enregistrement vente:', error);
-        showNotification('Erreur lors de l\'enregistrement de la vente', 'error');
-    });
-}
-
-function confirmDelivery(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const deliveryData = Object.fromEntries(formData);
-    
-    fetch('/manager/api/delivery/confirm/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(deliveryData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal('livraison-modal');
-            showNotification('Livraison confirmée avec succès', 'success');
-            loadStockData();
-            loadManagerDashboard();
-        } else {
-            showNotification(data.message || 'Erreur lors de la confirmation', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur confirmation livraison:', error);
-        showNotification('Erreur lors de la confirmation de livraison', 'error');
-    });
-}
-
-function filterSales(filter) {
-    // Update active filter button
-    document.querySelectorAll('[onclick^="filterSales"]').forEach(btn => {
-        btn.className = btn.className.replace('bg-gray-100 text-gray-700', 'text-gray-500 hover:bg-gray-100');
-    });
-    event.target.className = event.target.className.replace('text-gray-500 hover:bg-gray-100', 'bg-gray-100 text-gray-700');
-    
-    // Filter sales table
-    const rows = document.querySelectorAll('#sales-table-body tr');
-    rows.forEach(row => {
-        const status = row.querySelector('span').textContent.trim().toLowerCase();
-        if (filter === 'all' || 
-            (filter === 'pending' && status.includes('attente')) ||
-            (filter === 'validated' && (status.includes('validé') || status.includes('complété')))) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
         }
     });
+    updateChart();
 }
 
-function refreshStock() {
-    loadStockData();
-    showNotification('Stock actualisé', 'success');
-}
-
-function setupEventListeners() {
-    // Set current datetime for delivery form
-    const now = new Date();
-    const dateTimeInput = document.querySelector('input[name="date_livraison"]');
-    if (dateTimeInput) {
-        dateTimeInput.value = now.toISOString().slice(0, 16);
-    }
-}
-
-function getStatusClass(status) {
-    switch(status.toLowerCase()) {
-        case 'validé':
-        case 'complété':
-            return 'bg-green-100 text-green-800';
-        case 'en attente':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'rejeté':
-            return 'bg-red-100 text-red-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
-}
-
-function showNotification(message, type) {
-    // Simple notification implementation
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
-        'bg-red-100 text-red-800 border border-red-200'
-    }`;
-    notification.textContent = message;
+function updateChart() {
+    const period = document.getElementById('chart-period').value;
+    const currency = document.getElementById('chart-currency').value;
     
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+    fetch(`{% url 'manager_module:chart_data' %}?period=${period}&currency=${currency}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                salesChart.data.labels = data.data.labels;
+                salesChart.data.datasets = data.data.datasets;
+                salesChart.update();
             }
+        });
+}
+
+function loadRecentTransactions() {
+    fetch('{% url "manager_module:recent_transactions" %}?limit=10')
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.getElementById('transactions-body');
+            tbody.innerHTML = '';
+            
+            if (!data.success || data.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Aucune transaction</td></tr>';
+                return;
+            }
+            
+            data.data.forEach(t => {
+                const statusBadges = {
+                    'en_attente': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">En attente</span>',
+                    'validee': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Validée</span>',
+                    'rejetee': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejetée</span>',
+                    'manquant': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Manquant</span>'
+                };
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.pompiste}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.fuel}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.quantity.toFixed(2)} L</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${t.amount.toFixed(2)} ${t.currency}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${statusBadges[t.status]}</td>
+                    </tr>
+                `;
+            });
+        });
+}
+
+function submitSale(e) {
+    e.preventDefault();
+    
+    const data = {
+        pompiste_id: document.getElementById('sale-pompiste').value,
+        fuel_type_id: document.getElementById('sale-fuel-type').value,
+        quantity: document.getElementById('sale-quantity').value,
+        payment_method_id: document.getElementById('sale-payment-method').value,
+        amount_usd: document.getElementById('sale-amount-usd').value || 0,
+        amount_fc: document.getElementById('sale-amount-fc').value || 0
+    };
+    
+    fetch('{% url "manager_module:create_vente" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Vente enregistrée avec succès', 'success');
+            closeModal('create-sale-modal');
+            document.getElementById('create-sale-form').reset();
+            refreshDashboard();
+        } else {
+            showToast(data.message || 'Erreur', 'error');
         }
-    }
-    return cookieValue;
+    });
+}
+
+function refreshDashboard() {
+    loadRecentTransactions();
+    updateChart();
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
 }
 </script>
 {% endblock %}
