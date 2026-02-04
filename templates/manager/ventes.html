@@ -1,0 +1,755 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}PETROX | Ventes - Gestionnaire{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'manager_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'manager_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Ventes</a>
+<a href="{% url 'manager_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'manager_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'manager_module:planning' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Planning</a>
+<a href="{% url 'manager_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'manager_module:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span class="text-xs mt-1">Dashboard</span>
+</a>
+<a href="{% url 'manager_module:ventes' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-xs mt-1">Ventes</span>
+</a>
+<a href="{% url 'manager_module:carburants' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>
+    <span class="text-xs mt-1">Stock</span>
+</a>
+<a href="{% url 'manager_module:planning' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+    <span class="text-xs mt-1">Planning</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Gestion des Ventes
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Enregistrement et suivi des ventes - Branche: <span class="font-semibold">{{ branche.nom }}</span>
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <button onclick="openModal('create-sale-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Enregistrer une Vente
+        </button>
+    </div>
+</div>
+
+<!-- Filters Section -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Filtres</h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <!-- Date Début -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date Début</label>
+                <input type="date" id="filter-start-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+            </div>
+            
+            <!-- Date Fin -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date Fin</label>
+                <input type="date" id="filter-end-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+            </div>
+            
+            <!-- Type de Carburant -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Carburant</label>
+                <select id="filter-fuel" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <option value="">Tous</option>
+                    {% for fuel in types_carburant %}
+                    <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Pompiste -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Pompiste</label>
+                <select id="filter-pompiste" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <option value="">Tous</option>
+                    {% for pompiste in pompistes %}
+                    <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Statut -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <option value="">Tous</option>
+                    <option value="en_attente">En attente</option>
+                    <option value="validee">Validée</option>
+                    <option value="manquant">Manquant</option>
+                    <option value="rejetee">Rejetée</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mt-4 flex justify-end space-x-3">
+            <button onclick="resetFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                Réinitialiser
+            </button>
+            <button onclick="applyFilters()" class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                Appliquer les filtres
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">Liste des Ventes</h3>
+        <div class="text-sm text-gray-500">
+            Total: <span id="total-sales" class="font-semibold">0</span> vente(s)
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pompiste</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Carburant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant USD</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant FC</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moyen Paiement</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="sales-table-body">
+                <tr>
+                    <td colspan="9" class="px-6 py-12 text-center">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="text-sm text-gray-500">Chargement des ventes...</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="flex-1 flex justify-between sm:hidden">
+            <button onclick="previousPage()" id="btn-prev-mobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Précédent
+            </button>
+            <button onclick="nextPage()" id="btn-next-mobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Suivant
+            </button>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Affichage <span class="font-medium" id="page-start">0</span> à <span class="font-medium" id="page-end">0</span> sur <span class="font-medium" id="page-total">0</span> résultats
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="pagination-controls">
+                    <!-- Pagination buttons will be inserted here -->
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Sale Modal -->
+<div id="create-sale-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-900">Enregistrer une Vente</h3>
+            <button onclick="closeModal('create-sale-modal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <form id="create-sale-form" class="mt-6" onsubmit="submitSale(event)">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Pompiste -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Pompiste <span class="text-red-600">*</span>
+                    </label>
+                    <select id="sale-pompiste" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner un pompiste</option>
+                        {% for pompiste in pompistes %}
+                        <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Type de Carburant -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Type de Carburant <span class="text-red-600">*</span>
+                    </label>
+                    <select id="sale-fuel-type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner un carburant</option>
+                        {% for fuel in types_carburant %}
+                        <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Quantité -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Quantité (Litres) <span class="text-red-600">*</span>
+                    </label>
+                    <input type="number" id="sale-quantity" step="0.01" min="0.01" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
+                           placeholder="0.00">
+                </div>
+
+                <!-- Moyen de Paiement -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Moyen de Paiement <span class="text-red-600">*</span>
+                    </label>
+                    <select id="sale-payment-method" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner</option>
+                        {% for method in moyens_paiement %}
+                        <option value="{{ method.id }}">{{ method.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Montant USD -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Montant USD
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" id="sale-amount-usd" step="0.01" min="0" 
+                               class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
+                               placeholder="0.00">
+                    </div>
+                </div>
+
+                <!-- Montant FC -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Montant FC
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">FC</span>
+                        </div>
+                        <input type="number" id="sale-amount-fc" step="0.01" min="0" 
+                               class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
+                               placeholder="0.00">
+                    </div>
+                </div>
+
+                <!-- Abonné (optionnel) -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Abonné (optionnel)
+                    </label>
+                    <select id="sale-subscriber" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Client standard (pas d'abonné)</option>
+                        <!-- Will be populated via AJAX -->
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Si le client est un abonné, sélectionnez-le dans la liste</p>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            <strong>Note importante:</strong> Cette vente sera enregistrée avec le statut "En attente de validation". 
+                            Le caissier devra la valider après comptage de l'argent physique.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('create-sale-modal')" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Annuler
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                    <span id="submit-btn-text">Enregistrer la vente</span>
+                    <span id="submit-btn-loading" class="hidden">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Enregistrement...
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Sale Detail Modal -->
+<div id="sale-detail-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-900">Détails de la Vente</h3>
+            <button onclick="closeModal('sale-detail-modal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mt-6" id="sale-detail-content">
+            <!-- Content will be loaded here -->
+            <div class="text-center py-8">
+                <svg class="animate-spin h-8 w-8 text-petrox-red mx-auto" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-2 text-sm text-gray-500">Chargement...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const csrfToken = '{{ csrf_token }}';
+let currentPage = 1;
+let totalPages = 1;
+let filters = {
+    start_date: '',
+    end_date: '',
+    fuel_type_id: '',
+    pompiste_id: '',
+    status: ''
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadSales();
+    loadSubscribers();
+});
+
+// Load sales with current filters and pagination
+function loadSales(page = 1) {
+    currentPage = page;
+    
+    // Build query string
+    const params = new URLSearchParams({
+        page: currentPage,
+        per_page: 20,
+        ...filters
+    });
+    
+    fetch(`{% url 'manager_module:ventes_api' %}?${params}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                renderSalesTable(data.data);
+                updatePagination(data.pagination);
+            } else {
+                showNotification('Erreur lors du chargement', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur de connexion', 'error');
+        });
+}
+
+// Render sales table
+function renderSalesTable(sales) {
+    const tbody = document.getElementById('sales-table-body');
+    
+    if (sales.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="px-6 py-12 text-center">
+                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                    <p class="text-sm text-gray-500">Aucune vente trouvée</p>
+                    <button onclick="openModal('create-sale-modal')" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                        Enregistrer une vente
+                    </button>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = sales.map(sale => {
+        const statusBadges = {
+            'en_attente': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">En attente</span>',
+            'validee': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Validée</span>',
+            'manquant': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Manquant</span>',
+            'rejetee': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Rejetée</span>'
+        };
+        
+        return `
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewSaleDetail(${sale.id})">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.date}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.pompiste}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.fuel}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${parseFloat(sale.quantity).toFixed(2)} L</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$${parseFloat(sale.amount_usd).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${parseFloat(sale.amount_fc).toFixed(0)} FC</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.payment_method}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${statusBadges[sale.status] || sale.status}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button onclick="event.stopPropagation(); viewSaleDetail(${sale.id})" class="text-petrox-red hover:text-petrox-hover font-medium">
+                        Voir détails
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Update pagination controls
+function updatePagination(pagination) {
+    document.getElementById('total-sales').textContent = pagination.total_items;
+    document.getElementById('page-start').textContent = ((pagination.current_page - 1) * 20) + 1;
+    document.getElementById('page-end').textContent = Math.min(pagination.current_page * 20, pagination.total_items);
+    document.getElementById('page-total').textContent = pagination.total_items;
+    
+    totalPages = pagination.total_pages;
+    
+    // Desktop pagination
+    const controls = document.getElementById('pagination-controls');
+    let html = '';
+    
+    // Previous button
+    html += `
+        <button onclick="previousPage()" ${!pagination.has_previous ? 'disabled' : ''} 
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!pagination.has_previous ? 'opacity-50 cursor-not-allowed' : ''}">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+    `;
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            html += `
+                <button onclick="loadSales(${i})" 
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${i === currentPage ? 'bg-petrox-red text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}">
+                    ${i}
+                </button>
+            `;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            html += `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>`;
+        }
+    }
+    
+    // Next button
+    html += `
+        <button onclick="nextPage()" ${!pagination.has_next ? 'disabled' : ''} 
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!pagination.has_next ? 'opacity-50 cursor-not-allowed' : ''}">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    `;
+    
+    controls.innerHTML = html;
+}
+
+// Pagination functions
+function previousPage() {
+    if (currentPage > 1) {
+        loadSales(currentPage - 1);
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        loadSales(currentPage + 1);
+    }
+}
+
+// Apply filters
+function applyFilters() {
+    filters = {
+        start_date: document.getElementById('filter-start-date').value,
+        end_date: document.getElementById('filter-end-date').value,
+        fuel_type_id: document.getElementById('filter-fuel').value,
+        pompiste_id: document.getElementById('filter-pompiste').value,
+        status: document.getElementById('filter-status').value
+    };
+    loadSales(1);
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('filter-start-date').value = '';
+    document.getElementById('filter-end-date').value = '';
+    document.getElementById('filter-fuel').value = '';
+    document.getElementById('filter-pompiste').value = '';
+    document.getElementById('filter-status').value = '';
+    filters = { start_date: '', end_date: '', fuel_type_id: '', pompiste_id: '', status: '' };
+    loadSales(1);
+}
+
+// Load subscribers for dropdown
+function loadSubscribers() {
+    fetch('{% url "manager_module:abonnes_api" %}')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('sale-subscriber');
+                data.data.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.id;
+                    option.textContent = `${sub.name} (${sub.type})`;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading subscribers:', error));
+}
+
+// Submit sale form
+function submitSale(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.querySelector('#create-sale-form button[type="submit"]');
+    const btnText = document.getElementById('submit-btn-text');
+    const btnLoading = document.getElementById('submit-btn-loading');
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    btnText.classList.add('hidden');
+    btnLoading.classList.remove('hidden');
+    
+    const data = {
+        pompiste_id: document.getElementById('sale-pompiste').value,
+        fuel_type_id: document.getElementById('sale-fuel-type').value,
+        quantity: document.getElementById('sale-quantity').value,
+        payment_method_id: document.getElementById('sale-payment-method').value,
+        amount_usd: document.getElementById('sale-amount-usd').value || 0,
+        amount_fc: document.getElementById('sale-amount-fc').value || 0,
+        abonne_id: document.getElementById('sale-subscriber').value || null
+    };
+    
+    fetch('{% url "manager_module:create_vente" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Vente enregistrée avec succès', 'success');
+            closeModal('create-sale-modal');
+            document.getElementById('create-sale-form').reset();
+            loadSales(1);
+        } else {
+            showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        btnText.classList.remove('hidden');
+        btnLoading.classList.add('hidden');
+    });
+}
+
+// View sale detail
+function viewSaleDetail(saleId) {
+    openModal('sale-detail-modal');
+    
+    fetch(`{% url 'manager_module:vente_detail' 0 %}`.replace('0', saleId))
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                renderSaleDetail(data.data);
+            } else {
+                document.getElementById('sale-detail-content').innerHTML = `
+                    <div class="text-center py-8">
+                        <svg class="w-12 h-12 text-red-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm text-gray-500">${data.message || 'Erreur lors du chargement'}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('sale-detail-content').innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-sm text-gray-500">Erreur de connexion</p>
+                </div>
+            `;
+        });
+}
+
+// Render sale detail
+function renderSaleDetail(sale) {
+    const statusBadges = {
+        'en_attente': '<span class="px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">En attente de validation</span>',
+        'validee': '<span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">Validée</span>',
+        'manquant': '<span class="px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">Manquant signalé</span>',
+        'rejetee': '<span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">Rejetée</span>'
+    };
+    
+    const html = `
+        <div class="space-y-6">
+            <!-- Status -->
+            <div class="flex justify-between items-center">
+                <h4 class="text-sm font-medium text-gray-500">Statut de la vente</h4>
+                ${statusBadges[sale.status] || sale.status}
+            </div>
+            
+            <!-- General Info -->
+            <div class="grid grid-cols-2 gap-4 border-t border-gray-200 pt-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Date</label>
+                    <p class="mt-1 text-sm text-gray-900">${sale.date}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Enregistrée par</label>
+                    <p class="mt-1 text-sm text-gray-900">${sale.recorded_by}</p>
+                </div>
+            </div>
+            
+            <!-- Sale Details -->
+            <div class="grid grid-cols-2 gap-4 border-t border-gray-200 pt-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Pompiste</label>
+                    <p class="mt-1 text-sm text-gray-900">${sale.pompiste.name}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Type de Carburant</label>
+                    <p class="mt-1 text-sm text-gray-900">${sale.fuel.name}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Quantité</label>
+                    <p class="mt-1 text-sm text-gray-900 font-semibold">${parseFloat(sale.quantity).toFixed(2)} Litres</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Moyen de Paiement</label>
+                    <p class="mt-1 text-sm text-gray-900">${sale.payment_method}</p>
+                </div>
+            </div>
+            
+            <!-- Amounts -->
+            <div class="border-t border-gray-200 pt-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">Montants</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <label class="block text-xs font-medium text-green-600">Montant USD</label>
+                        <p class="mt-1 text-lg font-bold text-green-900">$${parseFloat(sale.amount_usd).toFixed(2)}</p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <label class="block text-xs font-medium text-blue-600">Montant FC</label>
+                        <p class="mt-1 text-lg font-bold text-blue-900">${parseFloat(sale.amount_fc).toFixed(0)} FC</p>
+                    </div>
+                </div>
+            </div>
+            
+            ${sale.subscriber.id ? `
+            <!-- Subscriber Info -->
+            <div class="border-t border-gray-200 pt-4">
+                <label class="block text-sm font-medium text-gray-500">Abonné</label>
+                <p class="mt-1 text-sm text-gray-900">${sale.subscriber.name}</p>
+            </div>
+            ` : ''}
+            
+            ${sale.missing_usd > 0 || sale.missing_fc > 0 ? `
+            <!-- Missing Amounts -->
+            <div class="border-t border-gray-200 pt-4">
+                <h4 class="text-sm font-medium text-red-600 mb-3">Manquants Signalés</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    ${sale.missing_usd > 0 ? `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <label class="block text-xs font-medium text-red-600">Manquant USD</label>
+                        <p class="mt-1 text-lg font-bold text-red-900">$${parseFloat(sale.missing_usd).toFixed(2)}</p>
+                    </div>
+                    ` : ''}
+                    ${sale.missing_fc > 0 ? `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <label class="block text-xs font-medium text-red-600">Manquant FC</label>
+                        <p class="mt-1 text-lg font-bold text-red-900">${parseFloat(sale.missing_fc).toFixed(0)} FC</p>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            ` : ''}
+            
+            ${sale.exchange_rate ? `
+            <!-- Exchange Rate -->
+            <div class="border-t border-gray-200 pt-4">
+                <label class="block text-sm font-medium text-gray-500">Taux de Change Appliqué</label>
+                <p class="mt-1 text-sm text-gray-900">1 USD = ${parseFloat(sale.exchange_rate).toFixed(2)} FC</p>
+            </div>
+            ` : ''}
+        </div>
+    `;
+    
+    document.getElementById('sale-detail-content').innerHTML = html;
+}
+
+// Modal functions
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,464 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}PETROX | Documents - Gestionnaire{% endblock %}
+
+{% block extra_css %}
+<style>
+    .document-card {
+        transition: all 0.2s;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .document-card:hover {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-color: #DC2626;
+    }
+    
+    .file-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+    }
+    
+    .file-icon.pdf {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .file-icon.doc {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .file-icon.xls {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .file-icon.img {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .file-icon.other {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+    
+    .visibility-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .visibility-public {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .visibility-prive {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .visibility-confidentiel {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+</style>
+{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'manager_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'manager_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'manager_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Carburants</a>
+<a href="{% url 'manager_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'manager_module:planning' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Planning</a>
+<a href="{% url 'manager_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Documents</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'manager_module:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span class="text-xs mt-1">Dashboard</span>
+</a>
+<a href="{% url 'manager_module:ventes' %}" class="flex flex-col items-center justify-center text-gray-600">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-xs mt-1">Ventes</span>
+</a>
+<a href="{% url 'manager_module:documents' %}" class="flex flex-col items-center justify-center text-petrox-red">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <span class="text-xs mt-1">Documents</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Documents
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Consultation et ajout de documents publics - Branche: <span class="font-semibold">{{ branche.nom }}</span>
+        </p>
+    </div>
+    
+    <div class="mt-4 md:mt-0">
+        <button onclick="openModal('upload-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Ajouter un Document
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 mb-6 p-4">
+    <form id="filter-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
+            <input type="text" id="search" name="search" value="{{ request.GET.search }}" placeholder="Titre, description..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red text-sm">
+        </div>
+        
+        <!-- Category -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+            <select id="category" name="category_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red text-sm">
+                <option value="">Toutes les catégories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if request.GET.category_id == category.id|stringformat:"s" %}selected{% endif %}>{{ category.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Date Range -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <select id="date_range" name="date_range" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red text-sm">
+                <option value="">Toutes les dates</option>
+                <option value="today" {% if request.GET.date_range == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                <option value="week" {% if request.GET.date_range == 'week' %}selected{% endif %}>Cette semaine</option>
+                <option value="month" {% if request.GET.date_range == 'month' %}selected{% endif %}>Ce mois</option>
+                <option value="year" {% if request.GET.date_range == 'year' %}selected{% endif %}>Cette année</option>
+            </select>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-end gap-2">
+            <button type="button" onclick="applyFilters()" class="flex-1 px-4 py-2 bg-petrox-red text-white rounded-md text-sm font-medium hover:bg-petrox-hover">
+                Filtrer
+            </button>
+            <button type="button" onclick="clearFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Réinitialiser
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Documents Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="documents-container">
+    {% if documents %}
+        {% for document in documents %}
+        <div class="document-card bg-white rounded-lg p-6">
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-start gap-3 flex-1">
+                    <!-- File Icon -->
+                    <div class="file-icon {% if 'pdf' in document.type_fichier %}pdf{% elif 'doc' in document.type_fichier %}doc{% elif 'xls' in document.type_fichier or 'sheet' in document.type_fichier %}xls{% elif 'image' in document.type_fichier or 'png' in document.type_fichier or 'jpg' in document.type_fichier %}img{% else %}other{% endif %}">
+                        {% if 'pdf' in document.type_fichier %}
+                        PDF
+                        {% elif 'doc' in document.type_fichier %}
+                        DOC
+                        {% elif 'xls' in document.type_fichier or 'sheet' in document.type_fichier %}
+                        XLS
+                        {% elif 'image' in document.type_fichier or 'png' in document.type_fichier or 'jpg' in document.type_fichier %}
+                        IMG
+                        {% else %}
+                        FILE
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-sm font-semibold text-gray-900 truncate">{{ document.titre }}</h3>
+                        <p class="text-xs text-gray-500 mt-1">{{ document.categorie.nom }}</p>
+                    </div>
+                </div>
+                
+                <!-- Dropdown Menu -->
+                <div class="relative">
+                    <button onclick="toggleMenu({{ document.id }})" class="p-1 rounded-md hover:bg-gray-100">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                    </button>
+                    
+                    <div id="menu-{{ document.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                        <a href="#" onclick="viewDocument({{ document.id }}); return false;" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Visualiser
+                        </a>
+                        <a href="#" onclick="downloadDocument({{ document.id }}); return false;" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Télécharger
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            {% if document.description %}
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ document.description }}</p>
+            {% endif %}
+            
+            <!-- Footer -->
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ document.created_at|date:"d/m/Y" }}</span>
+                </div>
+                
+                <span class="visibility-badge visibility-{{ document.visibilite }}">
+                    {% if document.visibilite == 'public' %}
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Public
+                    {% else %}
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Privé
+                    {% endif %}
+                </span>
+            </div>
+            
+            <!-- Size Info -->
+            <div class="mt-2 text-xs text-gray-400">
+                <svg class="w-3 h-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                {{ document.get_taille_lisible }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="col-span-full text-center py-12">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun document</h3>
+        <p class="text-gray-500 mb-4">Commencez par ajouter votre premier document public.</p>
+        <button onclick="openModal('upload-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            Ajouter un Document
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Upload Modal -->
+<div id="upload-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b">
+            <h3 class="text-lg font-semibold">Ajouter un Document Public</h3>
+            <button onclick="closeModal('upload-modal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <form id="upload-form" class="mt-6" onsubmit="submitUpload(event)" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="space-y-4">
+                <!-- Title -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Titre <span class="text-red-600">*</span></label>
+                    <input type="text" id="doc-titre" name="titre" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                </div>
+                
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="doc-description" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" placeholder="Description du document..."></textarea>
+                </div>
+                
+                <!-- Category -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie <span class="text-red-600">*</span></label>
+                    <select id="doc-category" name="categorie_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Sélectionner une catégorie</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- File Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fichier <span class="text-red-600">*</span></label>
+                    <input type="file" id="doc-file" name="fichier" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-petrox-red file:text-white hover:file:bg-petrox-hover cursor-pointer">
+                    <p class="mt-1 text-xs text-gray-500">PDF, DOC, DOCX, XLS, XLSX, Images (Max 10MB)</p>
+                </div>
+                
+                <!-- Info Box -->
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="text-xs text-blue-700">
+                            <p class="font-semibold mb-1">Documents Publics</p>
+                            <p>Les documents que vous ajoutez seront visibles par tous les utilisateurs du système (Admin, Managers, Caissiers).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeModal('upload-modal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Annuler
+                </button>
+                <button type="submit" class="px-4 py-2 bg-petrox-red text-white rounded-md text-sm font-medium hover:bg-petrox-hover">
+                    <span id="upload-btn-text">Téléverser</span>
+                    <span id="upload-btn-loading" class="hidden">
+                        <svg class="animate-spin h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Téléversement...
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const csrfToken = '{{ csrf_token }}';
+
+// Toggle document menu
+function toggleMenu(documentId) {
+    const menu = document.getElementById(`menu-${documentId}`);
+    
+    // Close all other menus
+    document.querySelectorAll('[id^="menu-"]').forEach(m => {
+        if (m.id !== `menu-${documentId}`) {
+            m.classList.add('hidden');
+        }
+    });
+    
+    menu.classList.toggle('hidden');
+}
+
+// Close menus when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('button')) {
+        document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+    }
+});
+
+// Apply filters
+function applyFilters() {
+    const search = document.getElementById('search').value;
+    const category = document.getElementById('category').value;
+    const dateRange = document.getElementById('date_range').value;
+    
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (category) params.append('category_id', category);
+    if (dateRange) params.append('date_range', dateRange);
+    
+    window.location.href = `/manager/documents/?${params.toString()}`;
+}
+
+// Clear filters
+function clearFilters() {
+    window.location.href = '/manager/documents/';
+}
+
+// Submit upload
+function submitUpload(e) {
+    e.preventDefault();
+    
+    const form = document.getElementById('upload-form');
+    const formData = new FormData(form);
+    
+    // Show loading
+    document.getElementById('upload-btn-text').classList.add('hidden');
+    document.getElementById('upload-btn-loading').classList.remove('hidden');
+    
+    fetch('/manager/api/documents/upload/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken
+        },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Document téléversé avec succès');
+            window.location.reload();
+        } else {
+            alert(data.message || 'Erreur lors du téléversement');
+            document.getElementById('upload-btn-text').classList.remove('hidden');
+            document.getElementById('upload-btn-loading').classList.add('hidden');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur de connexion');
+        document.getElementById('upload-btn-text').classList.remove('hidden');
+        document.getElementById('upload-btn-loading').classList.add('hidden');
+    });
+}
+
+// View document
+function viewDocument(documentId) {
+    window.open(`/manager/api/documents/${documentId}/view/`, '_blank');
+}
+
+// Download document
+function downloadDocument(documentId) {
+    window.location.href = `/manager/api/documents/${documentId}/download/`;
+}
+
+// Modal functions
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+</script>
+{% endblock %}

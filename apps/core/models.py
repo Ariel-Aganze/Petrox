@@ -654,6 +654,30 @@ class PlanningShift(models.Model):
     
     def __str__(self):
         return f"{self.pompiste.get_full_name() if self.pompiste else 'N/A'} - {self.date_shift or 'N/A'} ({self.get_type_shift_display()})"
+    
+class Attendance(models.Model):
+    """Attendance tracking for pompiste shifts"""
+    
+    STATUT_CHOICES = [
+        ('present', 'Présent'),
+        ('late', 'Retard'),
+        ('absent', 'Absent'),
+    ]
+    
+    shift = models.OneToOneField(PlanningShift, on_delete=models.CASCADE, verbose_name="Shift")
+    statut = models.CharField(max_length=10, choices=STATUT_CHOICES, verbose_name="Statut")
+    raison = models.TextField(blank=True, default='', verbose_name="Raison (retard/absence)")
+    marked_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Marqué par")
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="Créé le")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Modifié le")
+    
+    class Meta:
+        verbose_name = "Présence"
+        verbose_name_plural = "Présences"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.shift} - {self.get_statut_display()}"
 
 
 class Notification(models.Model):

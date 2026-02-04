@@ -180,10 +180,53 @@ class LivraisonAdmin(admin.ModelAdmin):
 
 @admin.register(ConsommationAbonne)
 class ConsommationAbonneAdmin(admin.ModelAdmin):
-    list_display = ('abonne', 'branche', 'type_carburant', 'quantite', 'montant', 'devise', 'created_at')
+    list_display = (
+        'id',
+        'get_abonne_info',
+        'get_branche',
+        'get_carburant',
+        'quantite',
+        'get_montant',
+        'created_at'
+    )
+    # CORRECTED: Only use fields that actually exist
     list_filter = ('branche', 'type_carburant', 'devise', 'created_at')
     search_fields = ('abonne__nom_entreprise', 'abonne__code_client')
     ordering = ('-created_at',)
+    date_hierarchy = 'created_at'  # Use the actual field
+    
+    # Make it read-only
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+    
+    def get_abonne_info(self, obj):
+        if obj.abonne:
+            return f"{obj.abonne.nom_entreprise} ({obj.abonne.code_client})"
+        return 'N/A'
+    get_abonne_info.short_description = 'Abonné'
+    get_abonne_info.admin_order_field = 'abonne__nom_entreprise'
+    
+    def get_branche(self, obj):
+        return obj.branche.nom if obj.branche else 'N/A'
+    get_branche.short_description = 'Branche'
+    get_branche.admin_order_field = 'branche__nom'
+    
+    def get_carburant(self, obj):
+        return obj.type_carburant.nom if obj.type_carburant else 'N/A'
+    get_carburant.short_description = 'Carburant'
+    
+    def get_montant(self, obj):
+        if obj.devise == 'USD':
+            return f"${obj.montant}"
+        else:
+            return f"{obj.montant} FC"
+    get_montant.short_description = 'Montant'
 
 
 @admin.register(PaiementSalaire)
