@@ -1,0 +1,744 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Abonnés - Caissier - PETROX{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'caissier_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Dashboard
+</a>
+<a href="{% url 'caissier_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Ventes
+</a>
+<a href="{% url 'caissier_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Dépenses
+</a>
+<a href="{% url 'caissier_module:salaires' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Salaires
+</a>
+<a href="{% url 'caissier_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+    Abonnés
+</a>
+<a href="#" onclick="showComingSoon('Documents')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Documents
+</a>
+{% endblock %}
+
+{% block mobile_menu %}
+<a href="{% url 'caissier_module:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'caissier_module:ventes' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Ventes</a>
+<a href="{% url 'caissier_module:depenses' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'caissier_module:salaires' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Salaires</a>
+<a href="{% url 'caissier_module:abonnes' %}" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-100 text-gray-900">Abonnés</a>
+<a href="#" onclick="showComingSoon('Documents')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Documents</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'caissier_module:dashboard' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span>Dashboard</span>
+</a>
+<a href="{% url 'caissier_module:ventes' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>Ventes</span>
+</a>
+<a href="{% url 'caissier_module:depenses' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>Dépenses</span>
+</a>
+<a href="{% url 'caissier_module:abonnes' %}" class="mobile-nav-item mobile-nav-active">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+    <span>Abonnés</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Paiements Abonnés
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span>
+        </p>
+    </div>
+    <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+        <button onclick="loadAbonnes()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Actualiser
+        </button>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+    <!-- Total Subscribers -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Abonnés</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-abonnes">0</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- With Debt -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Avec Dette</dt>
+                        <dd class="text-2xl font-semibold text-red-600" id="with-debt">0</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Debt USD -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Dette USD</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-debt-usd">$0.00</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Debt FC -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Dette FC</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-debt-fc">0 FC</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Search -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+            <input type="text" id="search-input" placeholder="Nom, code client, contact..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+        </div>
+        
+        <!-- Type Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type d'abonnement</label>
+            <select id="filter-type" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Tous</option>
+                <option value="prepaye">Prépayé</option>
+                <option value="postpaye">Postpayé</option>
+                <option value="credit">Crédit</option>
+            </select>
+        </div>
+        
+        <!-- Status Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+            <select id="filter-status" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Tous</option>
+                <option value="debt">Avec dette</option>
+                <option value="no_debt">Sans dette</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="mt-4 flex justify-end space-x-3">
+        <button onclick="resetFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            Réinitialiser
+        </button>
+        <button onclick="applyFilters()" class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            Appliquer les filtres
+        </button>
+    </div>
+</div>
+
+<!-- Subscribers Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">
+            Liste des Abonnés (<span id="table-count">0</span>)
+        </h3>
+        <div class="flex items-center space-x-2">
+            <button onclick="exportToExcel()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </button>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entreprise</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code Client</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde/Dette USD</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde/Dette FC</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dernière Conso</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="abonnes-table-body" class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center">
+                        <div class="spinner mx-auto mb-2"></div>
+                        <p class="text-sm text-gray-500">Chargement des abonnés...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div id="pagination-container" class="hidden bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                Affichage de <span id="page-start">1</span> à <span id="page-end">20</span> sur <span id="total-records">0</span> abonnés
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="previousPage()" id="prev-btn" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Précédent
+                </button>
+                <button onclick="nextPage()" id="next-btn" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Suivant
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Register Payment Modal -->
+<div id="payment-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('payment-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="payment-form" onsubmit="submitPayment(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Enregistrer un Paiement</h3>
+                            
+                            <div class="space-y-4">
+                                <!-- Subscriber Info Display -->
+                                <div id="subscriber-info-display" class="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4">
+                                    <p class="text-sm text-blue-700" id="subscriber-name-display"></p>
+                                </div>
+                                
+                                <!-- Hidden Fields -->
+                                <input type="hidden" id="abonne-id" name="abonne_id">
+                                
+                                <!-- Current Balance Display -->
+                                <div id="balance-display" class="bg-gray-50 border border-gray-200 rounded-md p-3">
+                                    <p class="text-sm text-gray-700">
+                                        <strong>Solde actuel USD:</strong> <span id="current-balance-usd" class="font-semibold">$0.00</span><br>
+                                        <strong>Solde actuel FC:</strong> <span id="current-balance-fc" class="font-semibold">0 FC</span>
+                                    </p>
+                                </div>
+                                
+                                <!-- Amount & Currency -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Montant *</label>
+                                        <input type="number" step="0.01" id="payment-amount" name="montant" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Devise *</label>
+                                        <select id="payment-currency" name="devise" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                            <option value="USD">USD ($)</option>
+                                            <option value="FC">FC (Francs Congolais)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Payment Method -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Moyen de Paiement *</label>
+                                    <select id="payment-method" name="methode_paiement" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                        <option value="cash">Cash</option>
+                                        <option value="mobile_money">Mobile Money</option>
+                                        <option value="bank_transfer">Virement Bancaire</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Notes -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optionnel)</label>
+                                    <textarea id="payment-notes" name="notes" rows="2" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Remarques supplémentaires..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:w-auto sm:text-sm">
+                        Enregistrer le Paiement
+                    </button>
+                    <button type="button" onclick="closeModal('payment-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Payment History Modal -->
+<div id="history-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('history-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Historique Paiements & Consommations</h3>
+                    <button onclick="closeModal('history-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="history-abonne-name" class="mb-4 text-sm text-gray-600"></div>
+                
+                <!-- Summary Section -->
+                <div id="history-summary" class="grid grid-cols-2 gap-4 mb-4 p-4 bg-gray-50 rounded-lg"></div>
+                
+                <div id="history-content" class="max-h-96 overflow-y-auto">
+                    <div class="p-8 text-center text-gray-500">
+                        <div class="spinner mx-auto mb-2"></div>
+                        <p>Chargement...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Global variables
+let currentPage = 1;
+let totalPages = 1;
+let allAbonnes = [];
+let filteredAbonnes = [];
+let currentAbonne = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadAbonnes();
+    
+    // Setup search debounce
+    let searchTimeout;
+    document.getElementById('search-input').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchAbonnes, 300);
+    });
+});
+
+/**
+ * Load subscribers from API
+ */
+function loadAbonnes() {
+    const search = document.getElementById('search-input').value;
+    const type = document.getElementById('filter-type').value;
+    const status = document.getElementById('filter-status').value;
+    
+    const url = `/caissier/api/abonnes/?search=${search}&type=${type}&status=${status}`;
+    
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        allAbonnes = data.abonnes || [];
+        filteredAbonnes = [...allAbonnes];
+        updateStatistics(data.statistics || {});
+        currentPage = 1;
+        renderAbonnesTable();
+    })
+    .catch(error => {
+        console.error('Error loading abonnés:', error);
+        showToast('Erreur de chargement des abonnés', 'error');
+    });
+}
+
+/**
+ * Update statistics cards
+ */
+function updateStatistics(stats) {
+    document.getElementById('total-abonnes').textContent = stats.total || 0;
+    document.getElementById('with-debt').textContent = stats.with_debt || 0;
+    document.getElementById('total-debt-usd').textContent = `$${formatNumber(stats.total_debt_usd || 0)}`;
+    document.getElementById('total-debt-fc').textContent = `${formatNumber(stats.total_debt_fc || 0)} FC`;
+}
+
+/**
+ * Render subscribers table
+ */
+function renderAbonnesTable() {
+    const tbody = document.getElementById('abonnes-table-body');
+    const tableCount = document.getElementById('table-count');
+    
+    if (filteredAbonnes.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">Aucun abonné trouvé</p>
+                </td>
+            </tr>
+        `;
+        tableCount.textContent = '0';
+        document.getElementById('pagination-container').classList.add('hidden');
+        return;
+    }
+    
+    // Pagination
+    const itemsPerPage = 20;
+    totalPages = Math.ceil(filteredAbonnes.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredAbonnes.length);
+    const pageAbonnes = filteredAbonnes.slice(startIndex, endIndex);
+    
+    // Render rows
+    tbody.innerHTML = pageAbonnes.map(abonne => `
+        <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick='viewHistory(${JSON.stringify(abonne).replace(/'/g, "&#39;")})'>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${abonne.nom_entreprise}</div>
+                <div class="text-sm text-gray-500">${abonne.contact_nom || '-'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${abonne.code_client}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                ${getTypeBadge(abonne.type_abonnement)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${abonne.contact_telephone || '-'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${parseFloat(abonne.solde_usd) < 0 ? 'text-red-600' : 'text-green-600'}">
+                ${formatCurrency(abonne.solde_usd, 'USD')}
+                ${abonne.has_debt && parseFloat(abonne.solde_usd) < 0 ? `<div class="text-xs text-red-600">Dette: $${abonne.debt_usd.toFixed(2)}</div>` : ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${parseFloat(abonne.solde_fc) < 0 ? 'text-red-600' : 'text-green-600'}">
+                ${formatCurrency(abonne.solde_fc, 'FC')}
+                ${abonne.has_debt && parseFloat(abonne.solde_fc) < 0 ? `<div class="text-xs text-red-600">Dette: ${abonne.debt_fc.toFixed(0)} FC</div>` : ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${abonne.last_consumption || '-'}
+                ${abonne.consumption_count > 0 ? `<div class="text-xs text-gray-500">${abonne.consumption_count} txn(s)</div>` : ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2" onclick="event.stopPropagation()">
+                ${abonne.has_debt ? `
+                    <button onclick='openPaymentModal(${JSON.stringify(abonne).replace(/'/g, "&#39;")})' class="text-green-600 hover:text-green-900" title="Enregistrer paiement">
+                        <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                ` : '<span class="text-gray-400">Aucune dette</span>'}
+                <button onclick='viewHistory(${JSON.stringify(abonne).replace(/'/g, "&#39;")})' class="text-blue-600 hover:text-blue-900" title="Historique">
+                    <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update count
+    tableCount.textContent = filteredAbonnes.length;
+    
+    // Update pagination
+    document.getElementById('page-start').textContent = startIndex + 1;
+    document.getElementById('page-end').textContent = endIndex;
+    document.getElementById('total-records').textContent = filteredAbonnes.length;
+    document.getElementById('pagination-container').classList.remove('hidden');
+    
+    // Update pagination buttons
+    document.getElementById('prev-btn').disabled = currentPage === 1;
+    document.getElementById('next-btn').disabled = currentPage === totalPages;
+}
+
+/**
+ * Get type badge
+ */
+function getTypeBadge(type) {
+    const badges = {
+        'prepaye': '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Prépayé</span>',
+        'postpaye': '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Postpayé</span>',
+        'credit': '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Crédit</span>'
+    };
+    return badges[type] || type;
+}
+
+/**
+ * Open payment modal
+ */
+function openPaymentModal(abonne) {
+    currentAbonne = abonne;
+    
+    // Reset form
+    document.getElementById('payment-form').reset();
+    
+    // Set subscriber info
+    document.getElementById('abonne-id').value = abonne.id;
+    document.getElementById('subscriber-name-display').textContent = 
+        `Paiement pour: ${abonne.nom_entreprise} (${abonne.code_client}) - ${abonne.type_abonnement_display}`;
+    
+    // Display current balance
+    const balanceUsdEl = document.getElementById('current-balance-usd');
+    const balanceFcEl = document.getElementById('current-balance-fc');
+    
+    balanceUsdEl.textContent = formatCurrency(abonne.solde_usd, 'USD');
+    balanceUsdEl.className = parseFloat(abonne.solde_usd) < 0 ? 'font-semibold text-red-600' : 'font-semibold text-green-600';
+    
+    balanceFcEl.textContent = formatCurrency(abonne.solde_fc, 'FC');
+    balanceFcEl.className = parseFloat(abonne.solde_fc) < 0 ? 'font-semibold text-red-600' : 'font-semibold text-green-600';
+    
+    openModal('payment-modal');
+}
+
+/**
+ * Submit payment
+ */
+function submitPayment(event) {
+    event.preventDefault();
+    
+    const paymentData = {
+        abonne_id: document.getElementById('abonne-id').value,
+        montant: document.getElementById('payment-amount').value,
+        devise: document.getElementById('payment-currency').value,
+        methode_paiement: document.getElementById('payment-method').value,
+        notes: document.getElementById('payment-notes').value
+    };
+    
+    fetch('/caissier/api/abonnes/payment/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(paymentData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('payment-modal');
+            showToast(data.message, 'success');
+            document.getElementById('payment-form').reset();
+            loadAbonnes();
+        } else {
+            showToast(data.message || 'Erreur lors de l\'enregistrement', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erreur de connexion', 'error');
+    });
+}
+
+/**
+ * View payment history
+ */
+function viewHistory(abonne) {
+    document.getElementById('history-abonne-name').textContent = 
+        `Historique pour: ${abonne.nom_entreprise} (${abonne.code_client})`;
+    
+    fetch(`/caissier/api/abonnes/history/?abonne_id=${abonne.id}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const history = data.history || [];
+        const summary = data.summary || {};
+        const container = document.getElementById('history-content');
+        const summaryContainer = document.getElementById('history-summary');
+        
+        // Display summary
+        summaryContainer.innerHTML = `
+            <div class="text-sm">
+                <div class="text-gray-500">Total Paiements USD</div>
+                <div class="text-lg font-semibold text-green-600">$${formatNumber(summary.total_payments_usd)}</div>
+            </div>
+            <div class="text-sm">
+                <div class="text-gray-500">Total Paiements FC</div>
+                <div class="text-lg font-semibold text-green-600">${formatNumber(summary.total_payments_fc)} FC</div>
+            </div>
+            <div class="text-sm">
+                <div class="text-gray-500">Total Consommations USD</div>
+                <div class="text-lg font-semibold text-blue-600">$${formatNumber(summary.total_consumptions_usd)}</div>
+            </div>
+            <div class="text-sm">
+                <div class="text-gray-500">Total Consommations FC</div>
+                <div class="text-lg font-semibold text-blue-600">${formatNumber(summary.total_consumptions_fc)} FC</div>
+            </div>
+        `;
+        
+        if (history.length === 0) {
+            container.innerHTML = `
+                <div class="p-8 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2">Aucune transaction enregistrée</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = history.map(item => `
+                <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-sm font-medium text-gray-900">
+                            ${item.type === 'paiement' ? 
+                                `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 mr-2">Paiement</span>` : 
+                                `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 mr-2">Consommation</span>`
+                            }
+                            ${formatCurrency(item.montant, item.devise)}
+                        </div>
+                        <div class="text-xs text-gray-500">${item.date}</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                        <div><span class="font-medium">Description:</span> ${item.description}</div>
+                        ${item.quantite && parseFloat(item.quantite) > 0 ? 
+                            `<div><span class="font-medium">Quantité:</span> ${item.quantite} L (${item.type_carburant || '-'})</div>` : 
+                            ''
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        openModal('history-modal');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erreur de chargement de l\'historique', 'error');
+    });
+}
+
+/**
+ * Apply filters
+ */
+function applyFilters() {
+    loadAbonnes();
+}
+
+/**
+ * Reset filters
+ */
+function resetFilters() {
+    document.getElementById('filter-type').value = 'all';
+    document.getElementById('filter-status').value = 'all';
+    document.getElementById('search-input').value = '';
+    loadAbonnes();
+}
+
+/**
+ * Search subscribers
+ */
+function searchAbonnes() {
+    loadAbonnes();
+}
+
+/**
+ * Pagination
+ */
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderAbonnesTable();
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderAbonnesTable();
+    }
+}
+
+/**
+ * Export to Excel
+ */
+function exportToExcel() {
+    window.location.href = '/caissier/api/abonnes/export/excel/';
+    showToast('Export Excel en cours...', 'success');
+}
+
+/**
+ * Helper: Show coming soon toast
+ */
+function showComingSoon(feature) {
+    showToast(`${feature} - Prochainement disponible`, 'error');
+}
+</script>
+{% endblock %}

@@ -1,382 +1,280 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
-{% block title %}PETROX | Dashboard Caissier{% endblock %}
+{% block title %}Dashboard Caissier - PETROX{% endblock %}
 
 {% block desktop_nav %}
-<a href="{% url 'caissier_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Dashboard</a>
-<a href="#" onclick="toggleModal('validations-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Validations</a>
-<a href="#" onclick="toggleModal('depenses-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
-<a href="#" onclick="toggleModal('salaires-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Salaires</a>
-<a href="#" onclick="toggleModal('rapports-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
-<a href="#" onclick="toggleModal('documents-modal')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'caissier_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+    Dashboard
+</a>
+<a href="{% url 'caissier_module:ventes' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Ventes
+</a>
+<a href="{% url 'caissier_module:depenses' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Dépenses
+</a>
+<a href="{% url 'caissier_module:salaires' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Salaires
+</a>
+<a href="{% url 'caissier_module:abonnes' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Abonnés
+</a>
+<a href="#" onclick="showComingSoon('Documents')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Documents
+</a>
 {% endblock %}
 
-{% block mobile_nav %}
+{% block mobile_menu %}
+<a href="{% url 'caissier_module:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-100 text-gray-900">Dashboard</a>
+<a href="#" onclick="showComingSoon('Ventes')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Ventes</a>
+<a href="#" onclick="showComingSoon('Dépenses')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dépenses</a>
+<a href="#" onclick="showComingSoon('Salaires')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Salaires</a>
+<a href="#" onclick="showComingSoon('Abonnés')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Abonnés</a>
+<a href="#" onclick="showComingSoon('Documents')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Documents</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
 <a href="{% url 'caissier_module:dashboard' %}" class="mobile-nav-item mobile-nav-active">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
     </svg>
     <span>Dashboard</span>
 </a>
-<a href="#" onclick="toggleModal('validations-modal')" class="mobile-nav-item">
+<a href="#" onclick="showComingSoon('Ventes')" class="mobile-nav-item">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
-    <span>Validations</span>
+    <span>Ventes</span>
 </a>
-<a href="#" onclick="toggleModal('depenses-modal')" class="mobile-nav-item">
+<a href="#" onclick="showComingSoon('Dépenses')" class="mobile-nav-item">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
     <span>Dépenses</span>
 </a>
-<a href="#" onclick="toggleModal('salaires-modal')" class="mobile-nav-item">
+<a href="#" onclick="showComingSoon('Salaires')" class="mobile-nav-item">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
     <span>Salaires</span>
-</a>
-<a href="#" onclick="toggleModal('rapports-modal')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-    <span>Rapports</span>
 </a>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
-    <!-- Header Section -->
-    <div class="md:flex md:items-center md:justify-between mb-8">
-        <div class="flex-1 min-w-0">
-            <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
-                Dashboard Caissier
-            </h2>
-            <p class="mt-1 text-sm text-gray-500">
-                Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span>
-            </p>
-        </div>
-        <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
-            <button onclick="toggleModal('depense-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
-                + Nouvelle Dépense
-            </button>
-            <button onclick="loadPendingSales()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
-                <span id="pending-count" class="mr-2 px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">0</span>
-                Validations
-            </button>
-        </div>
+<!-- Header Section -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Dashboard Caissier
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span> • <span id="current-date"></span>
+        </p>
     </div>
-
-    <!-- KPI Cards Grid -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <!-- Entrées du jour -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Entrées Aujourd'hui</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="total-entries">$0.00</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500" id="entries-count">0 ventes validées</span>
-                </div>
-            </div>
+    <div class="mt-4 flex items-center space-x-3 md:mt-0 md:ml-4">
+        <!-- Currency Toggle -->
+        <div class="inline-flex rounded-md shadow-sm" role="group">
+            <button type="button" onclick="setCurrency('USD', this)" class="currency-btn px-4 py-2 text-sm font-medium bg-petrox-red text-white rounded-l-md border border-petrox-red hover:bg-petrox-hover focus:z-10 focus:ring-2 focus:ring-petrox-red">
+                USD
+            </button>
+            <button type="button" onclick="setCurrency('FC', this)" class="currency-btn px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-r-md border border-gray-300 hover:bg-gray-200 focus:z-10 focus:ring-2 focus:ring-petrox-red">
+                FC
+            </button>
         </div>
-
-        <!-- Sorties du jour -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Sorties Aujourd'hui</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="total-expenses">$0.00</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500" id="expenses-count">0 dépenses</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Solde du jour -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Solde du Jour</dt>
-                            <dd>
-                                <div class="text-lg font-bold" id="daily-balance">$0.00</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500" id="balance-status">Équilibré</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- En attente validation -->
-        <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">En Attente</dt>
-                            <dd>
-                                <div class="text-lg font-bold text-gray-900" id="pending-validations">0</div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-5 py-2">
-                <div class="text-sm">
-                    <span class="text-gray-500">Ventes à valider</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         
-        <!-- Validation Panel -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-lg font-medium text-gray-900">Ventes en Attente de Validation</h3>
-                    <button onclick="loadPendingSales()" class="text-sm text-petrox-red hover:text-petrox-hover font-medium">
-                        Actualiser
-                    </button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pompiste</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant USD</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant FC</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="pending-sales-body">
-                            <!-- Pending sales will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <!-- Refresh Button -->
+        <button onclick="loadDashboardData()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Actualiser
+        </button>
+    </div>
+</div>
 
-        <!-- Quick Actions Panel -->
-        <div class="space-y-6">
-            <!-- Cash Summary -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Résumé Caisse</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Cash USD</span>
-                        <span class="text-sm font-bold text-gray-900" id="cash-usd">$0.00</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Cash FC</span>
-                        <span class="text-sm font-bold text-gray-900" id="cash-fc">0 FC</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Mobile Money</span>
-                        <span class="text-sm font-bold text-gray-900" id="mobile-money">0 FC</span>
-                    </div>
-                    <div class="border-t border-gray-200 pt-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-900">Total Physique</span>
-                            <span class="text-sm font-bold text-gray-900" id="physical-total">$0.00</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <button onclick="reconcileCash()" class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-md text-sm hover:bg-blue-700 focus:outline-none">
-                    Réconcilier Caisse
-                </button>
-            </div>
+<!-- Period Filter -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 p-4">
+    <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm font-medium text-gray-700">Période:</span>
+        <button onclick="setPeriod('today', this)" class="period-btn px-4 py-2 text-sm font-medium bg-gray-100 text-gray-900 rounded-md shadow-sm">
+            Aujourd'hui
+        </button>
+        <button onclick="setPeriod('week', this)" class="period-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+            7 jours
+        </button>
+        <button onclick="setPeriod('month', this)" class="period-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+            30 jours
+        </button>
+        <button onclick="openCustomDateModal()" class="period-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+            Personnalisé
+        </button>
+    </div>
+</div>
 
-            <!-- Quick Categories -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Dépenses Rapides</h3>
-                <div class="grid grid-cols-2 gap-2">
-                    {% for categorie in categories_depense %}
-                        <button onclick="quickExpense('{{ categorie.id }}', '{{ categorie.nom }}')" 
-                                class="p-2 text-xs border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petrox-red">
-                            {{ categorie.nom }}
-                        </button>
-                    {% endfor %}
+<!-- KPI Cards Grid -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <!-- Total Entrées (Ventes Validées) -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Entrées (Ventes validées)</dt>
+                        <dd class="flex items-baseline">
+                            <div id="total-entries" class="text-2xl font-semibold text-gray-900">--</div>
+                        </dd>
+                    </dl>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Transactions -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
-            <div class="flex space-x-2">
-                <button onclick="filterTransactions('all')" class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">Toutes</button>
-                <button onclick="filterTransactions('entries')" class="px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Entrées</button>
-                <button onclick="filterTransactions('expenses')" class="px-3 py-1 text-xs font-medium rounded-full text-gray-500 hover:bg-gray-100">Dépenses</button>
+    <!-- Total Sorties (Dépenses) -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Sorties (Dépenses)</dt>
+                        <dd class="flex items-baseline">
+                            <div id="total-expenses" class="text-2xl font-semibold text-gray-900">--</div>
+                        </dd>
+                    </dl>
+                </div>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="transactions-body">
-                    <!-- Transactions will be loaded here -->
-                </tbody>
-            </table>
+    </div>
+
+    <!-- Solde du Jour -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Solde</dt>
+                        <dd class="flex items-baseline">
+                            <div id="daily-balance" class="text-2xl font-semibold text-gray-900">--</div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventes en Attente de Validation -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openModal('pending-sales-modal')">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">En Attente de Validation</dt>
+                        <dd class="flex items-baseline">
+                            <div id="pending-validations" class="text-2xl font-semibold text-yellow-600">--</div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Ventes vs Dépenses Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Ventes vs Dépenses</h3>
+            <div class="flex items-center space-x-2">
+                <span class="flex items-center text-sm text-gray-600">
+                    <span class="w-3 h-3 bg-green-500 rounded-full mr-1"></span>
+                    Entrées
+                </span>
+                <span class="flex items-center text-sm text-gray-600">
+                    <span class="w-3 h-3 bg-red-500 rounded-full mr-1"></span>
+                    Sorties
+                </span>
+            </div>
+        </div>
+        <div class="relative h-64">
+            <canvas id="sales-vs-expenses-chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Forex Impact Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Impact Forex par Carburant</h3>
+            <span class="text-xs text-gray-500">Gain/Perte</span>
+        </div>
+        <div class="relative h-64">
+            <canvas id="forex-impact-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions & Pending Sales -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Transactions -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
+        </div>
+        <div class="overflow-hidden">
+            <div id="recent-transactions" class="divide-y divide-gray-200">
+                <div class="p-8 text-center text-gray-500">
+                    <div class="spinner mx-auto mb-2"></div>
+                    <p>Chargement...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Sales for Validation -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">Ventes à Valider</h3>
+            <span id="pending-count-badge" class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">0</span>
+        </div>
+        <div class="overflow-hidden">
+            <div id="pending-sales-list" class="divide-y divide-gray-200">
+                <div class="p-8 text-center text-gray-500">
+                    <div class="spinner mx-auto mb-2"></div>
+                    <p>Chargement...</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block modals %}
-<!-- Nouvelle Dépense Modal -->
-<div id="depense-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('depense-modal')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="depense-form" onsubmit="registerExpense(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Enregistrer une Dépense</h3>
-                            <div class="mt-4 space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Catégorie</label>
-                                    <select name="categorie" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                        <option value="">Sélectionner une catégorie</option>
-                                        {% for categorie in categories_depense %}
-                                            <option value="{{ categorie.id }}">{{ categorie.nom }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Montant</label>
-                                        <input type="number" step="0.01" name="montant" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Devise</label>
-                                        <select name="devise" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                            <option value="USD">USD</option>
-                                            <option value="FC">FC</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Description</label>
-                                    <input type="text" name="description" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Description de la dépense">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Bénéficiaire</label>
-                                    <input type="text" name="beneficiaire" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Nom du bénéficiaire">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Méthode de Paiement</label>
-                                    <select name="methode_paiement" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
-                                        <option value="cash">Espèces</option>
-                                        <option value="mobile_money">Mobile Money</option>
-                                        <option value="bank">Virement Bancaire</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Justificatif</label>
-                                    <input type="file" name="justificatif" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-petrox-red file:text-white hover:file:bg-petrox-hover">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Notes</label>
-                                    <textarea name="notes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Notes additionnelles..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red sm:ml-3 sm:w-auto sm:text-sm">
-                        Enregistrer Dépense
-                    </button>
-                    <button type="button" onclick="closeModal('depense-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Annuler
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <!-- Validation Modal -->
-<div id="validation-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+<div id="validation-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('validation-modal')"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
         
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                     <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -385,40 +283,68 @@
                         </svg>
                     </div>
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Validation de Vente</h3>
-                        <div class="mt-4" id="validation-details">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Validation de Vente</h3>
+                        <div id="validation-details" class="text-sm text-gray-700">
                             <!-- Sale details will be populated here -->
                         </div>
                         
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700">Montant Manquant (si applicable)</label>
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mt-2">
+                        <div class="mt-6 border-t border-gray-200 pt-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Montant Manquant (si applicable)</h4>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
-                                    <input type="number" step="0.01" id="manquant-usd" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="USD manquant">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">USD Manquant</label>
+                                    <input type="number" step="0.01" id="manquant-usd" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
                                 </div>
                                 <div>
-                                    <input type="number" step="0.01" id="manquant-fc" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="FC manquant">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">FC Manquant</label>
+                                    <input type="number" step="1" id="manquant-fc" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0">
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700">Raison du manquant</label>
-                            <textarea id="manquant-raison" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Expliquez la raison du manquant..."></textarea>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Raison du manquant</label>
+                                <textarea id="manquant-raison" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Expliquez la raison du manquant (obligatoire si montant > 0)"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="validateSale()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
-                    Valider
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <button type="button" onclick="validateSale()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:w-auto sm:text-sm">
+                    ✓ Valider
                 </button>
-                <button type="button" onclick="reportMissing()" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Signaler Manquant
+                <button type="button" onclick="reportMissing()" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:w-auto sm:text-sm">
+                    ⚠ Signaler Manquant
                 </button>
-                <button type="button" onclick="closeModal('validation-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                <button type="button" onclick="closeModal('validation-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm">
                     Annuler
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Sales Modal -->
+<div id="pending-sales-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('pending-sales-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Ventes en Attente de Validation</h3>
+                    <button onclick="closeModal('pending-sales-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="pending-sales-modal-list" class="max-h-96 overflow-y-auto">
+                    <div class="p-8 text-center text-gray-500">
+                        <div class="spinner mx-auto mb-2"></div>
+                        <p>Chargement...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -427,145 +353,481 @@
 
 {% block extra_js %}
 <script>
-// Caissier Dashboard JavaScript
+// Global variables
 let currentSaleId = null;
+let currentCurrency = 'USD';
+let currentPeriod = 'today';
+let salesVsExpensesChart = null;
+let forexImpactChart = null;
 
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    loadCaissierDashboard();
+    // Set current date
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    // Load dashboard data
+    loadDashboardData();
     loadPendingSales();
     loadRecentTransactions();
+    
+    // Auto-refresh every 2 minutes
+    setInterval(() => {
+        loadDashboardData();
+        loadPendingSales();
+        loadRecentTransactions();
+    }, 120000);
 });
 
-function loadCaissierDashboard() {
-    fetch('/caissier/api/stats/')
-        .then(response => response.json())
-        .then(data => {
-            updateCaissierKPIs(data);
-        })
-        .catch(error => {
-            console.error('Erreur chargement dashboard caissier:', error);
-        });
+/**
+ * Load dashboard statistics and charts
+ */
+function loadDashboardData() {
+    const url = `/caissier/api/stats/?period=${currentPeriod}&devise=${currentCurrency}`;
+    
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateKPIs(data);
+        loadChartData();
+    })
+    .catch(error => {
+        console.error('Error loading dashboard:', error);
+        showToast('Erreur de chargement des données', 'error');
+    });
 }
 
-function updateCaissierKPIs(data) {
-    document.getElementById('total-entries').textContent = `$${data.total_entries_today || '0.00'}`;
-    document.getElementById('total-expenses').textContent = `$${data.total_expenses_today || '0.00'}`;
+/**
+ * Update KPI cards
+ */
+function updateKPIs(data) {
+    const symbol = currentCurrency === 'USD' ? '$' : '';
+    const suffix = currentCurrency === 'FC' ? ' FC' : '';
+    
+    // Total Entries
+    const entriesValue = currentCurrency === 'USD' ? data.total_entries_today : data.total_entries_today_fc;
+    document.getElementById('total-entries').textContent = `${symbol}${formatNumber(entriesValue)}${suffix}`;
+    
+    // Total Expenses
+    const expensesValue = currentCurrency === 'USD' ? data.total_expenses_today : data.total_expenses_today_fc;
+    document.getElementById('total-expenses').textContent = `${symbol}${formatNumber(expensesValue)}${suffix}`;
+    
+    // Daily Balance
+    const balanceValue = currentCurrency === 'USD' ? data.balance_usd : data.balance_fc;
+    const balanceEl = document.getElementById('daily-balance');
+    balanceEl.textContent = `${symbol}${formatNumber(balanceValue)}${suffix}`;
+    
+    // Color code balance
+    const parsedBalance = parseFloat(balanceValue);
+    balanceEl.className = parsedBalance >= 0 ? 'text-2xl font-semibold text-green-600' : 'text-2xl font-semibold text-red-600';
+    
+    // Pending Validations
     document.getElementById('pending-validations').textContent = data.pending_validations || '0';
-    document.getElementById('pending-count').textContent = data.pending_validations || '0';
-    
-    const balance = (parseFloat(data.total_entries_today || 0) - parseFloat(data.total_expenses_today || 0));
-    const balanceElement = document.getElementById('daily-balance');
-    balanceElement.textContent = `$${balance.toFixed(2)}`;
-    balanceElement.className = balance >= 0 ? 'text-lg font-bold text-green-600' : 'text-lg font-bold text-red-600';
-    
-    document.getElementById('entries-count').textContent = `${data.validated_sales || '0'} ventes validées`;
-    document.getElementById('expenses-count').textContent = `${data.total_expenses_count || '0'} dépenses`;
-    document.getElementById('balance-status').textContent = balance >= 0 ? 'Positif' : 'Négatif';
-    
-    // Update cash summary
-    document.getElementById('cash-usd').textContent = `$${data.cash_usd || '0.00'}`;
-    document.getElementById('cash-fc').textContent = `${data.cash_fc || '0'} FC`;
-    document.getElementById('mobile-money').textContent = `${data.mobile_money || '0'} FC`;
-    document.getElementById('physical-total').textContent = `$${data.physical_total || '0.00'}`;
+    document.getElementById('pending-count-badge').textContent = data.pending_validations || '0';
 }
 
+/**
+ * Load chart data
+ */
+function loadChartData() {
+    const url = `/caissier/api/chart-data/?period=${currentPeriod}&devise=${currentCurrency}`;
+    
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateSalesVsExpensesChart(data.sales_vs_expenses || []);
+        updateForexImpactChart(data.forex_impact || []);
+    })
+    .catch(error => {
+        console.error('Error loading charts:', error);
+    });
+}
+
+/**
+ * Update Sales vs Expenses Chart
+ */
+function updateSalesVsExpensesChart(data) {
+    const ctx = document.getElementById('sales-vs-expenses-chart').getContext('2d');
+    
+    if (salesVsExpensesChart) {
+        salesVsExpensesChart.destroy();
+    }
+    
+    salesVsExpensesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => d.date),
+            datasets: [
+                {
+                    label: 'Entrées',
+                    data: data.map(d => d.entries),
+                    borderColor: '#16A34A',
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Sorties',
+                    data: data.map(d => d.expenses),
+                    borderColor: '#DC2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += formatCurrency(context.parsed.y, currentCurrency);
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return formatCurrency(value, currentCurrency);
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Update Forex Impact Chart
+ */
+function updateForexImpactChart(data) {
+    const ctx = document.getElementById('forex-impact-chart').getContext('2d');
+    
+    if (forexImpactChart) {
+        forexImpactChart.destroy();
+    }
+    
+    forexImpactChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.fuel),
+            datasets: [{
+                label: 'Impact Forex',
+                data: data.map(d => d.impact),
+                backgroundColor: data.map(d => d.impact >= 0 ? '#16A34A' : '#DC2626'),
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed.y;
+                            return value >= 0 ? `Gain: ${formatCurrency(value, currentCurrency)}` : `Perte: ${formatCurrency(Math.abs(value), currentCurrency)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: function(value) {
+                            return formatCurrency(value, currentCurrency);
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Load pending sales
+ */
 function loadPendingSales() {
-    fetch('/caissier/api/sales/pending/')
-        .then(response => response.json())
-        .then(data => {
-            updatePendingSalesTable(data.pending_sales);
-        })
-        .catch(error => {
-            console.error('Erreur chargement ventes en attente:', error);
-        });
+    fetch('/caissier/api/sales/pending/', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        updatePendingSalesList(data.pending_sales || []);
+        updatePendingSalesModal(data.pending_sales || []);
+    })
+    .catch(error => {
+        console.error('Error loading pending sales:', error);
+    });
 }
 
-function updatePendingSalesTable(pendingSales) {
-    const tbody = document.getElementById('pending-sales-body');
-    tbody.innerHTML = '';
+/**
+ * Update pending sales list
+ */
+function updatePendingSalesList(sales) {
+    const container = document.getElementById('pending-sales-list');
     
-    if (pendingSales.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                    Aucune vente en attente de validation
-                </td>
-            </tr>
+    if (sales.length === 0) {
+        container.innerHTML = `
+            <div class="p-8 text-center text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="mt-2">Aucune vente en attente</p>
+            </div>
         `;
         return;
     }
     
-    pendingSales.forEach(sale => {
-        const row = `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.time}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.pompiste}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$${sale.montant_usd || '0.00'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sale.montant_fc || '0'} FC</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <button onclick="openValidationModal('${sale.id}')" class="text-blue-600 hover:text-blue-800 mr-2">
-                        Valider
-                    </button>
-                    <button onclick="viewSaleDetails('${sale.id}')" class="text-gray-600 hover:text-gray-800">
-                        Détails
-                    </button>
-                </td>
-            </tr>
+    container.innerHTML = sales.slice(0, 5).map(sale => `
+        <div class="p-4 hover:bg-gray-50 cursor-pointer transition-colors" onclick="openValidationModal(${sale.id})">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">Vente #${sale.id}</p>
+                    <p class="text-xs text-gray-500">${sale.pompiste} • ${sale.carburant}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_usd, 'USD')}</p>
+                    <p class="text-xs text-gray-500">${sale.created_at}</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Update pending sales modal
+ */
+function updatePendingSalesModal(sales) {
+    const container = document.getElementById('pending-sales-modal-list');
+    
+    if (sales.length === 0) {
+        container.innerHTML = `
+            <div class="p-8 text-center text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="mt-2">Aucune vente en attente</p>
+            </div>
         `;
-        tbody.insertAdjacentHTML('beforeend', row);
+        return;
+    }
+    
+    container.innerHTML = sales.map(sale => `
+        <div class="p-4 border-b border-gray-200 hover:bg-gray-50">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-medium text-gray-900">Vente #${sale.id}</h4>
+                <button onclick="openValidationModal(${sale.id}); closeModal('pending-sales-modal');" class="text-petrox-red hover:text-petrox-hover text-sm font-medium">
+                    Valider →
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                <div><span class="font-medium">Pompiste:</span> ${sale.pompiste}</div>
+                <div><span class="font-medium">Manager:</span> ${sale.manager}</div>
+                <div><span class="font-medium">Carburant:</span> ${sale.carburant}</div>
+                <div><span class="font-medium">Quantité:</span> ${sale.quantite} L</div>
+                <div><span class="font-medium">USD:</span> ${formatCurrency(sale.montant_usd, 'USD')}</div>
+                <div><span class="font-medium">FC:</span> ${formatCurrency(sale.montant_fc, 'FC')}</div>
+                <div><span class="font-medium">Paiement:</span> ${sale.moyen_paiement}</div>
+                <div><span class="font-medium">Date:</span> ${sale.created_at}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Load recent transactions
+ */
+function loadRecentTransactions() {
+    fetch('/caissier/api/recent-transactions/', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateRecentTransactions(data.transactions || []);
+    })
+    .catch(error => {
+        console.error('Error loading transactions:', error);
     });
 }
 
+/**
+ * Update recent transactions list
+ */
+function updateRecentTransactions(transactions) {
+    const container = document.getElementById('recent-transactions');
+    
+    if (transactions.length === 0) {
+        container.innerHTML = `
+            <div class="p-8 text-center text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <p class="mt-2">Aucune transaction récente</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = transactions.slice(0, 10).map(txn => `
+        <div class="p-4 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-8 w-8 rounded-full ${txn.type === 'entry' ? 'bg-green-100' : 'bg-red-100'}">
+                            <svg class="h-4 w-4 ${txn.type === 'entry' ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${txn.type === 'entry' ? 'M12 4v16m8-8H4' : 'M20 12H4'}" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">${txn.description}</p>
+                        <p class="text-xs text-gray-500">${txn.date} • ${txn.time}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold ${txn.type === 'entry' ? 'text-green-600' : 'text-red-600'}">
+                        ${txn.type === 'entry' ? '+' : '-'}${formatCurrency(txn.amount, txn.currency)}
+                    </p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Open validation modal for a specific sale
+ */
 function openValidationModal(saleId) {
     currentSaleId = saleId;
     
+    // Reset form
+    document.getElementById('manquant-usd').value = '';
+    document.getElementById('manquant-fc').value = '';
+    document.getElementById('manquant-raison').value = '';
+    
     // Fetch sale details
-    fetch(`/caissier/api/sales/${saleId}/`)
-        .then(response => response.json())
-        .then(data => {
-            const detailsHtml = `
-                <div class="space-y-2">
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-600">Pompiste:</span>
-                        <span class="text-sm font-medium">${data.pompiste}</span>
+    fetch(`/caissier/api/sales/${saleId}/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const sale = data.sale;
+        document.getElementById('validation-details').innerHTML = `
+            <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Numéro de vente</p>
+                        <p class="text-sm font-semibold text-gray-900">#${sale.id}</p>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-600">Carburant:</span>
-                        <span class="text-sm font-medium">${data.carburant} - ${data.quantite} L</span>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Date</p>
+                        <p class="text-sm text-gray-900">${sale.created_at}</p>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-600">Montant USD:</span>
-                        <span class="text-sm font-medium">$${data.montant_usd || '0.00'}</span>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Pompiste</p>
+                        <p class="text-sm text-gray-900">${sale.pompiste}</p>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-600">Montant FC:</span>
-                        <span class="text-sm font-medium">${data.montant_fc || '0'} FC</span>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Manager</p>
+                        <p class="text-sm text-gray-900">${sale.manager}</p>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-600">Paiement:</span>
-                        <span class="text-sm font-medium">${data.moyen_paiement}</span>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Carburant</p>
+                        <p class="text-sm text-gray-900">${sale.carburant}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Quantité</p>
+                        <p class="text-sm text-gray-900">${sale.quantite} Litres</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Montant USD</p>
+                        <p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_usd, 'USD')}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Montant FC</p>
+                        <p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_fc, 'FC')}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Moyen de paiement</p>
+                        <p class="text-sm text-gray-900">${sale.moyen_paiement}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Taux de change</p>
+                        <p class="text-sm text-gray-900">${sale.taux_change} FC</p>
                     </div>
                 </div>
-            `;
-            document.getElementById('validation-details').innerHTML = detailsHtml;
-            toggleModal('validation-modal');
-        })
-        .catch(error => {
-            console.error('Erreur chargement détails vente:', error);
-            showNotification('Erreur lors du chargement des détails', 'error');
-        });
+                ${sale.observations ? `
+                <div class="pt-2 border-t border-gray-200">
+                    <p class="text-xs font-medium text-gray-500">Observations</p>
+                    <p class="text-sm text-gray-700 mt-1">${sale.observations}</p>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        openModal('validation-modal');
+    })
+    .catch(error => {
+        console.error('Error fetching sale details:', error);
+        showToast('Erreur de chargement des détails', 'error');
+    });
 }
 
+/**
+ * Validate sale (no missing amount)
+ */
 function validateSale() {
-    const manquantUsd = document.getElementById('manquant-usd').value || 0;
-    const manquantFc = document.getElementById('manquant-fc').value || 0;
-    const raison = document.getElementById('manquant-raison').value;
+    const manquantUsd = parseFloat(document.getElementById('manquant-usd').value) || 0;
+    const manquantFc = parseFloat(document.getElementById('manquant-fc').value) || 0;
+    const raison = document.getElementById('manquant-raison').value.trim();
+    
+    // If there's a missing amount, require a reason
+    if ((manquantUsd > 0 || manquantFc > 0) && !raison) {
+        showToast('Veuillez expliquer la raison du manquant', 'error');
+        return;
+    }
     
     const validationData = {
         sale_id: currentSaleId,
         action: 'validate',
-        manquant_usd: parseFloat(manquantUsd),
-        manquant_fc: parseFloat(manquantFc),
+        manquant_usd: manquantUsd,
+        manquant_fc: manquantFc,
         raison_manquant: raison
     };
     
@@ -573,7 +835,8 @@ function validateSale() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify(validationData)
     })
@@ -581,35 +844,44 @@ function validateSale() {
     .then(data => {
         if (data.success) {
             closeModal('validation-modal');
-            showNotification('Vente validée avec succès', 'success');
+            showToast('Vente validée avec succès', 'success');
+            loadDashboardData();
             loadPendingSales();
-            loadCaissierDashboard();
             loadRecentTransactions();
         } else {
-            showNotification(data.message || 'Erreur lors de la validation', 'error');
+            showToast(data.message || 'Erreur lors de la validation', 'error');
         }
     })
     .catch(error => {
-        console.error('Erreur validation vente:', error);
-        showNotification('Erreur lors de la validation', 'error');
+        console.error('Error validating sale:', error);
+        showToast('Erreur de connexion', 'error');
     });
 }
 
+/**
+ * Report missing amount
+ */
 function reportMissing() {
-    const manquantUsd = document.getElementById('manquant-usd').value || 0;
-    const manquantFc = document.getElementById('manquant-fc').value || 0;
-    const raison = document.getElementById('manquant-raison').value;
+    const manquantUsd = parseFloat(document.getElementById('manquant-usd').value) || 0;
+    const manquantFc = parseFloat(document.getElementById('manquant-fc').value) || 0;
+    const raison = document.getElementById('manquant-raison').value.trim();
     
-    if (!raison.trim()) {
-        showNotification('Veuillez expliquer la raison du manquant', 'error');
+    // Validate inputs
+    if (manquantUsd === 0 && manquantFc === 0) {
+        showToast('Veuillez saisir le montant manquant', 'error');
+        return;
+    }
+    
+    if (!raison) {
+        showToast('Veuillez expliquer la raison du manquant', 'error');
         return;
     }
     
     const validationData = {
         sale_id: currentSaleId,
         action: 'report_missing',
-        manquant_usd: parseFloat(manquantUsd),
-        manquant_fc: parseFloat(manquantFc),
+        manquant_usd: manquantUsd,
+        manquant_fc: manquantFc,
         raison_manquant: raison
     };
     
@@ -617,7 +889,8 @@ function reportMissing() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify(validationData)
     })
@@ -625,173 +898,43 @@ function reportMissing() {
     .then(data => {
         if (data.success) {
             closeModal('validation-modal');
-            showNotification('Manquant signalé avec succès', 'success');
+            showToast('Manquant signalé avec succès', 'success');
+            loadDashboardData();
             loadPendingSales();
-            loadCaissierDashboard();
             loadRecentTransactions();
         } else {
-            showNotification(data.message || 'Erreur lors du signalement', 'error');
+            showToast(data.message || 'Erreur lors du signalement', 'error');
         }
     })
     .catch(error => {
-        console.error('Erreur signalement manquant:', error);
-        showNotification('Erreur lors du signalement', 'error');
+        console.error('Error reporting missing:', error);
+        showToast('Erreur de connexion', 'error');
     });
 }
 
-function registerExpense(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    
-    fetch('/caissier/api/expenses/register/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal('depense-modal');
-            showNotification('Dépense enregistrée avec succès', 'success');
-            loadCaissierDashboard();
-            loadRecentTransactions();
-            event.target.reset();
-        } else {
-            showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur enregistrement dépense:', error);
-        showNotification('Erreur lors de l\'enregistrement de la dépense', 'error');
-    });
+/**
+ * Helper: Show coming soon toast
+ */
+function showComingSoon(feature) {
+    showToast(`${feature} - Prochainement disponible`, 'error');
 }
 
-function quickExpense(categoryId, categoryName) {
-const amount = prompt(Montant pour ${categoryName}:);
-if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
-const expenseData = {
-categorie: categoryId,
-montant: parseFloat(amount),
-devise: 'USD',
-description: Dépense rapide - ${categoryName},
-methode_paiement: 'cash'
-};
-    fetch('/caissier/api/expenses/register/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(expenseData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Dépense enregistrée avec succès', 'success');
-            loadCaissierDashboard();
-            loadRecentTransactions();
-        } else {
-            showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur dépense rapide:', error);
-        showNotification('Erreur lors de l\'enregistrement', 'error');
-    });
-}
-}
-function loadRecentTransactions() {
-fetch('/caissier/api/transactions/')
-.then(response => response.json())
-.then(data => {
-updateTransactionsTable(data.transactions);
-})
-.catch(error => {
-console.error('Erreur chargement transactions:', error);
-});
-}
-function updateTransactionsTable(transactions) {
-const tbody = document.getElementById('transactions-body');
-tbody.innerHTML = '';
-transactions.forEach(transaction => {
-    const row = `
-        <tr data-type="${transaction.type}">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.time}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.type}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.description}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${transaction.amount.startsWith('-') ? 'text-red-600' : 'text-green-600'}">${transaction.amount}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(transaction.status)}">
-                    ${transaction.status}
-                </span>
-            </td>
-        </tr>
-    `;
-    tbody.insertAdjacentHTML('beforeend', row);
-});
-}
-function filterTransactions(filter) {
-// Update active filter button
-document.querySelectorAll('[onclick^="filterTransactions"]').forEach(btn => {
-btn.className = btn.className.replace('bg-gray-100 text-gray-700', 'text-gray-500 hover:bg-gray-100');
-});
-event.target.className = event.target.className.replace('text-gray-500 hover:bg-gray-100', 'bg-gray-100 text-gray-700');
-// Filter transactions table
-const rows = document.querySelectorAll('#transactions-body tr');
-rows.forEach(row => {
-    const type = row.getAttribute('data-type');
-    if (filter === 'all' || 
-        (filter === 'entries' && type === 'vente') ||
-        (filter === 'expenses' && type === 'depense')) {
-        row.style.display = '';
-    } else {
-        row.style.display = 'none';
-    }
-});
-}
-function reconcileCash() {
-// Open cash reconciliation modal or process
-showNotification('Fonctionnalité de réconciliation en cours de développement', 'info');
-}
-function getStatusClass(status) {
-switch(status.toLowerCase()) {
-case 'validé':
-case 'complété':
-return 'bg-green-100 text-green-800';
-case 'en attente':
-return 'bg-yellow-100 text-yellow-800';
-case 'rejeté':
-case 'manquant':
-return 'bg-red-100 text-red-800';
-default:
-return 'bg-gray-100 text-gray-800';
-}
-}
-function showNotification(message, type) {
-const notification = document.createElement('div');
-notification.className = fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${         type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :          type === 'info' ? 'bg-blue-100 text-blue-800 border border-blue-200' :         'bg-red-100 text-red-800 border border-red-200'     };
-notification.textContent = message;
-document.body.appendChild(notification);
-
-setTimeout(() => {
-    notification.remove();
-}, 5000);
-}
+/**
+ * Helper: Get CSRF cookie
+ */
 function getCookie(name) {
-let cookieValue = null;
-if (document.cookie && document.cookie !== '') {
-const cookies = document.cookie.split(';');
-for (let i = 0; i < cookies.length; i++) {
-const cookie = cookies[i].trim();
-if (cookie.substring(0, name.length + 1) === (name + '=')) {
-cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-break;
-}
-}
-}
-return cookieValue;
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 </script>
 {% endblock %}

@@ -1,0 +1,884 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Dépenses - Caissier - PETROX{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'caissier_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Dashboard
+</a>
+<a href="{% url 'caissier_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Ventes
+</a>
+<a href="{% url 'caissier_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+    Dépenses
+</a>
+<a href="{% url 'caissier_module:salaires' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Salaires
+</a>
+<a href="{% url 'caissier_module:abonnes' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Abonnés
+</a>
+<a href="#" onclick="showComingSoon('Documents')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Documents
+</a>
+{% endblock %}
+
+{% block mobile_menu %}
+<a href="{% url 'caissier_module:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'caissier_module:ventes' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Ventes</a>
+<a href="{% url 'caissier_module:depenses' %}" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-100 text-gray-900">Dépenses</a>
+<a href="#" onclick="showComingSoon('Salaires')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Salaires</a>
+<a href="#" onclick="showComingSoon('Abonnés')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Abonnés</a>
+<a href="#" onclick="showComingSoon('Documents')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Documents</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'caissier_module:dashboard' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span>Dashboard</span>
+</a>
+<a href="{% url 'caissier_module:ventes' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>Ventes</span>
+</a>
+<a href="{% url 'caissier_module:depenses' %}" class="mobile-nav-item mobile-nav-active">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>Dépenses</span>
+</a>
+<a href="#" onclick="showComingSoon('Salaires')" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <span>Salaires</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Gestion des Dépenses
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span>
+        </p>
+    </div>
+    <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+        <button onclick="openModal('depense-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nouvelle Dépense
+        </button>
+        <button onclick="loadExpenses()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Actualiser
+        </button>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+    <!-- Total Expenses -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Dépenses</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-expenses-count">0</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Amount USD -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Montant USD</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-usd">$0.00</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Amount FC -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Montant FC</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-fc">0 FC</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Approval -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">En Attente</dt>
+                        <dd class="text-2xl font-semibold text-yellow-600" id="pending-count">0</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Period Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Période</label>
+            <select id="filter-period" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="today">Aujourd'hui</option>
+                <option value="week">7 derniers jours</option>
+                <option value="month" selected>30 derniers jours</option>
+                <option value="all">Toute la période</option>
+            </select>
+        </div>
+        
+        <!-- Category Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+            <select id="filter-category" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toutes les catégories</option>
+                {% for categorie in categories_depense %}
+                <option value="{{ categorie.id }}">{{ categorie.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Currency Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
+            <select id="filter-currency" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Toutes les devises</option>
+                <option value="USD">USD</option>
+                <option value="FC">FC</option>
+            </select>
+        </div>
+        
+        <!-- Status Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+            <select id="filter-status" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Tous les statuts</option>
+                <option value="en_attente">En attente</option>
+                <option value="approuvee">Approuvée</option>
+                <option value="rejetee">Rejetée</option>
+            </select>
+        </div>
+        
+        <!-- Search -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+            <input type="text" id="search-input" placeholder="Rechercher..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+        </div>
+    </div>
+    
+    <div class="mt-4 flex justify-end space-x-3">
+        <button onclick="resetFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            Réinitialiser
+        </button>
+        <button onclick="applyFilters()" class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            Appliquer les filtres
+        </button>
+    </div>
+</div>
+
+<!-- Expenses Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">
+            Liste des Dépenses (<span id="table-count">0</span>)
+        </h3>
+        <div class="flex items-center space-x-2">
+            <button onclick="exportToExcel()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </button>
+            <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                PDF
+            </button>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paiement</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bénéficiaire</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="expenses-table-body" class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center">
+                        <div class="spinner mx-auto mb-2"></div>
+                        <p class="text-sm text-gray-500">Chargement des dépenses...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div id="pagination-container" class="hidden bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                Affichage de <span id="page-start">1</span> à <span id="page-end">20</span> sur <span id="total-records">0</span> dépenses
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="previousPage()" id="prev-btn" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Précédent
+                </button>
+                <button onclick="nextPage()" id="next-btn" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Suivant
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- New Expense Modal -->
+<div id="depense-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('depense-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <form id="expense-form" onsubmit="submitExpense(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Enregistrer une Dépense</h3>
+                            
+                            <div class="space-y-4">
+                                <!-- Category -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie *</label>
+                                    <div class="flex gap-2">
+                                        <select id="expense-category" required class="flex-1 block border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                            <option value="">Sélectionner une catégorie</option>
+                                            {% for categorie in categories_depense %}
+                                            <option value="{{ categorie.id }}">{{ categorie.nom }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="button" onclick="openRequestCategoryModal()" class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" title="Demander nouvelle catégorie">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Amount & Currency -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Montant *</label>
+                                        <input type="number" step="0.01" id="expense-amount" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Devise *</label>
+                                        <select id="expense-currency" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                            <option value="USD">USD ($)</option>
+                                            <option value="FC">FC (Francs Congolais)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Payment Method -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Moyen de Paiement *</label>
+                                    <select id="expense-payment" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                        <option value="cash">Cash</option>
+                                        <option value="mobile_money">Mobile Money</option>
+                                        <option value="bank_transfer">Virement Bancaire</option>
+                                        <option value="cheque">Chèque</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Beneficiary -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Bénéficiaire</label>
+                                    <input type="text" id="expense-beneficiary" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Nom du bénéficiaire (optionnel)">
+                                </div>
+                                
+                                <!-- Description -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                                    <textarea id="expense-description" rows="3" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Décrivez la dépense..."></textarea>
+                                </div>
+                                
+                                <!-- Receipt Upload -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Justificatif (optionnel)</label>
+                                    <input type="file" id="expense-receipt" accept="image/*,.pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-petrox-red file:text-white hover:file:bg-petrox-hover">
+                                    <p class="mt-1 text-xs text-gray-500">Images ou PDF jusqu'à 5MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:w-auto sm:text-sm">
+                        Enregistrer
+                    </button>
+                    <button type="button" onclick="closeModal('depense-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Request Category Modal -->
+<div id="request-category-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('request-category-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="category-request-form" onsubmit="submitCategoryRequest(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Demander une Nouvelle Catégorie</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nom de la catégorie *</label>
+                                    <input type="text" id="new-category-name" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Ex: Maintenance électrique">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Justification *</label>
+                                    <textarea id="category-justification" rows="3" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Expliquez pourquoi cette catégorie est nécessaire..."></textarea>
+                                </div>
+                                
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-yellow-700">
+                                                Cette demande sera envoyée à l'Admin pour validation. Vous serez notifié de la décision.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:w-auto sm:text-sm">
+                        Envoyer la demande
+                    </button>
+                    <button type="button" onclick="closeModal('request-category-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Detail Modal -->
+<div id="expense-detail-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('expense-detail-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Détails de la Dépense</h3>
+                    <button onclick="closeModal('expense-detail-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="expense-detail-content" class="text-sm text-gray-700">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeModal('expense-detail-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variables
+let currentPage = 1;
+let totalPages = 1;
+let allExpenses = [];
+let filteredExpenses = [];
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadExpenses();
+    
+    // Setup search debounce
+    let searchTimeout;
+    document.getElementById('search-input').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchExpenses, 300);
+    });
+});
+
+/**
+ * Load expenses from API
+ */
+function loadExpenses() {
+    const period = document.getElementById('filter-period').value;
+    const category = document.getElementById('filter-category').value;
+    const currency = document.getElementById('filter-currency').value;
+    const status = document.getElementById('filter-status').value;
+    
+    const url = `/caissier/api/expenses/list/?period=${period}&category=${category}&currency=${currency}&status=${status}`;
+    
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        allExpenses = data.expenses || [];
+        filteredExpenses = [...allExpenses];
+        updateStatistics(data.statistics || {});
+        currentPage = 1;
+        renderExpensesTable();
+    })
+    .catch(error => {
+        console.error('Error loading expenses:', error);
+        showToast('Erreur de chargement des dépenses', 'error');
+    });
+}
+
+/**
+ * Update statistics cards
+ */
+function updateStatistics(stats) {
+    document.getElementById('total-expenses-count').textContent = stats.total || 0;
+    document.getElementById('total-usd').textContent = `$${formatNumber(stats.total_usd || 0)}`;
+    document.getElementById('total-fc').textContent = `${formatNumber(stats.total_fc || 0)} FC`;
+    document.getElementById('pending-count').textContent = stats.pending || 0;
+}
+
+/**
+ * Render expenses table
+ */
+function renderExpensesTable() {
+    const tbody = document.getElementById('expenses-table-body');
+    const tableCount = document.getElementById('table-count');
+    
+    if (filteredExpenses.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">Aucune dépense trouvée</p>
+                </td>
+            </tr>
+        `;
+        tableCount.textContent = '0';
+        document.getElementById('pagination-container').classList.add('hidden');
+        return;
+    }
+    
+    // Pagination
+    const itemsPerPage = 20;
+    totalPages = Math.ceil(filteredExpenses.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredExpenses.length);
+    const pageExpenses = filteredExpenses.slice(startIndex, endIndex);
+    
+    // Render rows
+    tbody.innerHTML = pageExpenses.map(expense => `
+        <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div>${expense.date}</div>
+                <div class="text-xs text-gray-500">${expense.time}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${expense.categorie}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+                <div class="max-w-xs truncate" title="${expense.description}">
+                    ${expense.description}
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                ${formatCurrency(expense.montant, expense.devise)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${expense.methode_paiement}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${expense.beneficiaire}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                ${getStatusBadge(expense.statut)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="viewExpenseDetail(${expense.id})" class="text-blue-600 hover:text-blue-900" title="Voir détails">
+                    <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update count
+    tableCount.textContent = filteredExpenses.length;
+    
+    // Update pagination
+    document.getElementById('page-start').textContent = startIndex + 1;
+    document.getElementById('page-end').textContent = endIndex;
+    document.getElementById('total-records').textContent = filteredExpenses.length;
+    document.getElementById('pagination-container').classList.remove('hidden');
+    
+    // Update pagination buttons
+    document.getElementById('prev-btn').disabled = currentPage === 1;
+    document.getElementById('next-btn').disabled = currentPage === totalPages;
+}
+
+/**
+ * Get status badge HTML
+ */
+function getStatusBadge(status) {
+    const badges = {
+        'en_attente': '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">En attente</span>',
+        'approuvee': '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Approuvée</span>',
+        'rejetee': '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejetée</span>'
+    };
+    return badges[status] || status;
+}
+
+/**
+ * Submit expense
+ */
+function submitExpense(event) {
+    event.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('categorie_id', document.getElementById('expense-category').value);
+    formData.append('montant', document.getElementById('expense-amount').value);
+    formData.append('devise', document.getElementById('expense-currency').value);
+    formData.append('methode_paiement', document.getElementById('expense-payment').value);
+    formData.append('beneficiaire', document.getElementById('expense-beneficiary').value);
+    formData.append('description', document.getElementById('expense-description').value);
+    
+    const receiptFile = document.getElementById('expense-receipt').files[0];
+    if (receiptFile) {
+        formData.append('justificatif', receiptFile);
+    }
+    
+    fetch('/caissier/api/expenses/register/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('depense-modal');
+            showToast('Dépense enregistrée avec succès', 'success');
+            document.getElementById('expense-form').reset();
+            loadExpenses();
+        } else {
+            showToast(data.message || 'Erreur lors de l\'enregistrement', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erreur de connexion', 'error');
+    });
+}
+
+/**
+ * Open request category modal
+ */
+function openRequestCategoryModal() {
+    closeModal('depense-modal');
+    openModal('request-category-modal');
+}
+
+/**
+ * Submit category request
+ */
+function submitCategoryRequest(event) {
+    event.preventDefault();
+    
+    const requestData = {
+        nom: document.getElementById('new-category-name').value,
+        justification: document.getElementById('category-justification').value
+    };
+    
+    fetch('/caissier/api/expenses/categories/request/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('request-category-modal');
+            showToast('Demande envoyée à l\'Admin avec succès', 'success');
+            document.getElementById('category-request-form').reset();
+            openModal('depense-modal');
+        } else {
+            showToast(data.message || 'Erreur lors de l\'envoi', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erreur de connexion', 'error');
+    });
+}
+
+/**
+ * View expense detail
+ */
+function viewExpenseDetail(expenseId) {
+    fetch(`/caissier/api/expenses/${expenseId}/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const expense = data.expense;
+        document.getElementById('expense-detail-content').innerHTML = `
+            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Numéro</p>
+                        <p class="text-sm font-semibold text-gray-900">#${expense.id}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Date</p>
+                        <p class="text-sm text-gray-900">${expense.date} ${expense.time}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Catégorie</p>
+                        <p class="text-sm text-gray-900">${expense.categorie}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Montant</p>
+                        <p class="text-sm font-semibold text-gray-900">${formatCurrency(expense.montant, expense.devise)}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Moyen de paiement</p>
+                        <p class="text-sm text-gray-900">${expense.methode_paiement}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Bénéficiaire</p>
+                        <p class="text-sm text-gray-900">${expense.beneficiaire || '-'}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Statut</p>
+                        <p class="text-sm">${getStatusBadge(expense.statut)}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Enregistré par</p>
+                        <p class="text-sm text-gray-900">${expense.created_by}</p>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-gray-200">
+                    <p class="text-xs font-medium text-gray-500">Description</p>
+                    <p class="text-sm text-gray-700 mt-1">${expense.description}</p>
+                </div>
+                ${expense.justificatif_url ? `
+                <div class="pt-3 border-t border-gray-200">
+                    <p class="text-xs font-medium text-gray-500 mb-2">Justificatif</p>
+                    <a href="${expense.justificatif_url}" target="_blank" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Voir le justificatif
+                    </a>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        openModal('expense-detail-modal');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erreur de chargement des détails', 'error');
+    });
+}
+
+/**
+ * Apply filters
+ */
+function applyFilters() {
+    loadExpenses();
+}
+
+/**
+ * Reset filters
+ */
+function resetFilters() {
+    document.getElementById('filter-period').value = 'month';
+    document.getElementById('filter-category').value = 'all';
+    document.getElementById('filter-currency').value = 'all';
+    document.getElementById('filter-status').value = 'all';
+    document.getElementById('search-input').value = '';
+    loadExpenses();
+}
+
+/**
+ * Search expenses
+ */
+function searchExpenses() {
+    const searchText = document.getElementById('search-input').value.toLowerCase();
+    
+    if (searchText === '') {
+        filteredExpenses = [...allExpenses];
+    } else {
+        filteredExpenses = allExpenses.filter(expense => 
+            expense.categorie.toLowerCase().includes(searchText) ||
+            expense.description.toLowerCase().includes(searchText) ||
+            expense.beneficiaire.toLowerCase().includes(searchText) ||
+            expense.id.toString().includes(searchText)
+        );
+    }
+    
+    currentPage = 1;
+    renderExpensesTable();
+}
+
+/**
+ * Pagination
+ */
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderExpensesTable();
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderExpensesTable();
+    }
+}
+
+/**
+ * Export functions
+ */
+function exportToExcel() {
+    const period = document.getElementById('filter-period').value;
+    window.location.href = `/caissier/api/expenses/export/excel/?period=${period}`;
+    showToast('Export Excel en cours...', 'success');
+}
+
+function exportToPDF() {
+    const period = document.getElementById('filter-period').value;
+    window.location.href = `/caissier/api/expenses/export/pdf/?period=${period}`;
+    showToast('Export PDF en cours...', 'success');
+}
+
+/**
+ * Helper: Show coming soon toast
+ */
+function showComingSoon(feature) {
+    showToast(`${feature} - Prochainement disponible`, 'error');
+}
+</script>
+{% endblock %}
