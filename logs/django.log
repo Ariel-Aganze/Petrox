@@ -5095,3 +5095,1168 @@ INFO 2026-02-04 12:06:44,025 basehttp 20776 14948 "GET /manager/documents/ HTTP/
 INFO 2026-02-04 12:08:28,795 basehttp 20776 19720 "GET /shared/notifications/ HTTP/1.1" 200 40
 INFO 2026-02-04 12:08:38,740 basehttp 20776 19696 "GET /dashboard/notifications/ HTTP/1.1" 200 34385
 INFO 2026-02-04 12:08:38,835 basehttp 20776 19696 "GET /media/users/photos/abraham-removebg-preview.png HTTP/1.1" 304 0
+INFO 2026-02-04 12:41:43,114 autoreload 22648 16076 Watching for file changes with StatReloader
+INFO 2026-02-04 12:41:45,189 basehttp 22648 17044 "GET /shared/profile/ HTTP/1.1" 200 38695
+INFO 2026-02-04 12:41:58,741 basehttp 22648 10656 "GET /dashboard/ HTTP/1.1" 200 63116
+INFO 2026-02-04 12:41:59,138 basehttp 22648 10656 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1367
+INFO 2026-02-04 12:51:52,442 basehttp 22648 12484 "GET /manager/documents/ HTTP/1.1" 200 48987
+INFO 2026-02-04 12:52:02,890 basehttp 22648 24040 "GET /shared/notifications/ HTTP/1.1" 200 40
+INFO 2026-02-04 12:52:07,073 basehttp 22648 24040 "GET /dashboard/branches/ HTTP/1.1" 200 88016
+INFO 2026-02-04 12:52:07,452 basehttp 22648 24040 "GET /dashboard/api/users/?role=manager HTTP/1.1" 200 205
+INFO 2026-02-04 12:52:12,552 basehttp 22648 24040 "GET /shared/profile/ HTTP/1.1" 200 50145
+INFO 2026-02-04 12:52:18,549 basehttp 22648 24040 "GET /shared/profile/ HTTP/1.1" 200 50145
+INFO 2026-02-04 12:52:21,876 basehttp 22648 24040 "GET /dashboard/parametres/ HTTP/1.1" 200 60097
+INFO 2026-02-04 12:52:23,852 basehttp 22648 24040 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2026-02-04 12:52:23,911 basehttp 22648 24040 "GET /auth/login/ HTTP/1.1" 200 7765
+INFO 2026-02-04 12:52:26,319 basehttp 22648 24040 "GET /auth/login/ HTTP/1.1" 200 7219
+INFO 2026-02-04 13:06:58,861 basehttp 22648 7348 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2026-02-04 13:06:58,989 basehttp 22648 7348 "GET /dashboard/ HTTP/1.1" 200 74567
+INFO 2026-02-04 13:06:59,359 basehttp 22648 7348 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1367
+INFO 2026-02-04 13:07:02,184 basehttp 22648 7348 "GET /dashboard/utilisateurs/ HTTP/1.1" 200 130212
+INFO 2026-02-04 13:08:18,810 basehttp 22648 7348 "POST /dashboard/api/users/create/ HTTP/1.1" 200 232
+INFO 2026-02-04 13:08:20,914 basehttp 22648 7348 "GET /dashboard/utilisateurs/ HTTP/1.1" 200 135303
+INFO 2026-02-04 13:08:46,142 basehttp 22648 15096 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2026-02-04 13:08:46,147 basehttp 22648 15096 "GET /auth/login/ HTTP/1.1" 200 7761
+INFO 2026-02-04 13:08:58,165 basehttp 22648 15096 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2026-02-04 13:08:58,230 basehttp 22648 15096 "GET /caissier/ HTTP/1.1" 200 69537
+INFO 2026-02-04 13:09:07,471 basehttp 22648 15096 "GET /caissier/ HTTP/1.1" 200 69537
+INFO 2026-02-04 13:09:09,958 basehttp 22648 15096 "GET /caissier/ HTTP/1.1" 200 69537
+ERROR 2026-02-04 13:09:31,866 log 22648 15096 Internal Server Error: /caissier/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\engine.py", line 161, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 63, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base.html
+ERROR 2026-02-04 13:09:31,879 basehttp 22648 15096 "GET /caissier/ HTTP/1.1" 500 136784
+INFO 2026-02-04 13:09:44,669 basehttp 22648 15096 "GET /caissier/ HTTP/1.1" 200 70402
+WARNING 2026-02-04 13:09:44,869 log 22648 20340 Not Found: /caissier/api/recent-transactions/
+WARNING 2026-02-04 13:09:44,871 basehttp 22648 20340 "GET /caissier/api/recent-transactions/ HTTP/1.1" 404 5880
+INFO 2026-02-04 13:09:44,915 basehttp 22648 15096 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:09:44,931 log 22648 15096 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:09:44,931 basehttp 22648 15096 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:09:45,028 basehttp 22648 19620 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:09:53,278 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:09:53,288 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:09:53,288 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+WARNING 2026-02-04 13:09:57,962 log 22648 19620 Not Found: /caissier/api/sales/3/
+WARNING 2026-02-04 13:09:57,963 basehttp 22648 19620 "GET /caissier/api/sales/3/ HTTP/1.1" 404 5844
+INFO 2026-02-04 13:10:02,712 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:10:02,721 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:10:02,721 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:10:05,005 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:10:05,016 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:10:05,017 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:10:05,669 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:10:05,679 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:10:05,680 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:10:06,921 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:10:06,933 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:10:06,934 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:10:11,924 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:10:11,933 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:10:11,933 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:10:12,613 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:10:12,624 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:10:12,625 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:10:27,694 basehttp 22648 7348 "GET /dashboard/depenses/ HTTP/1.1" 200 83998
+INFO 2026-02-04 13:10:28,010 basehttp 22648 7348 "GET /dashboard/api/depenses/?period=month HTTP/1.1" 200 1151
+INFO 2026-02-04 13:10:28,019 basehttp 22648 23864 "GET /dashboard/api/depenses/analytics/?period=month HTTP/1.1" 200 2332
+WARNING 2026-02-04 13:11:45,251 log 22648 20340 Not Found: /caissier/api/recent-transactions/
+WARNING 2026-02-04 13:11:45,251 basehttp 22648 20340 "GET /caissier/api/recent-transactions/ HTTP/1.1" 404 5880
+INFO 2026-02-04 13:11:45,306 basehttp 22648 15096 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:11:45,399 basehttp 22648 19620 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:11:45,409 log 22648 19620 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:11:45,410 basehttp 22648 19620 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+WARNING 2026-02-04 13:13:45,264 log 22648 2704 Not Found: /caissier/api/recent-transactions/
+WARNING 2026-02-04 13:13:45,265 basehttp 22648 2704 "GET /caissier/api/recent-transactions/ HTTP/1.1" 404 5880
+INFO 2026-02-04 13:13:45,341 basehttp 22648 128 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:13:45,344 basehttp 22648 2464 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 369
+WARNING 2026-02-04 13:13:45,356 log 22648 2464 Not Found: /caissier/api/chart-data/
+WARNING 2026-02-04 13:13:45,357 basehttp 22648 2464 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 404 5881
+INFO 2026-02-04 13:14:23,698 autoreload 22648 16076 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 13:14:24,794 autoreload 3696 20380 Watching for file changes with StatReloader
+INFO 2026-02-04 13:15:04,419 autoreload 3696 20380 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 13:15:05,216 autoreload 19648 17640 Watching for file changes with StatReloader
+INFO 2026-02-04 13:15:17,438 autoreload 19648 17640 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 13:15:18,119 autoreload 24520 19332 Watching for file changes with StatReloader
+INFO 2026-02-04 13:15:31,288 basehttp 24520 23500 "GET /caissier/ HTTP/1.1" 200 70403
+INFO 2026-02-04 13:15:31,599 basehttp 24520 16644 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:15:31,602 basehttp 24520 924 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:15:31,625 basehttp 24520 23500 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:31,901 basehttp 24520 23500 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:38,549 basehttp 24520 23500 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:38,678 basehttp 24520 23500 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:47,196 basehttp 24520 24244 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:47,312 basehttp 24520 24244 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:50,309 basehttp 24520 860 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:50,426 basehttp 24520 860 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:51,923 basehttp 24520 860 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:52,037 basehttp 24520 860 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:53,188 basehttp 24520 860 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:53,305 basehttp 24520 860 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:53,796 basehttp 24520 860 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:53,869 basehttp 24520 20784 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:54,002 basehttp 24520 20784 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:54,029 basehttp 24520 860 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:54,152 basehttp 24520 860 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:54,203 basehttp 24520 20784 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:15:54,381 basehttp 24520 860 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:54,621 basehttp 24520 860 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:15:57,704 basehttp 24520 860 "GET /caissier/api/sales/3/ HTTP/1.1" 200 346
+INFO 2026-02-04 13:17:31,589 basehttp 24520 23284 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:17:31,590 basehttp 24520 17376 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:17:31,694 basehttp 24520 14884 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:17:31,725 basehttp 24520 17376 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:17:43,126 basehttp 24520 17376 "GET /caissier/api/sales/2/ HTTP/1.1" 200 341
+INFO 2026-02-04 13:18:07,420 basehttp 24520 10896 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:18:07,535 basehttp 24520 10896 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:18:09,564 basehttp 24520 10896 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:18:09,678 basehttp 24520 10896 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:19:32,318 basehttp 24520 22080 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:19:32,318 basehttp 24520 10896 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:19:32,321 basehttp 24520 24228 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:19:32,549 basehttp 24520 24228 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:21:32,314 basehttp 24520 10896 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:21:32,316 basehttp 24520 22080 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:21:32,404 basehttp 24520 24228 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:21:32,530 basehttp 24520 24228 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:23:32,294 basehttp 24520 24228 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:23:32,299 basehttp 24520 22080 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:23:32,303 basehttp 24520 10896 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:23:32,411 basehttp 24520 24228 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:25:32,338 basehttp 24520 22556 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:25:32,341 basehttp 24520 4236 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:25:32,343 basehttp 24520 22184 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:25:32,468 basehttp 24520 22184 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:27:32,334 basehttp 24520 18880 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:27:32,339 basehttp 24520 10612 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:27:32,427 basehttp 24520 19680 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:27:32,479 basehttp 24520 18880 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:29:32,313 basehttp 24520 8868 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:29:32,319 basehttp 24520 18928 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:29:32,319 basehttp 24520 22924 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:29:32,440 basehttp 24520 18928 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:29:49,203 autoreload 24520 19332 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 13:29:50,569 autoreload 5108 21384 Watching for file changes with StatReloader
+INFO 2026-02-04 13:30:30,401 autoreload 5108 21384 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 13:30:31,394 autoreload 8816 13424 Watching for file changes with StatReloader
+INFO 2026-02-04 13:30:55,428 autoreload 8816 13424 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 13:30:56,218 autoreload 8828 20120 Watching for file changes with StatReloader
+INFO 2026-02-04 13:31:00,429 autoreload 8828 20120 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 13:31:01,129 autoreload 3748 9432 Watching for file changes with StatReloader
+INFO 2026-02-04 13:31:04,658 basehttp 3748 12952 "GET /caissier/ HTTP/1.1" 200 70403
+INFO 2026-02-04 13:31:04,961 basehttp 3748 6576 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:31:04,965 basehttp 3748 10396 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:31:04,990 basehttp 3748 12952 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:31:05,114 basehttp 3748 12952 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:31:17,670 basehttp 3748 22336 "GET /caissier/ HTTP/1.1" 200 70403
+INFO 2026-02-04 13:31:17,909 basehttp 3748 11260 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:31:17,909 basehttp 3748 22336 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:31:17,912 basehttp 3748 23480 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:31:18,155 basehttp 3748 23480 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:33:03,005 basehttp 3748 20812 "GET /caissier/ HTTP/1.1" 200 70385
+INFO 2026-02-04 13:33:03,222 basehttp 3748 14580 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 1023
+INFO 2026-02-04 13:33:03,225 basehttp 3748 18060 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 556
+INFO 2026-02-04 13:33:03,331 basehttp 3748 20812 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:33:03,452 basehttp 3748 20812 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+ERROR 2026-02-04 13:33:05,025 log 3748 20812 Internal Server Error: /caissier/ventes/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\engine.py", line 161, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 63, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base.html
+ERROR 2026-02-04 13:33:05,034 basehttp 3748 20812 "GET /caissier/ventes/ HTTP/1.1" 500 141034
+INFO 2026-02-04 13:33:29,948 basehttp 3748 15076 "GET /caissier/ventes/ HTTP/1.1" 200 71675
+INFO 2026-02-04 13:33:30,308 basehttp 3748 15076 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1522
+INFO 2026-02-04 13:33:41,440 basehttp 3748 21540 "GET /caissier/api/sales/list/?period=week&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1522
+INFO 2026-02-04 13:33:42,912 basehttp 3748 10896 "GET /caissier/api/sales/list/?period=week&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1522
+INFO 2026-02-04 13:33:51,702 basehttp 3748 23184 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1522
+INFO 2026-02-04 13:33:56,900 basehttp 3748 23184 "GET /caissier/api/sales/list/?period=month&status=validee&fuel=all&pompiste=all HTTP/1.1" 200 85
+INFO 2026-02-04 13:33:59,856 basehttp 3748 23184 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1522
+INFO 2026-02-04 13:34:02,231 basehttp 3748 980 "GET /caissier/api/sales/3/ HTTP/1.1" 200 346
+INFO 2026-02-04 13:34:16,368 basehttp 3748 1652 "GET /caissier/api/sales/3/ HTTP/1.1" 200 346
+INFO 2026-02-04 13:34:25,400 basehttp 3748 17796 "POST /caissier/api/sales/validate/ HTTP/1.1" 200 84
+INFO 2026-02-04 13:34:25,480 basehttp 3748 17796 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1517
+INFO 2026-02-04 13:34:29,003 basehttp 3748 17796 "GET /caissier/ HTTP/1.1" 200 70385
+INFO 2026-02-04 13:34:29,224 basehttp 3748 10028 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 685
+INFO 2026-02-04 13:34:29,228 basehttp 3748 21252 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 729
+INFO 2026-02-04 13:34:29,330 basehttp 3748 17796 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:34:29,556 basehttp 3748 17796 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:34:32,383 basehttp 3748 3644 "GET /caissier/ HTTP/1.1" 200 70385
+INFO 2026-02-04 13:34:32,584 basehttp 3748 5988 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 685
+INFO 2026-02-04 13:34:32,584 basehttp 3748 3644 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:34:32,588 basehttp 3748 22400 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 729
+INFO 2026-02-04 13:34:32,754 basehttp 3748 22400 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:34:36,414 basehttp 3748 12204 "GET /dashboard/ HTTP/1.1" 200 74567
+INFO 2026-02-04 13:34:36,910 basehttp 3748 12204 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1367
+INFO 2026-02-04 13:34:46,796 basehttp 3748 21884 "GET /caissier/ventes/ HTTP/1.1" 200 71675
+INFO 2026-02-04 13:34:47,014 basehttp 3748 21884 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1517
+INFO 2026-02-04 13:34:48,507 basehttp 3748 21884 "GET /caissier/ HTTP/1.1" 200 70385
+INFO 2026-02-04 13:34:48,716 basehttp 3748 21884 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 324
+INFO 2026-02-04 13:34:48,721 basehttp 3748 21948 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 729
+INFO 2026-02-04 13:34:48,721 basehttp 3748 21056 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 685
+INFO 2026-02-04 13:34:48,977 basehttp 3748 21884 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1243
+INFO 2026-02-04 13:35:10,265 basehttp 3748 20176 "GET / HTTP/1.1" 302 0
+INFO 2026-02-04 13:35:10,277 basehttp 3748 20176 "GET /auth/login/ HTTP/1.1" 200 7219
+WARNING 2026-02-04 13:35:27,007 log 3748 18420 Not Found: /favicon.ico
+WARNING 2026-02-04 13:35:27,008 basehttp 3748 18420 "GET /favicon.ico HTTP/1.1" 404 3134
+INFO 2026-02-04 13:35:39,587 basehttp 3748 22268 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2026-02-04 13:35:39,671 basehttp 3748 22268 "GET /manager/ HTTP/1.1" 200 51539
+INFO 2026-02-04 13:35:41,089 basehttp 3748 19996 "GET /manager/api/recent-transactions/?limit=10 HTTP/1.1" 200 601
+INFO 2026-02-04 13:35:41,194 basehttp 3748 22268 "GET /manager/api/chart-data/?period=week&currency=USD HTTP/1.1" 200 278
+INFO 2026-02-04 13:35:55,794 basehttp 3748 17128 "GET /manager/api/chart-data/?period=today&currency=USD HTTP/1.1" 200 192
+INFO 2026-02-04 13:36:00,718 basehttp 3748 17128 "GET /manager/api/chart-data/?period=week&currency=USD HTTP/1.1" 200 278
+INFO 2026-02-04 13:36:02,389 basehttp 3748 17220 "GET /manager/api/chart-data/?period=week&currency=FC HTTP/1.1" 200 280
+INFO 2026-02-04 13:36:11,118 basehttp 3748 17220 "GET /manager/api/recent-transactions/?limit=10 HTTP/1.1" 200 601
+INFO 2026-02-04 13:36:11,119 basehttp 3748 21276 "GET /manager/api/chart-data/?period=week&currency=FC HTTP/1.1" 200 280
+INFO 2026-02-04 13:36:24,026 basehttp 3748 2760 "GET /caissier/ventes/ HTTP/1.1" 200 71675
+INFO 2026-02-04 13:36:24,255 basehttp 3748 2760 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1517
+INFO 2026-02-04 13:36:33,475 basehttp 3748 14396 "GET /caissier/api/sales/2/ HTTP/1.1" 200 341
+INFO 2026-02-04 13:36:41,286 basehttp 3748 12120 "GET /manager/api/chart-data/?period=week&currency=FC HTTP/1.1" 200 280
+INFO 2026-02-04 13:36:41,288 basehttp 3748 7948 "GET /manager/api/recent-transactions/?limit=10 HTTP/1.1" 200 601
+INFO 2026-02-04 13:36:48,343 basehttp 3748 1000 "GET /manager/api/chart-data/?period=week&currency=USD HTTP/1.1" 200 278
+INFO 2026-02-04 13:37:05,986 basehttp 3748 6176 "GET /caissier/api/sales/2/ HTTP/1.1" 200 341
+INFO 2026-02-04 13:37:11,301 basehttp 3748 24364 "GET /manager/api/recent-transactions/?limit=10 HTTP/1.1" 200 601
+INFO 2026-02-04 13:37:11,308 basehttp 3748 13268 "GET /manager/api/chart-data/?period=week&currency=USD HTTP/1.1" 200 278
+INFO 2026-02-04 13:37:31,156 basehttp 3748 21024 "POST /caissier/api/sales/validate/ HTTP/1.1" 200 81
+INFO 2026-02-04 13:37:31,239 basehttp 3748 21024 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:37:36,911 basehttp 3748 452 "GET /manager/ HTTP/1.1" 200 51539
+INFO 2026-02-04 13:37:37,156 basehttp 3748 452 "GET /manager/api/chart-data/?period=week&currency=USD HTTP/1.1" 200 277
+INFO 2026-02-04 13:37:37,156 basehttp 3748 6308 "GET /manager/api/recent-transactions/?limit=10 HTTP/1.1" 200 599
+INFO 2026-02-04 13:37:54,925 basehttp 3748 20152 "GET /manager/ventes/ HTTP/1.1" 200 67147
+INFO 2026-02-04 13:37:55,234 basehttp 3748 10820 "GET /manager/api/abonnes/ HTTP/1.1" 200 578
+INFO 2026-02-04 13:37:55,240 basehttp 3748 20152 "GET /manager/api/ventes/?page=1&per_page=20&start_date=&end_date=&fuel_type_id=&pompiste_id=&status= HTTP/1.1" 200 797
+INFO 2026-02-04 13:37:57,319 basehttp 3748 20152 "GET /manager/api/ventes/2/ HTTP/1.1" 200 391
+INFO 2026-02-04 13:38:14,765 basehttp 3748 9028 "GET /caissier/api/sales/2/ HTTP/1.1" 200 336
+INFO 2026-02-04 13:38:24,450 basehttp 3748 23240 "GET /dashboard/ HTTP/1.1" 200 74579
+INFO 2026-02-04 13:38:24,899 basehttp 3748 23240 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1365
+INFO 2026-02-04 13:38:30,189 basehttp 3748 23240 "GET /shared/notifications/ HTTP/1.1" 200 294
+INFO 2026-02-04 13:38:34,479 basehttp 3748 22732 "POST /shared/notifications/2/read/ HTTP/1.1" 200 17
+INFO 2026-02-04 13:38:34,535 basehttp 3748 22732 "GET /shared/notifications/ HTTP/1.1" 200 293
+INFO 2026-02-04 13:38:40,241 basehttp 3748 22732 "POST /shared/notifications/2/read/ HTTP/1.1" 200 17
+INFO 2026-02-04 13:38:40,296 basehttp 3748 22732 "GET /shared/notifications/ HTTP/1.1" 200 293
+INFO 2026-02-04 13:38:42,596 basehttp 3748 18348 "POST /shared/notifications/mark-all-read/ HTTP/1.1" 200 72
+INFO 2026-02-04 13:38:42,659 basehttp 3748 18348 "GET /shared/notifications/ HTTP/1.1" 200 293
+INFO 2026-02-04 13:38:48,043 basehttp 3748 18348 "GET /shared/notifications/ HTTP/1.1" 200 293
+INFO 2026-02-04 13:38:54,449 basehttp 3748 420 "GET /dashboard/notifications/ HTTP/1.1" 200 47373
+INFO 2026-02-04 13:39:10,342 basehttp 3748 1344 "GET /shared/notifications/ HTTP/1.1" 200 293
+INFO 2026-02-04 13:39:22,905 basehttp 3748 24008 "GET /dashboard/ HTTP/1.1" 200 74567
+INFO 2026-02-04 13:39:23,388 basehttp 3748 24008 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1365
+INFO 2026-02-04 13:39:33,821 basehttp 3748 8828 "GET /caissier/api/sales/2/ HTTP/1.1" 200 336
+INFO 2026-02-04 13:39:39,244 basehttp 3748 8828 "GET /caissier/api/sales/3/ HTTP/1.1" 200 331
+INFO 2026-02-04 13:39:43,884 basehttp 3748 8828 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:39:44,594 basehttp 3748 8828 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:39:44,667 basehttp 3748 8828 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:39:44,821 basehttp 3748 8828 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:39:44,976 basehttp 3748 8828 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:39:45,171 basehttp 3748 8828 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:52:12,478 autoreload 3748 9432 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 13:52:13,662 autoreload 18872 24480 Watching for file changes with StatReloader
+INFO 2026-02-04 13:52:48,827 autoreload 18872 24480 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 13:52:49,641 autoreload 18172 19332 Watching for file changes with StatReloader
+INFO 2026-02-04 13:53:58,540 basehttp 18172 21904 "GET /caissier/ventes/ HTTP/1.1" 200 71656
+INFO 2026-02-04 13:53:58,909 basehttp 18172 21904 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 13:54:00,575 basehttp 18172 21904 "GET /caissier/depenses/ HTTP/1.1" 200 75551
+INFO 2026-02-04 13:54:00,796 basehttp 18172 21904 "GET /caissier/api/expenses/list/?period=month&category=all&currency=all&status=all HTTP/1.1" 200 1161
+INFO 2026-02-04 13:54:07,642 basehttp 18172 21904 "GET /caissier/api/expenses/3/ HTTP/1.1" 200 372
+INFO 2026-02-04 13:55:28,581 basehttp 18172 6664 "POST /caissier/api/expenses/categories/request/ HTTP/1.1" 200 169
+INFO 2026-02-04 13:55:35,676 basehttp 18172 1336 "GET /dashboard/ HTTP/1.1" 200 74579
+INFO 2026-02-04 13:55:36,128 basehttp 18172 1336 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1365
+INFO 2026-02-04 13:55:37,401 basehttp 18172 1336 "GET /shared/notifications/ HTTP/1.1" 200 678
+INFO 2026-02-04 13:55:40,104 basehttp 18172 1336 "POST /shared/notifications/3/read/ HTTP/1.1" 200 17
+INFO 2026-02-04 13:55:40,164 basehttp 18172 1336 "GET /shared/notifications/ HTTP/1.1" 200 677
+INFO 2026-02-04 13:55:40,600 basehttp 18172 1336 "POST /shared/notifications/3/read/ HTTP/1.1" 200 17
+INFO 2026-02-04 13:55:40,663 basehttp 18172 1336 "GET /shared/notifications/ HTTP/1.1" 200 677
+INFO 2026-02-04 13:55:50,293 basehttp 18172 1336 "GET /dashboard/notifications/ HTTP/1.1" 200 49551
+INFO 2026-02-04 13:56:15,140 basehttp 18172 23244 "GET /dashboard/depenses/ HTTP/1.1" 200 83998
+INFO 2026-02-04 13:56:15,476 basehttp 18172 23244 "GET /dashboard/api/depenses/?period=month HTTP/1.1" 200 1151
+INFO 2026-02-04 13:56:15,484 basehttp 18172 15936 "GET /dashboard/api/depenses/analytics/?period=month HTTP/1.1" 200 2332
+INFO 2026-02-04 13:56:50,628 basehttp 18172 17332 "GET /dashboard/api/depenses/3/ HTTP/1.1" 200 348
+INFO 2026-02-04 13:57:30,713 basehttp 18172 21912 "POST /caissier/api/expenses/register/ HTTP/1.1" 200 195
+INFO 2026-02-04 13:57:30,885 basehttp 18172 21912 "GET /caissier/api/expenses/list/?period=month&category=all&currency=all&status=all HTTP/1.1" 200 1553
+INFO 2026-02-04 13:57:39,594 basehttp 18172 10936 "GET /caissier/api/expenses/4/ HTTP/1.1" 200 403
+INFO 2026-02-04 13:57:41,079 basehttp 18172 10936 "GET /media/depenses/justificatifs/Payment_Confirmation___LIPA_CHAP.pdf HTTP/1.1" 200 174747
+INFO 2026-02-04 13:57:48,474 basehttp 18172 5436 "GET /dashboard/depenses/ HTTP/1.1" 200 84010
+INFO 2026-02-04 13:57:48,704 basehttp 18172 5436 "GET /dashboard/api/depenses/?period=month HTTP/1.1" 200 1475
+INFO 2026-02-04 13:57:48,713 basehttp 18172 9100 "GET /dashboard/api/depenses/analytics/?period=month HTTP/1.1" 200 2335
+INFO 2026-02-04 13:57:52,191 basehttp 18172 19240 "GET /dashboard/api/depenses/4/ HTTP/1.1" 200 318
+INFO 2026-02-04 13:58:00,940 basehttp 18172 23500 "GET /dashboard/documents/ HTTP/1.1" 200 85198
+INFO 2026-02-04 13:58:06,018 basehttp 18172 23500 "GET /dashboard/depenses/ HTTP/1.1" 200 84010
+INFO 2026-02-04 13:58:06,348 basehttp 18172 22156 "GET /dashboard/api/depenses/analytics/?period=month HTTP/1.1" 200 2335
+INFO 2026-02-04 13:58:06,457 basehttp 18172 23500 "GET /dashboard/api/depenses/?period=month HTTP/1.1" 200 1475
+INFO 2026-02-04 13:58:10,528 basehttp 18172 22876 "GET /dashboard/api/depenses/4/print/ HTTP/1.1" 200 5039
+INFO 2026-02-04 13:58:32,667 basehttp 18172 2432 "GET /caissier/api/expenses/export/pdf/?period=month HTTP/1.1" 200 2420
+INFO 2026-02-04 13:58:48,177 basehttp 18172 21548 "GET /caissier/ HTTP/1.1" 200 70385
+INFO 2026-02-04 13:58:48,426 basehttp 18172 21548 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 898
+INFO 2026-02-04 13:58:48,430 basehttp 18172 19888 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 13:58:48,432 basehttp 18172 9772 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 332
+INFO 2026-02-04 13:58:48,599 basehttp 18172 9772 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1244
+INFO 2026-02-04 13:59:08,356 basehttp 18172 12596 "GET /dashboard/depenses/ HTTP/1.1" 200 84010
+INFO 2026-02-04 13:59:08,589 basehttp 18172 12596 "GET /dashboard/api/depenses/?period=month HTTP/1.1" 200 1475
+INFO 2026-02-04 13:59:08,592 basehttp 18172 11224 "GET /dashboard/api/depenses/analytics/?period=month HTTP/1.1" 200 2335
+INFO 2026-02-04 13:59:19,289 basehttp 18172 11076 "GET /shared/notifications/ HTTP/1.1" 200 925
+INFO 2026-02-04 13:59:21,419 basehttp 18172 11076 "POST /shared/notifications/4/read/ HTTP/1.1" 200 17
+INFO 2026-02-04 13:59:21,474 basehttp 18172 11076 "GET /shared/notifications/ HTTP/1.1" 200 924
+INFO 2026-02-04 13:59:32,602 basehttp 18172 15480 "GET /dashboard/notifications/ HTTP/1.1" 200 51624
+INFO 2026-02-04 13:59:36,657 basehttp 18172 15480 "GET /dashboard/ HTTP/1.1" 200 74567
+INFO 2026-02-04 13:59:37,037 basehttp 18172 15480 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 1540
+INFO 2026-02-04 14:00:49,303 basehttp 18172 1856 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 14:00:49,306 basehttp 18172 20080 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 332
+INFO 2026-02-04 14:00:49,311 basehttp 18172 21832 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 898
+INFO 2026-02-04 14:00:49,429 basehttp 18172 20080 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1244
+INFO 2026-02-04 14:02:49,323 basehttp 18172 23232 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 14:02:49,330 basehttp 18172 14840 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 898
+INFO 2026-02-04 14:02:49,426 basehttp 18172 5452 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 332
+INFO 2026-02-04 14:02:49,700 basehttp 18172 5452 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1244
+INFO 2026-02-04 14:04:49,303 basehttp 18172 21876 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 14:04:49,312 basehttp 18172 20008 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 332
+INFO 2026-02-04 14:04:49,316 basehttp 18172 13168 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 898
+INFO 2026-02-04 14:04:49,480 basehttp 18172 20008 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1244
+INFO 2026-02-04 14:06:49,322 basehttp 18172 22284 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 14:06:49,328 basehttp 18172 14468 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 898
+INFO 2026-02-04 14:06:49,329 basehttp 18172 19028 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 332
+INFO 2026-02-04 14:06:49,454 basehttp 18172 19028 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1244
+INFO 2026-02-04 14:06:58,672 autoreload 18172 19332 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 14:07:00,262 autoreload 12844 17140 Watching for file changes with StatReloader
+INFO 2026-02-04 14:07:17,283 autoreload 12844 17140 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 14:07:18,482 autoreload 16960 20748 Watching for file changes with StatReloader
+INFO 2026-02-04 14:07:41,799 autoreload 16960 20748 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 14:07:42,641 autoreload 20728 12156 Watching for file changes with StatReloader
+INFO 2026-02-04 14:08:15,283 basehttp 20728 16464 "GET /caissier/ventes/ HTTP/1.1" 200 71638
+INFO 2026-02-04 14:08:15,662 basehttp 20728 16464 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 14:08:16,688 basehttp 20728 16464 "GET /caissier/depenses/ HTTP/1.1" 200 75533
+INFO 2026-02-04 14:08:16,905 basehttp 20728 16464 "GET /caissier/api/expenses/list/?period=month&category=all&currency=all&status=all HTTP/1.1" 200 1553
+INFO 2026-02-04 14:08:17,872 basehttp 20728 16464 "GET /caissier/salaires/ HTTP/1.1" 200 64759
+ERROR 2026-02-04 14:08:18,256 log 20728 16464 Internal Server Error: /caissier/api/salary/employees/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 1575, in get
+    paid_this_month = PaiementSalaire.objects.filter(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        employe_user=user,
+        ^^^^^^^^^^^^^^^^^^
+        mois_paiement=filter_month,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        statut='paye'
+        ^^^^^^^^^^^^^
+    ).exists()
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1436, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1454, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1461, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1545, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1576, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<6 lines>...
+        summarize=summarize,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1426, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1236, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1724, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'employe_user' into field. Choices are: branche, branche_id, caissier, caissier_id, created_at, date_paiement, devise_paiement, id, methode_paiement, mois_paiement, montant_paye, notes, pompiste, pompiste_id, statut, taux_change
+ERROR 2026-02-04 14:08:18,268 basehttp 20728 16464 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 500 139706
+INFO 2026-02-04 14:08:36,399 basehttp 20728 19944 "GET /caissier/depenses/ HTTP/1.1" 200 75533
+INFO 2026-02-04 14:08:36,787 basehttp 20728 19944 "GET /caissier/api/expenses/list/?period=month&category=all&currency=all&status=all HTTP/1.1" 200 1553
+INFO 2026-02-04 14:08:38,131 basehttp 20728 19944 "GET /caissier/salaires/ HTTP/1.1" 200 64759
+ERROR 2026-02-04 14:08:38,488 log 20728 19944 Internal Server Error: /caissier/api/salary/employees/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 1575, in get
+    paid_this_month = PaiementSalaire.objects.filter(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        employe_user=user,
+        ^^^^^^^^^^^^^^^^^^
+        mois_paiement=filter_month,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        statut='paye'
+        ^^^^^^^^^^^^^
+    ).exists()
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1436, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1454, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1461, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1545, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1576, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<6 lines>...
+        summarize=summarize,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1426, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1236, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1724, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'employe_user' into field. Choices are: branche, branche_id, caissier, caissier_id, created_at, date_paiement, devise_paiement, id, methode_paiement, mois_paiement, montant_paye, notes, pompiste, pompiste_id, statut, taux_change
+ERROR 2026-02-04 14:08:38,496 basehttp 20728 19944 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 500 139706
+INFO 2026-02-04 14:08:39,165 basehttp 20728 19944 "GET /caissier/ventes/ HTTP/1.1" 200 71638
+INFO 2026-02-04 14:08:39,403 basehttp 20728 19944 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 14:08:41,910 basehttp 20728 19944 "GET /caissier/salaires/ HTTP/1.1" 200 64759
+ERROR 2026-02-04 14:08:42,173 log 20728 19944 Internal Server Error: /caissier/api/salary/employees/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 1575, in get
+    paid_this_month = PaiementSalaire.objects.filter(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        employe_user=user,
+        ^^^^^^^^^^^^^^^^^^
+        mois_paiement=filter_month,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        statut='paye'
+        ^^^^^^^^^^^^^
+    ).exists()
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1436, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1454, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1461, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1545, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1576, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<6 lines>...
+        summarize=summarize,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1426, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1236, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1724, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'employe_user' into field. Choices are: branche, branche_id, caissier, caissier_id, created_at, date_paiement, devise_paiement, id, methode_paiement, mois_paiement, montant_paye, notes, pompiste, pompiste_id, statut, taux_change
+ERROR 2026-02-04 14:08:42,180 basehttp 20728 19944 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 500 139706
+INFO 2026-02-04 14:08:43,993 basehttp 20728 19944 "GET /caissier/ventes/ HTTP/1.1" 200 71638
+INFO 2026-02-04 14:08:44,351 basehttp 20728 19944 "GET /caissier/api/sales/list/?period=month&status=all&fuel=all&pompiste=all HTTP/1.1" 200 1539
+INFO 2026-02-04 14:08:45,154 basehttp 20728 20828 "GET /caissier/salaires/ HTTP/1.1" 200 64759
+ERROR 2026-02-04 14:08:45,422 log 20728 20828 Internal Server Error: /caissier/api/salary/employees/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 1575, in get
+    paid_this_month = PaiementSalaire.objects.filter(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        employe_user=user,
+        ^^^^^^^^^^^^^^^^^^
+        mois_paiement=filter_month,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        statut='paye'
+        ^^^^^^^^^^^^^
+    ).exists()
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1436, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1454, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1461, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1545, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1576, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<6 lines>...
+        summarize=summarize,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1426, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1236, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1724, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'employe_user' into field. Choices are: branche, branche_id, caissier, caissier_id, created_at, date_paiement, devise_paiement, id, methode_paiement, mois_paiement, montant_paye, notes, pompiste, pompiste_id, statut, taux_change
+ERROR 2026-02-04 14:08:45,429 basehttp 20728 20828 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 500 139706
+INFO 2026-02-04 14:08:47,333 basehttp 20728 20828 "GET /caissier/ HTTP/1.1" 200 70347
+INFO 2026-02-04 14:08:47,565 basehttp 20728 15336 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 898
+INFO 2026-02-04 14:08:47,565 basehttp 20728 20828 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 332
+INFO 2026-02-04 14:08:47,565 basehttp 20728 14120 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 14:08:47,911 basehttp 20728 14120 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1244
+INFO 2026-02-04 14:08:49,453 basehttp 20728 14120 "GET /caissier/salaires/ HTTP/1.1" 200 64759
+ERROR 2026-02-04 14:08:49,789 log 20728 14120 Internal Server Error: /caissier/api/salary/employees/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 1575, in get
+    paid_this_month = PaiementSalaire.objects.filter(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        employe_user=user,
+        ^^^^^^^^^^^^^^^^^^
+        mois_paiement=filter_month,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        statut='paye'
+        ^^^^^^^^^^^^^
+    ).exists()
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1436, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1454, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1461, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1545, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1576, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<6 lines>...
+        summarize=summarize,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1426, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1236, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1724, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'employe_user' into field. Choices are: branche, branche_id, caissier, caissier_id, created_at, date_paiement, devise_paiement, id, methode_paiement, mois_paiement, montant_paye, notes, pompiste, pompiste_id, statut, taux_change
+ERROR 2026-02-04 14:08:49,795 basehttp 20728 14120 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 500 139706
+INFO 2026-02-04 22:24:09,665 basehttp 20728 17004 "GET /caissier/depenses/ HTTP/1.1" 200 75533
+INFO 2026-02-04 22:24:11,036 basehttp 20728 17004 "GET /caissier/api/expenses/list/?period=month&category=all&currency=all&status=all HTTP/1.1" 200 1553
+INFO 2026-02-04 22:24:12,683 basehttp 20728 17004 "GET /caissier/salaires/ HTTP/1.1" 200 64759
+ERROR 2026-02-04 22:24:13,890 log 20728 24496 Internal Server Error: /caissier/api/salary/employees/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 1575, in get
+    paid_this_month = PaiementSalaire.objects.filter(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        employe_user=user,
+        ^^^^^^^^^^^^^^^^^^
+        mois_paiement=filter_month,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        statut='paye'
+        ^^^^^^^^^^^^^
+    ).exists()
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1436, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1454, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\query.py", line 1461, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1545, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1576, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<6 lines>...
+        summarize=summarize,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1426, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1236, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\db\models\sql\query.py", line 1724, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'employe_user' into field. Choices are: branche, branche_id, caissier, caissier_id, created_at, date_paiement, devise_paiement, id, methode_paiement, mois_paiement, montant_paye, notes, pompiste, pompiste_id, statut, taux_change
+ERROR 2026-02-04 22:24:13,986 basehttp 20728 24496 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 500 139706
+INFO 2026-02-04 22:27:48,748 basehttp 20728 20156 "GET /dashboard/salaires/ HTTP/1.1" 200 73863
+INFO 2026-02-04 22:31:35,601 autoreload 20728 12156 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 22:31:40,608 autoreload 1488 8208 Watching for file changes with StatReloader
+ERROR 2026-02-04 22:32:23,168 log 1488 2336 Internal Server Error: /caissier/salaires/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\engine.py", line 161, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 63, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base.html
+ERROR 2026-02-04 22:32:23,218 basehttp 1488 2336 "GET /caissier/salaires/ HTTP/1.1" 500 141286
+INFO 2026-02-04 22:32:37,986 basehttp 1488 14480 "GET /caissier/salaires/ HTTP/1.1" 200 64569
+INFO 2026-02-04 22:32:38,816 basehttp 1488 18140 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 200 760
+INFO 2026-02-04 22:33:42,257 basehttp 1488 20528 "POST /caissier/api/salary/pay/ HTTP/1.1" 200 219
+INFO 2026-02-04 22:33:42,449 basehttp 1488 20528 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 200 818
+INFO 2026-02-04 22:33:56,242 basehttp 1488 23528 "GET /dashboard/salaires/ HTTP/1.1" 200 74878
+INFO 2026-02-04 22:34:15,393 basehttp 1488 23528 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:34:28,336 basehttp 1488 20528 "GET /caissier/api/salary/export/excel/?month=2026-02 HTTP/1.1" 200 5323
+INFO 2026-02-04 22:35:57,421 basehttp 1488 5108 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:37:56,967 basehttp 1488 9152 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:39:57,407 basehttp 1488 19856 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:41:56,939 basehttp 1488 22244 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:43:56,957 basehttp 1488 21968 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:45:57,514 basehttp 1488 19096 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:51:02,532 basehttp 1488 23544 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:51:57,324 basehttp 1488 23544 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:53:50,682 autoreload 1488 8208 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\core\models.py changed, reloading.
+INFO 2026-02-04 22:53:54,437 autoreload 21492 21964 Watching for file changes with StatReloader
+INFO 2026-02-04 22:53:57,515 basehttp 21492 19656 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:55:02,254 autoreload 21492 21964 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 22:55:05,015 autoreload 20324 5828 Watching for file changes with StatReloader
+INFO 2026-02-04 22:55:57,453 basehttp 20324 17788 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:57:57,276 basehttp 20324 17844 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 22:59:57,262 basehttp 20324 7348 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:13:10,591 autoreload 19688 21552 Watching for file changes with StatReloader
+INFO 2026-02-04 23:13:57,270 basehttp 19688 17908 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:15:57,386 basehttp 19688 15592 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:17:57,371 basehttp 19688 3532 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:19:57,365 basehttp 19688 23436 "GET /shared/notifications/ HTTP/1.1" 200 1189
+ERROR 2026-02-04 23:21:34,747 log 19688 24496 Internal Server Error: /caissier/salaires/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\engine.py", line 161, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 63, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base.html
+ERROR 2026-02-04 23:21:34,761 basehttp 19688 24496 "GET /caissier/salaires/ HTTP/1.1" 500 141646
+INFO 2026-02-04 23:21:47,246 basehttp 19688 2392 "GET /caissier/salaires/ HTTP/1.1" 200 69754
+INFO 2026-02-04 23:21:47,654 basehttp 19688 2392 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 200 1200
+INFO 2026-02-04 23:21:57,346 basehttp 19688 9188 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:23:57,273 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:25:57,277 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:27:57,257 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:29:57,257 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:31:18,200 basehttp 19688 22368 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-03 HTTP/1.1" 200 1112
+INFO 2026-02-04 23:31:28,989 basehttp 19688 22368 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1112
+INFO 2026-02-04 23:31:32,856 basehttp 19688 22368 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1112
+INFO 2026-02-04 23:31:37,096 basehttp 19688 22368 "GET /caissier/api/salary/history/?employee_id=2&employee_type=pompiste HTTP/1.1" 200 288
+INFO 2026-02-04 23:31:57,276 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 1189
+INFO 2026-02-04 23:33:02,968 basehttp 19688 20808 "POST /caissier/api/salary/pay/ HTTP/1.1" 200 259
+INFO 2026-02-04 23:33:03,055 basehttp 19688 20808 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1194
+INFO 2026-02-04 23:33:20,749 basehttp 19688 20808 "GET /caissier/api/salary/history/?employee_id=2&employee_type=pompiste HTTP/1.1" 200 581
+INFO 2026-02-04 23:33:55,605 basehttp 19688 20808 "POST /caissier/api/salary/pay/ HTTP/1.1" 200 97
+INFO 2026-02-04 23:33:57,246 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 1473
+INFO 2026-02-04 23:34:10,949 basehttp 19688 20808 "POST /caissier/api/salary/pay/ HTTP/1.1" 200 259
+INFO 2026-02-04 23:34:11,038 basehttp 19688 20808 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1194
+INFO 2026-02-04 23:34:31,415 basehttp 19688 20808 "GET /shared/profile/ HTTP/1.1" 200 48145
+INFO 2026-02-04 23:34:50,337 basehttp 19688 20808 "GET /shared/notifications/ HTTP/1.1" 200 40
+INFO 2026-02-04 23:35:39,521 basehttp 19688 20808 "POST /shared/api/profile/update/ HTTP/1.1" 200 175
+INFO 2026-02-04 23:35:41,119 basehttp 19688 20808 "GET /shared/profile/ HTTP/1.1" 200 48152
+INFO 2026-02-04 23:35:51,442 basehttp 19688 20808 "GET /caissier/salaires/ HTTP/1.1" 200 69757
+INFO 2026-02-04 23:35:51,662 basehttp 19688 20808 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 200 1201
+INFO 2026-02-04 23:35:57,265 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 1757
+INFO 2026-02-04 23:35:59,784 basehttp 19688 20808 "GET /caissier/api/salary/history/?employee_id=4&employee_type=user HTTP/1.1" 200 16
+INFO 2026-02-04 23:36:32,244 basehttp 19688 20808 "GET /caissier/ HTTP/1.1" 200 70350
+INFO 2026-02-04 23:36:32,513 basehttp 19688 20808 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 23:36:32,534 basehttp 19688 3676 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 1401
+INFO 2026-02-04 23:36:32,535 basehttp 19688 19680 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 334
+INFO 2026-02-04 23:36:32,706 basehttp 19688 19680 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1248
+INFO 2026-02-04 23:36:43,794 basehttp 19688 19680 "GET /caissier/salaires/ HTTP/1.1" 200 69757
+INFO 2026-02-04 23:36:44,012 basehttp 19688 19680 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 200 1201
+INFO 2026-02-04 23:36:53,289 basehttp 19688 19680 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1195
+INFO 2026-02-04 23:37:12,041 basehttp 19688 19680 "POST /caissier/api/salary/pay/ HTTP/1.1" 200 270
+INFO 2026-02-04 23:37:12,225 basehttp 19688 19680 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1201
+INFO 2026-02-04 23:37:16,312 basehttp 19688 19680 "GET /caissier/ HTTP/1.1" 200 70350
+INFO 2026-02-04 23:37:16,568 basehttp 19688 20808 "GET /caissier/api/recent-transactions/ HTTP/1.1" 200 1569
+INFO 2026-02-04 23:37:16,570 basehttp 19688 3676 "GET /caissier/api/sales/pending/ HTTP/1.1" 200 352
+INFO 2026-02-04 23:37:16,571 basehttp 19688 19680 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 334
+INFO 2026-02-04 23:37:16,750 basehttp 19688 19680 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1248
+INFO 2026-02-04 23:37:43,847 basehttp 19688 19680 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 334
+INFO 2026-02-04 23:37:43,976 basehttp 19688 19680 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1248
+INFO 2026-02-04 23:37:45,492 basehttp 19688 19680 "GET /caissier/api/stats/?period=today&devise=USD HTTP/1.1" 200 334
+INFO 2026-02-04 23:37:45,720 basehttp 19688 19680 "GET /caissier/api/chart-data/?period=today&devise=USD HTTP/1.1" 200 1248
+INFO 2026-02-04 23:37:47,459 basehttp 19688 19680 "GET /caissier/salaires/ HTTP/1.1" 200 69757
+INFO 2026-02-04 23:37:47,696 basehttp 19688 19680 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 200 1201
+INFO 2026-02-04 23:37:56,792 basehttp 19688 24072 "GET /shared/notifications/ HTTP/1.1" 200 2045
+INFO 2026-02-04 23:38:03,215 basehttp 19688 19680 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1201
+INFO 2026-02-04 23:38:09,954 basehttp 19688 19680 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-03 HTTP/1.1" 200 1113
+INFO 2026-02-04 23:38:27,956 basehttp 19688 24072 "GET /dashboard/depenses/ HTTP/1.1" 200 84010
+INFO 2026-02-04 23:38:28,449 basehttp 19688 21452 "GET /dashboard/api/depenses/analytics/?period=month HTTP/1.1" 200 2394
+INFO 2026-02-04 23:38:28,533 basehttp 19688 24072 "GET /dashboard/api/depenses/?period=month HTTP/1.1" 200 2845
+INFO 2026-02-04 23:38:52,393 basehttp 19688 24072 "GET /dashboard/ HTTP/1.1" 200 74579
+INFO 2026-02-04 23:38:52,837 basehttp 19688 24072 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 2282
+INFO 2026-02-04 23:38:58,573 basehttp 19688 24072 "GET /dashboard/depenses/ HTTP/1.1" 200 84010
+INFO 2026-02-04 23:38:58,808 basehttp 19688 24072 "GET /dashboard/api/depenses/?period=month HTTP/1.1" 200 2845
+INFO 2026-02-04 23:38:58,919 basehttp 19688 21452 "GET /dashboard/api/depenses/analytics/?period=month HTTP/1.1" 200 2394
+INFO 2026-02-04 23:39:01,642 basehttp 19688 21452 "GET /dashboard/salaires/ HTTP/1.1" 200 79759
+INFO 2026-02-04 23:39:11,414 basehttp 19688 21452 "GET /dashboard/ HTTP/1.1" 200 74579
+INFO 2026-02-04 23:39:11,773 basehttp 19688 21452 "GET /dashboard/api/stats/?branche_id=all&period=month&devise=USD HTTP/1.1" 200 2282
+INFO 2026-02-04 23:41:20,993 basehttp 19688 6260 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-01 HTTP/1.1" 200 1201
+INFO 2026-02-04 23:41:23,856 basehttp 19688 6260 "GET /caissier/api/salary/export/excel/?month=2026-01 HTTP/1.1" 200 5488
+INFO 2026-02-04 23:50:34,265 autoreload 19688 21552 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py changed, reloading.
+INFO 2026-02-04 23:50:38,716 autoreload 10048 5036 Watching for file changes with StatReloader
+INFO 2026-02-04 23:51:27,211 autoreload 10048 5036 D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\urls.py changed, reloading.
+INFO 2026-02-04 23:51:31,159 autoreload 1316 17832 Watching for file changes with StatReloader
+INFO 2026-02-04 23:53:54,657 basehttp 1316 10048 "GET /caissier/salaires/ HTTP/1.1" 200 69738
+INFO 2026-02-04 23:53:55,812 basehttp 1316 10048 "GET /caissier/api/salary/employees/?type=all&status=all&month=2026-02 HTTP/1.1" 200 1201
+ERROR 2026-02-04 23:54:00,418 log 1316 18336 Internal Server Error: /caissier/abonnes/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 175, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 167, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\base.py", line 966, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\engine.py", line 161, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 63, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\template\backends\django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base.html
+ERROR 2026-02-04 23:54:00,447 basehttp 1316 18336 "GET /caissier/abonnes/ HTTP/1.1" 500 141494
+INFO 2026-02-04 23:54:15,944 basehttp 1316 5808 "GET /caissier/abonnes/ HTTP/1.1" 200 66431
+INFO 2026-02-04 23:54:16,664 basehttp 1316 5360 "GET /caissier/api/abonnes/?search=&type=all&status=all HTTP/1.1" 200 668
+ERROR 2026-02-04 23:54:23,353 log 1316 5360 Internal Server Error: /caissier/api/abonnes/history/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 2337, in get
+    'description': consumption.notes or ('Paiement reçu' if is_payment else 'Consommation carburant'),
+                   ^^^^^^^^^^^^^^^^^
+AttributeError: 'ConsommationAbonne' object has no attribute 'notes'
+ERROR 2026-02-04 23:54:23,403 basehttp 1316 5360 "GET /caissier/api/abonnes/history/?abonne_id=1 HTTP/1.1" 500 91785
+ERROR 2026-02-04 23:54:32,894 log 1316 5360 Internal Server Error: /caissier/api/abonnes/history/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 2337, in get
+    'description': consumption.notes or ('Paiement reçu' if is_payment else 'Consommation carburant'),
+                   ^^^^^^^^^^^^^^^^^
+AttributeError: 'ConsommationAbonne' object has no attribute 'notes'
+ERROR 2026-02-04 23:54:32,904 basehttp 1316 5360 "GET /caissier/api/abonnes/history/?abonne_id=1 HTTP/1.1" 500 91785
+INFO 2026-02-04 23:54:45,940 basehttp 1316 5360 "GET /caissier/api/abonnes/export/excel/ HTTP/1.1" 200 5388
+INFO 2026-02-05 12:25:45,957 basehttp 1316 18276 "GET /caissier/abonnes/ HTTP/1.1" 200 66431
+INFO 2026-02-05 12:25:48,321 basehttp 1316 18276 "GET /caissier/api/abonnes/?search=&type=all&status=all HTTP/1.1" 200 668
+ERROR 2026-02-05 12:25:51,699 log 1316 18276 Internal Server Error: /caissier/api/abonnes/history/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 2337, in get
+    'description': consumption.notes or ('Paiement reçu' if is_payment else 'Consommation carburant'),
+                   ^^^^^^^^^^^^^^^^^
+AttributeError: 'ConsommationAbonne' object has no attribute 'notes'
+ERROR 2026-02-05 12:25:51,724 basehttp 1316 18276 "GET /caissier/api/abonnes/history/?abonne_id=1 HTTP/1.1" 500 91785
+ERROR 2026-02-05 12:27:02,497 log 1316 6976 Internal Server Error: /caissier/api/abonnes/history/
+Traceback (most recent call last):
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "D:\OWN PROJECTS\PETROX BUKAVU\CODEBASE\Petrox\apps\caissier_module\views.py", line 2337, in get
+    'description': consumption.notes or ('Paiement reçu' if is_payment else 'Consommation carburant'),
+                   ^^^^^^^^^^^^^^^^^
+AttributeError: 'ConsommationAbonne' object has no attribute 'notes'
+ERROR 2026-02-05 12:27:02,506 basehttp 1316 6976 "GET /caissier/api/abonnes/history/?abonne_id=1 HTTP/1.1" 500 91785

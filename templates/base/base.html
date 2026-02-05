@@ -53,6 +53,23 @@
         .toast.show { transform: translateX(0); }
         .toast-success { background: #DEF7EC; color: #03543F; border-left: 4px solid #16A34A; }
         .toast-error { background: #FDE8E8; color: #9B1C1C; border-left: 4px solid #DC2626; }
+        
+        /* Notification badge pulse animation */
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .notification-badge-pulse::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #DC2626;
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -75,9 +92,23 @@
                         </svg>
                     </button>
                     <div class="flex-shrink-0 flex items-center ml-2 lg:ml-0">
+                        {% if user.role == 'admin' %}
                         <a href="{% url 'admin_module:dashboard' %}" class="text-2xl font-bold tracking-tight text-petrox-dark">
                             PETRO<span class="text-petrox-red">X</span>
                         </a>
+                        {% elif user.role == 'manager' %}
+                        <a href="{% url 'manager_module:dashboard' %}" class="text-2xl font-bold tracking-tight text-petrox-dark">
+                            PETRO<span class="text-petrox-red">X</span>
+                        </a>
+                        {% elif user.role == 'caissier' %}
+                        <a href="{% url 'caissier_module:dashboard' %}" class="text-2xl font-bold tracking-tight text-petrox-dark">
+                            PETRO<span class="text-petrox-red">X</span>
+                        </a>
+                        {% else %}
+                        <a href="/" class="text-2xl font-bold tracking-tight text-petrox-dark">
+                            PETRO<span class="text-petrox-red">X</span>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -90,7 +121,7 @@
                 <div class="flex items-center space-x-4">
                     
                     <!-- Branch Selector (Admin only) -->
-                    <!-- {% if user.role == 'admin' %}
+                    {% if user.role == 'admin' %}
                     <div class="hidden sm:block">
                         <select id="branch-selector" class="block w-full pl-3 pr-10 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md shadow-sm text-gray-700 bg-gray-50" onchange="switchBranch(this.value)">
                             <option value="all">Toutes les branches</option>
@@ -99,19 +130,20 @@
                             {% endfor %}
                         </select>
                     </div>
-                    {% endif %} -->
+                    {% endif %}
 
-                    <!-- Notifications -->
-                    <button class="p-1 rounded-full text-gray-500 hover:text-petrox-red relative focus:outline-none" onclick="toggleNotifications()">
-                        <span id="notif-badge" class="{% if unread_notifications > 0 %}{% else %}hidden{% endif %} absolute top-0 right-0 block h-2 w-2 rounded-full bg-petrox-red ring-2 ring-white"></span>
+                    <!-- Notifications Bell -->
+                    <button class="p-1 rounded-full text-gray-500 hover:text-petrox-red relative focus:outline-none transition-colors" onclick="toggleNotifications()" aria-label="Notifications">
+                        <span id="notif-badge" class="{% if unread_notifications > 0 %}notification-badge-pulse{% else %}hidden{% endif %} absolute top-0 right-0 block h-2 w-2 rounded-full bg-petrox-red ring-2 ring-white"></span>
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
+                        <span id="notif-count" class="{% if unread_notifications > 0 %}{% else %}hidden{% endif %} absolute -top-1 -right-1 bg-petrox-red text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ unread_notifications }}</span>
                     </button>
 
                     <!-- Profile Dropdown -->
                     <div class="relative ml-3">
-                        <div class="flex items-center cursor-pointer" id="user-menu-btn">
+                        <div class="flex items-center cursor-pointer" id="user-menu-btn" aria-haspopup="true">
                             {% if user.photo %}
                             <img class="h-8 w-8 rounded-full border border-gray-200 object-cover" src="{{ user.photo.url }}" alt="{{ user.get_full_name }}">
                             {% else %}
@@ -122,15 +154,45 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
-                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50" role="menu" aria-orientation="vertical">
                             <div class="px-4 py-2 border-b border-gray-100">
                                 <p class="text-sm font-medium text-gray-900">{{ user.get_full_name }}</p>
                                 <p class="text-xs text-gray-500">{{ user.get_role_display }}</p>
+                                {% if user.branche %}
+                                <p class="text-xs text-gray-400 mt-0.5">{{ user.branche.nom }}</p>
+                                {% endif %}
                             </div>
-                            <a href="{% url 'shared:user_profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mon Profil</a>
-                            <a href="{% url 'admin_module:parametres' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Paramètres</a>
+                            
+                            <!-- Profile Link -->
+                            <a href="{% url 'shared:user_profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" role="menuitem">
+                                <svg class="inline-block w-4 h-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Mon Profil
+                            </a>
+                            
+                            <!-- Settings Link (Admin only) -->
+                            {% if user.role == 'admin' %}
+                            <a href="{% url 'admin_module:parametres' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" role="menuitem">
+                                <svg class="inline-block w-4 h-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Paramètres
+                            </a>
+                            {% endif %}
+                            
                             <div class="border-t border-gray-100"></div>
-                            <a href="{% url 'authentication:logout' %}" class="block px-4 py-2 text-sm text-petrox-red hover:bg-gray-100 font-medium">Déconnexion</a>
+                            
+                            <!-- Logout -->
+                            <a href="{% url 'authentication:logout' %}" class="block px-4 py-2 text-sm text-petrox-red hover:bg-gray-100 font-medium transition-colors" role="menuitem">
+                                <svg class="inline-block w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Déconnexion
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -163,24 +225,35 @@
         </div>
     </nav>
 
-    <!-- Notifications Panel -->
+    <!-- Notifications Panel (Slide-over) -->
     <div id="notifications-panel" class="hidden fixed inset-0 z-50 overflow-hidden">
-        <div class="absolute inset-0 bg-gray-500 bg-opacity-75" onclick="toggleNotifications()"></div>
+        <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="toggleNotifications()"></div>
         <div class="fixed inset-y-0 right-0 max-w-full flex">
             <div class="w-screen max-w-md">
                 <div class="h-full flex flex-col bg-white shadow-xl">
+                    <!-- Panel Header -->
                     <div class="px-4 py-6 bg-petrox-red sm:px-6">
                         <div class="flex items-center justify-between">
                             <h2 class="text-lg font-medium text-white">Notifications</h2>
-                            <button onclick="toggleNotifications()" class="text-white hover:text-gray-200">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="markAllNotificationsRead()" class="text-white hover:text-gray-200 text-sm underline" title="Tout marquer comme lu">
+                                    Tout lire
+                                </button>
+                                <button onclick="toggleNotifications()" class="text-white hover:text-gray-200 focus:outline-none">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Notifications List -->
                     <div class="flex-1 overflow-y-auto" id="notifications-list">
-                        <div class="p-4 text-center text-gray-500">Chargement...</div>
+                        <div class="p-4 text-center text-gray-500">
+                            <div class="spinner mx-auto mb-2"></div>
+                            <p>Chargement des notifications...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -210,7 +283,9 @@
             devise: 'USD'
         };
         
-        // Toggle Profile Dropdown
+        // ============================================
+        // PROFILE DROPDOWN MANAGEMENT
+        // ============================================
         const userMenuBtn = document.getElementById('user-menu-btn');
         const userMenuDropdown = document.getElementById('user-menu-dropdown');
         
@@ -220,6 +295,7 @@
                 userMenuDropdown.classList.toggle('hidden');
             });
 
+            // Close dropdown when clicking outside
             document.addEventListener('click', (e) => {
                 if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
                     userMenuDropdown.classList.add('hidden');
@@ -234,7 +310,9 @@
             });
         }
 
-        // Toggle Mobile Menu
+        // ============================================
+        // MOBILE MENU TOGGLE
+        // ============================================
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
 
@@ -244,7 +322,9 @@
             });
         }
 
-        // Modal Functions
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
         function toggleModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
@@ -269,7 +349,9 @@
             }
         }
         
-        // Toast Notifications
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -277,7 +359,7 @@
             toast.innerHTML = `
                 <div class="flex items-center">
                     <span>${message}</span>
-                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg">&times;</button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
                 </div>
             `;
             container.appendChild(toast);
@@ -289,7 +371,9 @@
             }, 5000);
         }
         
-        // Branch Switch
+        // ============================================
+        // BRANCH SWITCHER (Admin only)
+        // ============================================
         function switchBranch(brancheId) {
             currentFilters.branche_id = brancheId;
             if (typeof loadDashboardData === 'function') {
@@ -301,7 +385,9 @@
             window.history.pushState({}, '', url);
         }
         
-        // Period Filter
+        // ============================================
+        // PERIOD FILTER
+        // ============================================
         function setPeriod(period, btn) {
             // Update UI
             document.querySelectorAll('.period-btn').forEach(b => {
@@ -317,7 +403,9 @@
             }
         }
         
-        // Currency Toggle
+        // ============================================
+        // CURRENCY TOGGLE
+        // ============================================
         function setCurrency(devise, btn) {
             document.querySelectorAll('.currency-btn').forEach(b => {
                 b.classList.remove('bg-petrox-red', 'text-white');
@@ -332,7 +420,13 @@
             }
         }
         
-        // Notifications Panel
+        // ============================================
+        // NOTIFICATIONS SYSTEM
+        // ============================================
+        
+        /**
+         * Toggle notifications panel visibility
+         */
         function toggleNotifications() {
             const panel = document.getElementById('notifications-panel');
             panel.classList.toggle('hidden');
@@ -341,59 +435,187 @@
             }
         }
         
+        /**
+         * Load notifications from backend
+         */
         async function loadNotifications() {
+            const list = document.getElementById('notifications-list');
+            
             try {
                 const response = await fetch('/shared/notifications/', {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
+                
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement des notifications');
+                }
+                
                 const data = await response.json();
                 
-                const list = document.getElementById('notifications-list');
+                // Update badge counter
+                updateNotificationBadge(data.unread_count);
+                
+                // Render notifications
                 if (data.notifications.length === 0) {
-                    list.innerHTML = '<div class="p-4 text-center text-gray-500">Aucune notification</div>';
+                    list.innerHTML = `
+                        <div class="p-8 text-center text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                            </svg>
+                            <p class="mt-2">Aucune notification</p>
+                        </div>
+                    `;
                     return;
                 }
                 
-                list.innerHTML = data.notifications.map(n => `
-                    <div class="p-4 border-b border-gray-200 ${n.lu ? 'bg-white' : 'bg-blue-50'} hover:bg-gray-50 cursor-pointer" onclick="markNotificationRead(${n.id})">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full ${n.priorite === 'haute' ? 'bg-red-100' : 'bg-gray-100'}">
-                                    <svg class="h-4 w-4 ${n.priorite === 'haute' ? 'text-red-600' : 'text-gray-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                    </svg>
-                                </span>
-                            </div>
-                            <div class="ml-3 flex-1">
-                                <p class="text-sm font-medium text-gray-900">${n.titre}</p>
-                                <p class="text-sm text-gray-500">${n.message}</p>
-                                <p class="text-xs text-gray-400 mt-1">${n.created_at}</p>
+                list.innerHTML = data.notifications.map(n => {
+                    const priorityColors = {
+                        'critique': 'bg-red-100 text-red-600',
+                        'haute': 'bg-orange-100 text-orange-600',
+                        'normale': 'bg-blue-100 text-blue-600',
+                        'basse': 'bg-gray-100 text-gray-600'
+                    };
+                    
+                    const typeIcons = {
+                        'vente_pending': 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                        'manquant': 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+                        'stock_bas': 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+                        'livraison': 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4',
+                        'system': 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                        'user': 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+                    };
+                    
+                    const icon = typeIcons[n.type] || typeIcons['system'];
+                    const priorityClass = priorityColors[n.priorite] || priorityColors['normale'];
+                    
+                    return `
+                        <div class="p-4 border-b border-gray-200 ${n.lu ? 'bg-white' : 'bg-blue-50'} hover:bg-gray-50 cursor-pointer transition-colors" onclick="handleNotificationClick(${n.id}, '${n.lien_url || ''}')">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-10 w-10 rounded-full ${priorityClass}">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${icon}" />
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-start justify-between">
+                                        <p class="text-sm font-medium text-gray-900">${n.titre}</p>
+                                        ${!n.lu ? '<span class="ml-2 inline-block w-2 h-2 bg-petrox-red rounded-full"></span>' : ''}
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-600">${n.message}</p>
+                                    <p class="mt-1 text-xs text-gray-400">
+                                        <svg class="inline-block w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        ${n.created_at}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
                 
             } catch (error) {
                 console.error('Error loading notifications:', error);
+                list.innerHTML = `
+                    <div class="p-8 text-center text-red-500">
+                        <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="mt-2">Erreur lors du chargement</p>
+                    </div>
+                `;
             }
         }
         
+        /**
+         * Handle notification click - mark as read and navigate
+         */
+        async function handleNotificationClick(notifId, lienUrl) {
+            await markNotificationRead(notifId);
+            
+            if (lienUrl && lienUrl !== '') {
+                window.location.href = lienUrl;
+            }
+        }
+        
+        /**
+         * Mark a single notification as read
+         */
         async function markNotificationRead(notifId) {
             try {
-                await fetch(`/shared/notifications/${notifId}/read/`, {
+                const response = await fetch(`/shared/notifications/${notifId}/read/`, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
                     }
                 });
-                loadNotifications();
+                
+                if (response.ok) {
+                    // Reload notifications to update UI
+                    await loadNotifications();
+                }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error marking notification as read:', error);
             }
         }
         
-        // Generic API Call Helper
+        /**
+         * Mark all notifications as read
+         */
+        async function markAllNotificationsRead() {
+            try {
+                const response = await fetch('/shared/notifications/mark-all-read/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showToast('Toutes les notifications ont été marquées comme lues', 'success');
+                    await loadNotifications();
+                }
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+                showToast('Erreur lors de la mise à jour', 'error');
+            }
+        }
+        
+        /**
+         * Update notification badge counter
+         */
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notif-badge');
+            const counter = document.getElementById('notif-count');
+            
+            if (count > 0) {
+                badge.classList.remove('hidden');
+                badge.classList.add('notification-badge-pulse');
+                counter.classList.remove('hidden');
+                counter.textContent = count > 99 ? '99+' : count;
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('notification-badge-pulse');
+                counter.classList.add('hidden');
+            }
+        }
+        
+        // Auto-refresh notifications every 2 minutes
+        setInterval(() => {
+            if (!document.getElementById('notifications-panel').classList.contains('hidden')) {
+                loadNotifications();
+            }
+        }, 120000);
+        
+        // ============================================
+        // GENERIC API CALL HELPER
+        // ============================================
         async function apiCall(url, method = 'GET', data = null) {
             const options = {
                 method,
@@ -411,7 +633,13 @@
             return await response.json();
         }
         
-        // Format Currency
+        // ============================================
+        // FORMATTING HELPERS
+        // ============================================
+        
+        /**
+         * Format currency values
+         */
         function formatCurrency(amount, devise = 'USD') {
             const num = parseFloat(amount) || 0;
             if (devise === 'USD') {
@@ -421,7 +649,9 @@
             }
         }
         
-        // Format Number
+        /**
+         * Format numbers
+         */
         function formatNumber(num) {
             return parseFloat(num || 0).toLocaleString('fr-FR');
         }

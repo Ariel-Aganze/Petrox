@@ -507,45 +507,175 @@ class ConsommationAbonne(models.Model):
 
 
 class PaiementSalaire(models.Model):
-    """Paiements de salaires aux pompistes"""
+    """
+    Payment of salaries to employees (pompistes and system users)
+    Supports full salary payments and advances
+    """
+    TYPE_PAIEMENT_CHOICES = [
+        ('salaire_complet', 'Salaire Complet'),
+        ('avance', 'Avance sur Salaire'),
+    ]
+    
+    METHODE_PAIEMENT_CHOICES = [
+        ('cash', 'Cash'),
+        ('mobile_money', 'Mobile Money'),
+        ('bank_transfer', 'Virement Bancaire'),
+    ]
     
     STATUT_CHOICES = [
-        ('en_attente', 'En attente'),
         ('paye', 'Payé'),
         ('annule', 'Annulé'),
     ]
     
-    METHODE_PAIEMENT_CHOICES = [
-        ('cash', 'Espèces'),
-        ('mobile_money', 'Mobile Money'),
-        ('bank', 'Virement Bancaire'),
-    ]
+    # Employee (either pompiste or system user)
+    pompiste = models.ForeignKey(
+        'Pompiste',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='paiements_salaire',
+        help_text='Pompiste (employé de station)'
+    )
+    employe_user = models.ForeignKey(
+        'User',  # or settings.AUTH_USER_MODEL
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='paiements_recus',
+        help_text='Utilisateur système (Admin, Manager, Caissier)'
+    )
     
-    # FIXED: Made nullable and added defaults
-    pompiste = models.ForeignKey(Pompiste, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Pompiste")
-    branche = models.ForeignKey(Branche, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Branche")
-    caissier = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Caissier")
+    # Payment details
+    branche = models.ForeignKey(
+        'Branche',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    caissier = models.ForeignKey(
+        'User',  # or settings.AUTH_USER_MODEL
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='paiements_effectues',
+        help_text='Caissier qui a effectué le paiement'
+    )
     
-    mois_paiement = models.DateField(null=True, blank=True, verbose_name="Mois de paiement")
-    montant_paye = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant payé")
-    devise_paiement = models.CharField(max_length=3, choices=[('USD', 'USD'), ('FC', 'FC')], default='USD', verbose_name="Devise")
-    taux_change = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('2800.00'), verbose_name="Taux de change")
+    # Period and amounts
+    mois_paiement = models.DateField(
+        null=True,
+        blank=True,
+        help_text='Premier jour du mois de paiement'
+    )
+    type_paiement = models.CharField(
+        max_length=20,
+        choices=TYPE_PAIEMENT_CHOICES,
+        default='salaire_complet',
+        help_text='Type de paiement effectué'
+    )
     
-    methode_paiement = models.CharField(max_length=20, choices=METHODE_PAIEMENT_CHOICES, default='cash', verbose_name="Méthode de paiement")
-    notes = models.TextField(blank=True, default='', verbose_name="Notes")
-    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='paye', verbose_name="Statut")
+    # Salary breakdown
+    montant_total_salaire = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Montant total du salaire mensuel'
+    )
+    montant_avances_precedentes = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='Total des avances déjà versées ce mois'
+    )
+    montant_paye = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text='Montant payé lors de cette transaction'
+    )
+    montant_restant = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Montant restant à payer après ce paiement'
+    )
     
-    date_paiement = models.DateTimeField(default=timezone.now, verbose_name="Date de paiement")
-    created_at = models.DateTimeField(default=timezone.now, verbose_name="Créé le")
+    # Payment method and currency
+    devise_paiement = models.CharField(
+        max_length=3,
+        choices=[('USD', 'USD'), ('FC', 'FC')]
+    )
+    taux_change = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+    methode_paiement = models.CharField(
+        max_length=20,
+        choices=METHODE_PAIEMENT_CHOICES
+    )
+    
+    # Status and notes
+    statut = models.CharField(
+        max_length=20,
+        choices=STATUT_CHOICES,
+        default='paye'
+    )
+    notes = models.TextField(
+        blank=True
+    )
+    
+    # Timestamps
+    date_paiement = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        verbose_name = "Paiement salaire"
-        verbose_name_plural = "Paiements salaires"
+        verbose_name = 'Paiement de Salaire'
+        verbose_name_plural = 'Paiements de Salaires'
         ordering = ['-date_paiement']
-        # REMOVED unique_together to avoid constraint issues during migration
+        indexes = [
+            models.Index(fields=['mois_paiement', 'statut']),
+            models.Index(fields=['branche', 'date_paiement']),
+        ]
     
     def __str__(self):
-        return f"Paiement {self.pompiste.get_full_name() if self.pompiste else 'N/A'} - {self.mois_paiement.strftime('%m/%Y') if self.mois_paiement else 'N/A'}"
+        employee = self.pompiste if self.pompiste else self.employe_user
+        employee_name = employee.get_full_name() if employee else 'N/A'
+        return f"{employee_name} - {self.mois_paiement.strftime('%m/%Y')} - {self.montant_paye} {self.devise_paiement}"
+    
+    def get_employee_name(self):
+        """Get the name of the employee being paid"""
+        if self.pompiste:
+            return self.pompiste.get_full_name()
+        elif self.employe_user:
+            return self.employe_user.get_full_name()
+        return 'N/A'
+    
+    def get_employee_type(self):
+        """Get the type of employee"""
+        if self.pompiste:
+            return 'pompiste'
+        elif self.employe_user:
+            return 'user'
+        return 'unknown'
+    
+    def clean(self):
+        """Validate that only one employee type is set"""
+        from django.core.exceptions import ValidationError
+        if self.pompiste and self.employe_user:
+            raise ValidationError(
+                "Un paiement ne peut être lié qu'à un pompiste OU un utilisateur, pas les deux"
+            )
+        if not self.pompiste and not self.employe_user:
+            raise ValidationError(
+                "Un paiement doit être lié à un pompiste ou un utilisateur"
+            )
+    
+    def save(self, *args, **kwargs):
+        # Run clean validation
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 class DocumentCategory(models.Model):

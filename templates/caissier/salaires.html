@@ -1,0 +1,806 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Salaires - Caissier - PETROX{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'caissier_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Dashboard
+</a>
+<a href="{% url 'caissier_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Ventes
+</a>
+<a href="{% url 'caissier_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Dépenses
+</a>
+<a href="{% url 'caissier_module:salaires' %}" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+    Salaires
+</a>
+<a href="{% url 'caissier_module:abonnes' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Abonnés
+</a>
+<a href="#" onclick="showComingSoon('Documents')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
+    Documents
+</a>
+{% endblock %}
+
+{% block mobile_menu %}
+<a href="{% url 'caissier_module:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'caissier_module:ventes' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Ventes</a>
+<a href="{% url 'caissier_module:depenses' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'caissier_module:salaires' %}" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-100 text-gray-900">Salaires</a>
+<a href="#" onclick="showComingSoon('Abonnés')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Abonnés</a>
+<a href="#" onclick="showComingSoon('Documents')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Documents</a>
+{% endblock %}
+
+{% block mobile_bottom_nav %}
+<a href="{% url 'caissier_module:dashboard' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    <span>Dashboard</span>
+</a>
+<a href="{% url 'caissier_module:ventes' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>Ventes</span>
+</a>
+<a href="{% url 'caissier_module:depenses' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>Dépenses</span>
+</a>
+<a href="{% url 'caissier_module:salaires' %}" class="mobile-nav-item mobile-nav-active">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <span>Salaires</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Paiements des Salaires
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span>
+        </p>
+    </div>
+    <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+        <button onclick="loadEmployees()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Actualiser
+        </button>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+    <!-- Total Employees -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Employés</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-employees">0</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paid This Month -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Payés ce Mois</dt>
+                        <dd class="text-2xl font-semibold text-green-600" id="paid-count">0</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Payment -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">En Attente</dt>
+                        <dd class="text-2xl font-semibold text-yellow-600" id="pending-count">0</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Amount Paid -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Payé</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-paid">$0.00</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Employee Type Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type d'employé</label>
+            <select id="filter-employee-type" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Tous</option>
+                <option value="pompiste">Pompistes</option>
+                <option value="user">Utilisateurs Système</option>
+            </select>
+        </div>
+        
+        <!-- Payment Status Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Statut de paiement</label>
+            <select id="filter-status" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <option value="all">Tous</option>
+                <option value="paid">Payés ce mois</option>
+                <option value="pending">En attente</option>
+            </select>
+        </div>
+        
+        <!-- Month Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mois</label>
+            <input type="month" id="filter-month" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+        </div>
+        
+        <!-- Search -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+            <input type="text" id="search-input" placeholder="Nom de l'employé..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+        </div>
+    </div>
+    
+    <div class="mt-4 flex justify-end space-x-3">
+        <button onclick="resetFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            Réinitialiser
+        </button>
+        <button onclick="applyFilters()" class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            Appliquer les filtres
+        </button>
+    </div>
+</div>
+
+<!-- Employees Table -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">
+            Liste des Employés (<span id="table-count">0</span>)
+        </h3>
+        <div class="flex items-center space-x-2">
+            <button onclick="exportToExcel()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </button>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employé</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salaire</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Déjà Payé</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Restant</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="employees-table-body" class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center">
+                        <div class="spinner mx-auto mb-2"></div>
+                        <p class="text-sm text-gray-500">Chargement des employés...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div id="pagination-container" class="hidden bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                Affichage de <span id="page-start">1</span> à <span id="page-end">20</span> sur <span id="total-records">0</span> employés
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="previousPage()" id="prev-btn" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Précédent
+                </button>
+                <button onclick="nextPage()" id="next-btn" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Suivant
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Pay Salary Modal -->
+<div id="pay-salary-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('pay-salary-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="payment-form" onsubmit="submitPayment(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Payer le Salaire</h3>
+                            
+                            <div class="space-y-4">
+                                <!-- Employee Info Display -->
+                                <div id="employee-info" class="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4">
+                                    <p class="text-sm text-blue-700" id="employee-name-display"></p>
+                                </div>
+                                
+                                <!-- Hidden Fields -->
+                                <input type="hidden" id="employee-id" name="employee_id">
+                                <input type="hidden" id="employee-type" name="employee_type">
+                                
+                                <!-- Month/Period -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mois/Période *</label>
+                                    <input type="month" id="payment-month" name="month" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                </div>
+                                
+                                <!-- Payment Type -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Type de Paiement *</label>
+                                    <select id="payment-type" name="payment_type" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" onchange="updatePaymentAmount()">
+                                        <option value="salaire_complet">Salaire Complet</option>
+                                        <option value="avance">Avance sur Salaire</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Salary Info Display -->
+                                <div id="salary-info" class="bg-green-50 border-l-4 border-green-400 p-3">
+                                    <p class="text-sm text-green-800">
+                                        <strong>Salaire total:</strong> <span id="salary-total">0</span> <span id="salary-currency-display">USD</span><br>
+                                        <strong>Déjà payé ce mois:</strong> <span id="salary-paid">0</span> <span id="salary-currency-display-2">USD</span><br>
+                                        <strong class="text-green-700">Restant à payer:</strong> <span id="salary-remaining" class="font-semibold text-green-900">0</span> <span id="salary-currency-display-3">USD</span>
+                                    </p>
+                                </div>
+                                
+                                <!-- Amount & Currency -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Montant *</label>
+                                        <input type="number" step="0.01" id="payment-amount" name="amount" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
+                                        <p class="mt-1 text-xs text-gray-500" id="amount-helper">Montant à payer</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Devise *</label>
+                                        <select id="payment-currency" name="currency" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                            <option value="USD">USD ($)</option>
+                                            <option value="FC">FC (Francs Congolais)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Payment Method -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Moyen de Paiement *</label>
+                                    <select id="payment-method" name="payment_method" required class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                        <option value="cash">Cash</option>
+                                        <option value="mobile_money">Mobile Money</option>
+                                        <option value="bank_transfer">Virement Bancaire</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Notes -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optionnel)</label>
+                                    <textarea id="payment-notes" name="notes" rows="2" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Remarques supplémentaires..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:w-auto sm:text-sm">
+                        Effectuer le Paiement
+                    </button>
+                    <button type="button" onclick="closeModal('pay-salary-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Payment History Modal -->
+<div id="history-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('history-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Historique des Paiements</h3>
+                    <button onclick="closeModal('history-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="history-employee-name" class="mb-4 text-sm text-gray-600"></div>
+                
+                <div id="payment-history-content" class="max-h-96 overflow-y-auto">
+                    <div class="p-8 text-center text-gray-500">
+                        <div class="spinner mx-auto mb-2"></div>
+                        <p>Chargement...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variables
+let currentPage = 1;
+let totalPages = 1;
+let allEmployees = [];
+let filteredEmployees = [];
+let currentEmployeeData = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default month to current month
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    document.getElementById('filter-month').value = currentMonth;
+    document.getElementById('payment-month').value = currentMonth;
+    
+    loadEmployees();
+    
+    // Setup search debounce
+    let searchTimeout;
+    document.getElementById('search-input').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchEmployees, 300);
+    });
+});
+
+/**
+ * Load employees from API
+ */
+function loadEmployees() {
+    const employeeType = document.getElementById('filter-employee-type').value;
+    const status = document.getElementById('filter-status').value;
+    const month = document.getElementById('filter-month').value;
+    
+    const url = `/caissier/api/salary/employees/?type=${employeeType}&status=${status}&month=${month}`;
+    
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        allEmployees = data.employees || [];
+        filteredEmployees = [...allEmployees];
+        updateStatistics(data.statistics || {});
+        currentPage = 1;
+        renderEmployeesTable();
+    })
+    .catch(error => {
+        console.error('Error loading employees:', error);
+        showToast('Erreur de chargement des employés', 'error');
+    });
+}
+
+/**
+ * Update statistics cards
+ */
+function updateStatistics(stats) {
+    document.getElementById('total-employees').textContent = stats.total || 0;
+    document.getElementById('paid-count').textContent = stats.paid || 0;
+    document.getElementById('pending-count').textContent = stats.pending || 0;
+    document.getElementById('total-paid').textContent = `$${formatNumber(stats.total_paid || 0)}`;
+}
+
+/**
+ * Render employees table
+ */
+function renderEmployeesTable() {
+    const tbody = document.getElementById('employees-table-body');
+    const tableCount = document.getElementById('table-count');
+    
+    if (filteredEmployees.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-12 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">Aucun employé trouvé</p>
+                </td>
+            </tr>
+        `;
+        tableCount.textContent = '0';
+        document.getElementById('pagination-container').classList.add('hidden');
+        return;
+    }
+    
+    // Pagination
+    const itemsPerPage = 20;
+    totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredEmployees.length);
+    const pageEmployees = filteredEmployees.slice(startIndex, endIndex);
+    
+    // Render rows
+    tbody.innerHTML = pageEmployees.map(employee => `
+        <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        <span class="text-sm font-medium text-gray-600">${employee.initials}</span>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">${employee.name}</div>
+                        <div class="text-sm text-gray-500">${employee.phone || '-'}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${employee.type === 'pompiste' ? 'Pompiste' : 'Utilisateur'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                ${formatCurrency(employee.salary, employee.salary_currency)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${formatCurrency(employee.total_paid, employee.salary_currency)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${parseFloat(employee.remaining) > 0 ? 'text-yellow-600' : 'text-green-600'}">
+                ${formatCurrency(employee.remaining, employee.salary_currency)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                ${getPaymentStatusBadge(employee.paid_this_month)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                <button onclick='openPaymentModal(${JSON.stringify(employee).replace(/'/g, "&#39;")})' class="text-green-600 hover:text-green-900" title="Payer">
+                    <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </button>
+                <button onclick='viewPaymentHistory(${JSON.stringify(employee).replace(/'/g, "&#39;")})' class="text-blue-600 hover:text-blue-900" title="Historique">
+                    <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update count
+    tableCount.textContent = filteredEmployees.length;
+    
+    // Update pagination
+    document.getElementById('page-start').textContent = startIndex + 1;
+    document.getElementById('page-end').textContent = endIndex;
+    document.getElementById('total-records').textContent = filteredEmployees.length;
+    document.getElementById('pagination-container').classList.remove('hidden');
+    
+    // Update pagination buttons
+    document.getElementById('prev-btn').disabled = currentPage === 1;
+    document.getElementById('next-btn').disabled = currentPage === totalPages;
+}
+
+/**
+ * Get payment status badge
+ */
+function getPaymentStatusBadge(paidThisMonth) {
+    if (paidThisMonth) {
+        return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Payé</span>';
+    } else {
+        return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">En attente</span>';
+    }
+}
+
+/**
+ * Open payment modal
+ */
+function openPaymentModal(employee) {
+    currentEmployeeData = employee;
+    
+    // Reset form
+    document.getElementById('payment-form').reset();
+    
+    // Set employee info
+    document.getElementById('employee-id').value = employee.id;
+    document.getElementById('employee-type').value = employee.type;
+    
+    let employeeTypeText = employee.type === 'pompiste' ? 'Pompiste' : 'Utilisateur Système';
+    document.getElementById('employee-name-display').textContent = `Paiement pour: ${employee.name} (${employeeTypeText})`;
+    
+    // Set salary info
+    document.getElementById('salary-total').textContent = formatNumber(employee.salary);
+    document.getElementById('salary-paid').textContent = formatNumber(employee.total_paid);
+    document.getElementById('salary-remaining').textContent = formatNumber(employee.remaining);
+    document.getElementById('salary-currency-display').textContent = employee.salary_currency;
+    document.getElementById('salary-currency-display-2').textContent = employee.salary_currency;
+    document.getElementById('salary-currency-display-3').textContent = employee.salary_currency;
+    
+    // Set default values
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    document.getElementById('payment-month').value = currentMonth;
+    
+    // Set amount to remaining (full salary minus what's paid)
+    document.getElementById('payment-amount').value = employee.remaining;
+    document.getElementById('payment-currency').value = employee.salary_currency;
+    
+    // Set payment type to full by default
+    document.getElementById('payment-type').value = 'salaire_complet';
+    document.getElementById('amount-helper').textContent = 'Montant restant du salaire';
+    
+    openModal('pay-salary-modal');
+}
+
+/**
+ * Update payment amount based on payment type
+ */
+function updatePaymentAmount() {
+    if (!currentEmployeeData) return;
+    
+    const paymentType = document.getElementById('payment-type').value;
+    const remaining = parseFloat(currentEmployeeData.remaining);
+    const amountField = document.getElementById('payment-amount');
+    const helper = document.getElementById('amount-helper');
+    
+    if (paymentType === 'salaire_complet') {
+        // Set to full remaining amount
+        amountField.value = remaining.toFixed(2);
+        amountField.readOnly = true;
+        helper.textContent = 'Montant restant du salaire (auto-rempli)';
+        helper.classList.remove('text-yellow-600');
+        helper.classList.add('text-gray-500');
+    } else {
+        // Allow partial payment (advance)
+        amountField.value = '';
+        amountField.readOnly = false;
+        amountField.max = remaining;
+        helper.textContent = `Avance - Maximum: ${formatNumber(remaining)} ${currentEmployeeData.salary_currency}`;
+        helper.classList.remove('text-gray-500');
+        helper.classList.add('text-yellow-600');
+    }
+}
+
+/**
+ * Submit payment
+ */
+function submitPayment(event) {
+    event.preventDefault();
+    
+    const paymentData = {
+        employee_id: document.getElementById('employee-id').value,
+        employee_type: document.getElementById('employee-type').value,
+        month: document.getElementById('payment-month').value,
+        payment_type: document.getElementById('payment-type').value,
+        amount: document.getElementById('payment-amount').value,
+        currency: document.getElementById('payment-currency').value,
+        payment_method: document.getElementById('payment-method').value,
+        notes: document.getElementById('payment-notes').value
+    };
+    
+    fetch('/caissier/api/salary/pay/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(paymentData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('pay-salary-modal');
+            showToast(data.message, 'success');
+            document.getElementById('payment-form').reset();
+            loadEmployees();
+        } else {
+            showToast(data.message || 'Erreur lors du paiement', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erreur de connexion', 'error');
+    });
+}
+
+/**
+ * View payment history
+ */
+function viewPaymentHistory(employee) {
+    document.getElementById('history-employee-name').textContent = `Historique de paiement pour: ${employee.name}`;
+    
+    fetch(`/caissier/api/salary/history/?employee_id=${employee.id}&employee_type=${employee.type}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const payments = data.payments || [];
+        const container = document.getElementById('payment-history-content');
+        
+        if (payments.length === 0) {
+            container.innerHTML = `
+                <div class="p-8 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2">Aucun paiement enregistré</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = payments.map(payment => `
+                <div class="border-b border-gray-200 p-4 hover:bg-gray-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-sm font-medium text-gray-900">
+                            ${payment.period} - ${formatCurrency(payment.amount, payment.currency)}
+                            ${payment.payment_type === 'Avance' ? '<span class="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Avance</span>' : '<span class="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Complet</span>'}
+                        </div>
+                        <div class="text-xs text-gray-500">${payment.date}</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                        <div><span class="font-medium">Paiement:</span> ${payment.payment_method}</div>
+                        <div><span class="font-medium">Type:</span> ${payment.payment_type}</div>
+                        <div><span class="font-medium">Salaire total:</span> ${payment.total_salary} ${payment.currency}</div>
+                        <div><span class="font-medium">Restant:</span> <span class="${parseFloat(payment.remaining) > 0 ? 'text-yellow-600 font-semibold' : 'text-green-600'}">${payment.remaining} ${payment.currency}</span></div>
+                        <div class="col-span-2"><span class="font-medium">Caissier:</span> ${payment.caissier}</div>
+                        ${payment.notes ? `<div class="col-span-2"><span class="font-medium">Notes:</span> ${payment.notes}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        openModal('history-modal');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erreur de chargement de l\'historique', 'error');
+    });
+}
+
+/**
+ * Apply filters
+ */
+function applyFilters() {
+    loadEmployees();
+}
+
+/**
+ * Reset filters
+ */
+function resetFilters() {
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    
+    document.getElementById('filter-employee-type').value = 'all';
+    document.getElementById('filter-status').value = 'all';
+    document.getElementById('filter-month').value = currentMonth;
+    document.getElementById('search-input').value = '';
+    loadEmployees();
+}
+
+/**
+ * Search employees
+ */
+function searchEmployees() {
+    const searchText = document.getElementById('search-input').value.toLowerCase();
+    
+    if (searchText === '') {
+        filteredEmployees = [...allEmployees];
+    } else {
+        filteredEmployees = allEmployees.filter(employee => 
+            employee.name.toLowerCase().includes(searchText) ||
+            (employee.email && employee.email.toLowerCase().includes(searchText)) ||
+            (employee.phone && employee.phone.includes(searchText))
+        );
+    }
+    
+    currentPage = 1;
+    renderEmployeesTable();
+}
+
+/**
+ * Pagination
+ */
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderEmployeesTable();
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderEmployeesTable();
+    }
+}
+
+/**
+ * Export to Excel
+ */
+function exportToExcel() {
+    const month = document.getElementById('filter-month').value;
+    window.location.href = `/caissier/api/salary/export/excel/?month=${month}`;
+    showToast('Export Excel en cours...', 'success');
+}
+
+/**
+ * Helper: Show coming soon toast
+ */
+function showComingSoon(feature) {
+    showToast(`${feature} - Prochainement disponible`, 'error');
+}
+</script>
+{% endblock %}
