@@ -4,86 +4,58 @@
 {% block title %}Dashboard Caissier - PETROX{% endblock %}
 
 {% block desktop_nav %}
-<a href="{% url 'caissier_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
-    Dashboard
-</a>
-<a href="{% url 'caissier_module:ventes' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
-    Ventes
-</a>
-<a href="{% url 'caissier_module:depenses' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
-    Dépenses
-</a>
-<a href="{% url 'caissier_module:salaires' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
-    Salaires
-</a>
-<a href="{% url 'caissier_module:abonnes' %}"  class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
-    Abonnés
-</a>
-<a href="#" onclick="showComingSoon('Documents')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">
-    Documents
-</a>
+<a href="{% url 'caissier_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">Dashboard</a>
+<a href="{% url 'caissier_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Ventes</a>
+<a href="{% url 'caissier_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'caissier_module:salaires' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Salaires</a>
+<a href="{% url 'caissier_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'caissier_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Documents</a>
 {% endblock %}
 
 {% block mobile_menu %}
 <a href="{% url 'caissier_module:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-100 text-gray-900">Dashboard</a>
-<a href="#" onclick="showComingSoon('Ventes')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Ventes</a>
-<a href="#" onclick="showComingSoon('Dépenses')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dépenses</a>
-<a href="#" onclick="showComingSoon('Salaires')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Salaires</a>
-<a href="#" onclick="showComingSoon('Abonnés')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Abonnés</a>
-<a href="#" onclick="showComingSoon('Documents')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Documents</a>
+<a href="{% url 'caissier_module:ventes' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Ventes</a>
+<a href="{% url 'caissier_module:depenses' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'caissier_module:salaires' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Salaires</a>
+<a href="{% url 'caissier_module:abonnes' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'caissier_module:documents' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50">Documents</a>
 {% endblock %}
 
 {% block mobile_bottom_nav %}
 <a href="{% url 'caissier_module:dashboard' %}" class="mobile-nav-item mobile-nav-active">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-    </svg>
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
     <span>Dashboard</span>
 </a>
-<a href="#" onclick="showComingSoon('Ventes')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
+<a href="{% url 'caissier_module:ventes' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     <span>Ventes</span>
 </a>
-<a href="#" onclick="showComingSoon('Dépenses')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
+<a href="{% url 'caissier_module:depenses' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     <span>Dépenses</span>
 </a>
-<a href="#" onclick="showComingSoon('Salaires')" class="mobile-nav-item">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
+<a href="{% url 'caissier_module:salaires' %}" class="mobile-nav-item">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
     <span>Salaires</span>
 </a>
 {% endblock %}
 
 {% block content %}
-<!-- Header Section -->
+<!-- Header -->
 <div class="md:flex md:items-center md:justify-between mb-8">
     <div class="flex-1 min-w-0">
-        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
-            Dashboard Caissier
-        </h2>
-        <p class="mt-1 text-sm text-gray-500">
-            Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span> • <span id="current-date"></span>
-        </p>
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">Dashboard Caissier</h2>
+        <p class="mt-1 text-sm text-gray-500">Station: <span class="font-semibold text-gray-800">{{ user.branche.nom }}</span> • <span id="current-date"></span></p>
     </div>
     <div class="mt-4 flex items-center space-x-3 md:mt-0 md:ml-4">
         <!-- Currency Toggle -->
         <div class="inline-flex rounded-md shadow-sm" role="group">
-            <button type="button" onclick="setCurrency('USD', this)" class="currency-btn px-4 py-2 text-sm font-medium bg-petrox-red text-white rounded-l-md border border-petrox-red hover:bg-petrox-hover focus:z-10 focus:ring-2 focus:ring-petrox-red">
-                USD
-            </button>
-            <button type="button" onclick="setCurrency('FC', this)" class="currency-btn px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-r-md border border-gray-300 hover:bg-gray-200 focus:z-10 focus:ring-2 focus:ring-petrox-red">
-                FC
-            </button>
+            <button type="button" id="btn-usd" onclick="setCurrency('USD')" class="px-4 py-2 text-sm font-medium bg-petrox-red text-white rounded-l-md border border-petrox-red hover:bg-petrox-hover">USD</button>
+            <button type="button" id="btn-fc" onclick="setCurrency('FC')" class="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-r-md border border-gray-300 hover:bg-gray-200">FC</button>
         </div>
         
         <!-- Refresh Button -->
-        <button onclick="loadDashboardData()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+        <button onclick="loadDashboardData()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
             <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
@@ -96,24 +68,16 @@
 <div class="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 p-4">
     <div class="flex flex-wrap items-center gap-2">
         <span class="text-sm font-medium text-gray-700">Période:</span>
-        <button onclick="setPeriod('today', this)" class="period-btn px-4 py-2 text-sm font-medium bg-gray-100 text-gray-900 rounded-md shadow-sm">
-            Aujourd'hui
-        </button>
-        <button onclick="setPeriod('week', this)" class="period-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">
-            7 jours
-        </button>
-        <button onclick="setPeriod('month', this)" class="period-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">
-            30 jours
-        </button>
-        <button onclick="openCustomDateModal()" class="period-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">
-            Personnalisé
-        </button>
+        <button id="period-today" onclick="setPeriod('today')" class="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-900 rounded-md shadow-sm">Aujourd'hui</button>
+        <button id="period-week" onclick="setPeriod('week')" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">7 jours</button>
+        <button id="period-month" onclick="setPeriod('month')" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">30 jours</button>
+        <button onclick="openModal('custom-date-modal')" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md">Personnalisé</button>
     </div>
 </div>
 
-<!-- KPI Cards Grid -->
+<!-- KPI Cards -->
 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-    <!-- Total Entrées (Ventes Validées) -->
+    <!-- Total Entrées -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
         <div class="p-5">
             <div class="flex items-center">
@@ -134,7 +98,7 @@
         </div>
     </div>
 
-    <!-- Total Sorties (Dépenses) -->
+    <!-- Total Sorties -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
         <div class="p-5">
             <div class="flex items-center">
@@ -155,7 +119,7 @@
         </div>
     </div>
 
-    <!-- Solde du Jour -->
+    <!-- Solde -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow">
         <div class="p-5">
             <div class="flex items-center">
@@ -176,7 +140,7 @@
         </div>
     </div>
 
-    <!-- Ventes en Attente de Validation -->
+    <!-- Ventes en Attente -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openModal('pending-sales-modal')">
         <div class="p-5">
             <div class="flex items-center">
@@ -198,46 +162,33 @@
     </div>
 </div>
 
-<!-- Charts Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Ventes vs Dépenses Chart -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Ventes vs Dépenses</h3>
-            <div class="flex items-center space-x-2">
-                <span class="flex items-center text-sm text-gray-600">
-                    <span class="w-3 h-3 bg-green-500 rounded-full mr-1"></span>
-                    Entrées
-                </span>
-                <span class="flex items-center text-sm text-gray-600">
-                    <span class="w-3 h-3 bg-red-500 rounded-full mr-1"></span>
-                    Sorties
-                </span>
-            </div>
-        </div>
-        <div class="relative h-64">
-            <canvas id="sales-vs-expenses-chart"></canvas>
+<!-- Chart Section -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6 mb-8">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Ventes vs Dépenses</h3>
+        <div class="flex items-center space-x-2">
+            <span class="flex items-center text-sm text-gray-600">
+                <span class="w-3 h-3 bg-green-500 rounded-full mr-1"></span>
+                Entrées
+            </span>
+            <span class="flex items-center text-sm text-gray-600">
+                <span class="w-3 h-3 bg-red-500 rounded-full mr-1"></span>
+                Sorties
+            </span>
         </div>
     </div>
-
-    <!-- Forex Impact Chart -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Impact Forex par Carburant</h3>
-            <span class="text-xs text-gray-500">Gain/Perte</span>
-        </div>
-        <div class="relative h-64">
-            <canvas id="forex-impact-chart"></canvas>
-        </div>
+    <div class="relative h-64">
+        <canvas id="sales-vs-expenses-chart"></canvas>
     </div>
 </div>
 
-<!-- Recent Transactions & Pending Sales -->
+<!-- Transactions & Pending Sales -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Recent Transactions -->
+    <!-- Recent Transactions (Last 5) -->
     <div class="bg-white shadow-sm rounded-lg border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
+            <p class="text-xs text-gray-500 mt-1">5 dernières transactions</p>
         </div>
         <div class="overflow-hidden">
             <div id="recent-transactions" class="divide-y divide-gray-200">
@@ -249,7 +200,7 @@
         </div>
     </div>
 
-    <!-- Pending Sales for Validation -->
+    <!-- Pending Sales -->
     <div class="bg-white shadow-sm rounded-lg border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">Ventes à Valider</h3>
@@ -268,6 +219,34 @@
 {% endblock %}
 
 {% block modals %}
+<!-- Custom Date Range Modal -->
+<div id="custom-date-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('custom-date-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Période Personnalisée</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+                        <input type="date" id="custom-start-date" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+                        <input type="date" id="custom-end-date" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <button type="button" onclick="applyCustomDateRange()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:w-auto sm:text-sm">Appliquer</button>
+                <button type="button" onclick="closeModal('custom-date-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Validation Modal -->
 <div id="validation-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -284,9 +263,7 @@
                     </div>
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Validation de Vente</h3>
-                        <div id="validation-details" class="text-sm text-gray-700">
-                            <!-- Sale details will be populated here -->
-                        </div>
+                        <div id="validation-details" class="text-sm text-gray-700"></div>
                         
                         <div class="mt-6 border-t border-gray-200 pt-4">
                             <h4 class="text-sm font-medium text-gray-900 mb-3">Montant Manquant (si applicable)</h4>
@@ -309,15 +286,9 @@
                 </div>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
-                <button type="button" onclick="validateSale()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:w-auto sm:text-sm">
-                    ✓ Valider
-                </button>
-                <button type="button" onclick="reportMissing()" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:w-auto sm:text-sm">
-                    ⚠ Signaler Manquant
-                </button>
-                <button type="button" onclick="closeModal('validation-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm">
-                    Annuler
-                </button>
+                <button type="button" onclick="validateSale()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:w-auto sm:text-sm">✓ Valider</button>
+                <button type="button" onclick="reportMissing()" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:mt-0 sm:w-auto sm:text-sm">⚠ Signaler Manquant</button>
+                <button type="button" onclick="closeModal('validation-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">Annuler</button>
             </div>
         </div>
     </div>
@@ -339,12 +310,7 @@
                         </svg>
                     </button>
                 </div>
-                <div id="pending-sales-modal-list" class="max-h-96 overflow-y-auto">
-                    <div class="p-8 text-center text-gray-500">
-                        <div class="spinner mx-auto mb-2"></div>
-                        <p>Chargement...</p>
-                    </div>
-                </div>
+                <div id="pending-sales-modal-list" class="max-h-96 overflow-y-auto"></div>
             </div>
         </div>
     </div>
@@ -353,29 +319,23 @@
 
 {% block extra_js %}
 <script>
-// Global variables
+const csrfToken = '{{ csrf_token }}';
 let currentSaleId = null;
 let currentCurrency = 'USD';
 let currentPeriod = 'today';
+let customStartDate = null;
+let customEndDate = null;
 let salesVsExpensesChart = null;
-let forexImpactChart = null;
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Set current date
     document.getElementById('current-date').textContent = new Date().toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
     
-    // Load dashboard data
     loadDashboardData();
     loadPendingSales();
     loadRecentTransactions();
     
-    // Auto-refresh every 2 minutes
     setInterval(() => {
         loadDashboardData();
         loadPendingSales();
@@ -383,17 +343,78 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 120000);
 });
 
-/**
- * Load dashboard statistics and charts
- */
-function loadDashboardData() {
-    const url = `/caissier/api/stats/?period=${currentPeriod}&devise=${currentCurrency}`;
+function setCurrency(currency) {
+    currentCurrency = currency;
     
-    fetch(url, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+    const btnUsd = document.getElementById('btn-usd');
+    const btnFc = document.getElementById('btn-fc');
+    
+    if (currency === 'USD') {
+        btnUsd.className = 'px-4 py-2 text-sm font-medium bg-petrox-red text-white rounded-l-md border border-petrox-red';
+        btnFc.className = 'px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-r-md border border-gray-300';
+    } else {
+        btnUsd.className = 'px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-l-md border border-gray-300';
+        btnFc.className = 'px-4 py-2 text-sm font-medium bg-petrox-red text-white rounded-r-md border border-petrox-red';
+    }
+    
+    loadDashboardData();
+}
+
+function setPeriod(period) {
+    currentPeriod = period;
+    customStartDate = null;
+    customEndDate = null;
+    
+    ['today', 'week', 'month'].forEach(p => {
+        const btn = document.getElementById(`period-${p}`);
+        if (btn) {
+            if (p === period) {
+                btn.className = 'px-4 py-2 text-sm font-medium bg-gray-100 text-gray-900 rounded-md shadow-sm';
+            } else {
+                btn.className = 'px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md';
+            }
         }
-    })
+    });
+    
+    loadDashboardData();
+}
+
+function applyCustomDateRange() {
+    const startDate = document.getElementById('custom-start-date').value;
+    const endDate = document.getElementById('custom-end-date').value;
+    
+    if (!startDate || !endDate) {
+        showToast('Veuillez sélectionner les deux dates', 'error');
+        return;
+    }
+    
+    if (new Date(startDate) > new Date(endDate)) {
+        showToast('La date de début doit être antérieure à la date de fin', 'error');
+        return;
+    }
+    
+    customStartDate = startDate;
+    customEndDate = endDate;
+    currentPeriod = 'custom';
+    
+    ['today', 'week', 'month'].forEach(p => {
+        const btn = document.getElementById(`period-${p}`);
+        if (btn) {
+            btn.className = 'px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md';
+        }
+    });
+    
+    closeModal('custom-date-modal');
+    loadDashboardData();
+}
+
+function loadDashboardData() {
+    let url = `/caissier/api/stats/?period=${currentPeriod}&devise=${currentCurrency}`;
+    if (currentPeriod === 'custom' && customStartDate && customEndDate) {
+        url += `&start_date=${customStartDate}&end_date=${customEndDate}`;
+    }
+    
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(response => response.json())
     .then(data => {
         updateKPIs(data);
@@ -405,59 +426,43 @@ function loadDashboardData() {
     });
 }
 
-/**
- * Update KPI cards
- */
 function updateKPIs(data) {
     const symbol = currentCurrency === 'USD' ? '$' : '';
     const suffix = currentCurrency === 'FC' ? ' FC' : '';
     
-    // Total Entries
-    const entriesValue = currentCurrency === 'USD' ? data.total_entries_today : data.total_entries_today_fc;
+    const entriesValue = currentCurrency === 'USD' ? (data.total_entries_today || 0) : (data.total_entries_today_fc || 0);
     document.getElementById('total-entries').textContent = `${symbol}${formatNumber(entriesValue)}${suffix}`;
     
-    // Total Expenses
-    const expensesValue = currentCurrency === 'USD' ? data.total_expenses_today : data.total_expenses_today_fc;
+    const expensesValue = currentCurrency === 'USD' ? (data.total_expenses_today || 0) : (data.total_expenses_today_fc || 0);
     document.getElementById('total-expenses').textContent = `${symbol}${formatNumber(expensesValue)}${suffix}`;
     
-    // Daily Balance
-    const balanceValue = currentCurrency === 'USD' ? data.balance_usd : data.balance_fc;
+    const balanceValue = currentCurrency === 'USD' ? (data.balance_usd || 0) : (data.balance_fc || 0);
     const balanceEl = document.getElementById('daily-balance');
     balanceEl.textContent = `${symbol}${formatNumber(balanceValue)}${suffix}`;
     
-    // Color code balance
     const parsedBalance = parseFloat(balanceValue);
     balanceEl.className = parsedBalance >= 0 ? 'text-2xl font-semibold text-green-600' : 'text-2xl font-semibold text-red-600';
     
-    // Pending Validations
     document.getElementById('pending-validations').textContent = data.pending_validations || '0';
     document.getElementById('pending-count-badge').textContent = data.pending_validations || '0';
 }
 
-/**
- * Load chart data
- */
 function loadChartData() {
-    const url = `/caissier/api/chart-data/?period=${currentPeriod}&devise=${currentCurrency}`;
+    let url = `/caissier/api/chart-data/?period=${currentPeriod}&devise=${currentCurrency}`;
+    if (currentPeriod === 'custom' && customStartDate && customEndDate) {
+        url += `&start_date=${customStartDate}&end_date=${customEndDate}`;
+    }
     
-    fetch(url, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(response => response.json())
     .then(data => {
         updateSalesVsExpensesChart(data.sales_vs_expenses || []);
-        updateForexImpactChart(data.forex_impact || []);
     })
     .catch(error => {
         console.error('Error loading charts:', error);
     });
 }
 
-/**
- * Update Sales vs Expenses Chart
- */
 function updateSalesVsExpensesChart(data) {
     const ctx = document.getElementById('sales-vs-expenses-chart').getContext('2d');
     
@@ -492,18 +497,14 @@ function updateSalesVsExpensesChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltip: {
                     mode: 'index',
                     intersect: false,
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
+                            if (label) label += ': ';
                             label += formatCurrency(context.parsed.y, currentCurrency);
                             return label;
                         }
@@ -524,78 +525,16 @@ function updateSalesVsExpensesChart(data) {
     });
 }
 
-/**
- * Update Forex Impact Chart
- */
-function updateForexImpactChart(data) {
-    const ctx = document.getElementById('forex-impact-chart').getContext('2d');
-    
-    if (forexImpactChart) {
-        forexImpactChart.destroy();
-    }
-    
-    forexImpactChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.map(d => d.fuel),
-            datasets: [{
-                label: 'Impact Forex',
-                data: data.map(d => d.impact),
-                backgroundColor: data.map(d => d.impact >= 0 ? '#16A34A' : '#DC2626'),
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const value = context.parsed.y;
-                            return value >= 0 ? `Gain: ${formatCurrency(value, currentCurrency)}` : `Perte: ${formatCurrency(Math.abs(value), currentCurrency)}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    ticks: {
-                        callback: function(value) {
-                            return formatCurrency(value, currentCurrency);
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-/**
- * Load pending sales
- */
 function loadPendingSales() {
-    fetch('/caissier/api/sales/pending/', {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
+    fetch('/caissier/api/sales/pending/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(response => response.json())
     .then(data => {
         updatePendingSalesList(data.pending_sales || []);
         updatePendingSalesModal(data.pending_sales || []);
     })
-    .catch(error => {
-        console.error('Error loading pending sales:', error);
-    });
+    .catch(error => console.error('Error loading pending sales:', error));
 }
 
-/**
- * Update pending sales list
- */
 function updatePendingSalesList(sales) {
     const container = document.getElementById('pending-sales-list');
     
@@ -627,9 +566,6 @@ function updatePendingSalesList(sales) {
     `).join('');
 }
 
-/**
- * Update pending sales modal
- */
 function updatePendingSalesModal(sales) {
     const container = document.getElementById('pending-sales-modal-list');
     
@@ -649,9 +585,7 @@ function updatePendingSalesModal(sales) {
         <div class="p-4 border-b border-gray-200 hover:bg-gray-50">
             <div class="flex items-center justify-between mb-2">
                 <h4 class="text-sm font-medium text-gray-900">Vente #${sale.id}</h4>
-                <button onclick="openValidationModal(${sale.id}); closeModal('pending-sales-modal');" class="text-petrox-red hover:text-petrox-hover text-sm font-medium">
-                    Valider →
-                </button>
+                <button onclick="openValidationModal(${sale.id}); closeModal('pending-sales-modal');" class="text-petrox-red hover:text-petrox-hover text-sm font-medium">Valider →</button>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
                 <div><span class="font-medium">Pompiste:</span> ${sale.pompiste}</div>
@@ -667,27 +601,15 @@ function updatePendingSalesModal(sales) {
     `).join('');
 }
 
-/**
- * Load recent transactions
- */
 function loadRecentTransactions() {
-    fetch('/caissier/api/recent-transactions/', {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
+    fetch('/caissier/api/recent-transactions/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(response => response.json())
     .then(data => {
         updateRecentTransactions(data.transactions || []);
     })
-    .catch(error => {
-        console.error('Error loading transactions:', error);
-    });
+    .catch(error => console.error('Error loading transactions:', error));
 }
 
-/**
- * Update recent transactions list
- */
 function updateRecentTransactions(transactions) {
     const container = document.getElementById('recent-transactions');
     
@@ -703,7 +625,8 @@ function updateRecentTransactions(transactions) {
         return;
     }
     
-    container.innerHTML = transactions.slice(0, 10).map(txn => `
+    // Show only last 5 transactions
+    container.innerHTML = transactions.slice(0, 5).map(txn => `
         <div class="p-4 hover:bg-gray-50 transition-colors">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
@@ -729,76 +652,32 @@ function updateRecentTransactions(transactions) {
     `).join('');
 }
 
-/**
- * Open validation modal for a specific sale
- */
 function openValidationModal(saleId) {
     currentSaleId = saleId;
     
-    // Reset form
     document.getElementById('manquant-usd').value = '';
     document.getElementById('manquant-fc').value = '';
     document.getElementById('manquant-raison').value = '';
     
-    // Fetch sale details
-    fetch(`/caissier/api/sales/${saleId}/`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
+    fetch(`/caissier/api/sales/${saleId}/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(response => response.json())
     .then(data => {
         const sale = data.sale;
         document.getElementById('validation-details').innerHTML = `
             <div class="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Numéro de vente</p>
-                        <p class="text-sm font-semibold text-gray-900">#${sale.id}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Date</p>
-                        <p class="text-sm text-gray-900">${sale.created_at}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Pompiste</p>
-                        <p class="text-sm text-gray-900">${sale.pompiste}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Manager</p>
-                        <p class="text-sm text-gray-900">${sale.manager}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Carburant</p>
-                        <p class="text-sm text-gray-900">${sale.carburant}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Quantité</p>
-                        <p class="text-sm text-gray-900">${sale.quantite} Litres</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Montant USD</p>
-                        <p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_usd, 'USD')}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Montant FC</p>
-                        <p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_fc, 'FC')}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Moyen de paiement</p>
-                        <p class="text-sm text-gray-900">${sale.moyen_paiement}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-gray-500">Taux de change</p>
-                        <p class="text-sm text-gray-900">${sale.taux_change} FC</p>
-                    </div>
+                    <div><p class="text-xs font-medium text-gray-500">Numéro de vente</p><p class="text-sm font-semibold text-gray-900">#${sale.id}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Date</p><p class="text-sm text-gray-900">${sale.created_at}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Pompiste</p><p class="text-sm text-gray-900">${sale.pompiste}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Manager</p><p class="text-sm text-gray-900">${sale.manager}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Carburant</p><p class="text-sm text-gray-900">${sale.carburant}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Quantité</p><p class="text-sm text-gray-900">${sale.quantite} Litres</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Montant USD</p><p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_usd, 'USD')}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Montant FC</p><p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_fc, 'FC')}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Moyen de paiement</p><p class="text-sm text-gray-900">${sale.moyen_paiement}</p></div>
+                    <div><p class="text-xs font-medium text-gray-500">Taux de change</p><p class="text-sm text-gray-900">${sale.taux_change} FC</p></div>
                 </div>
-                ${sale.observations ? `
-                <div class="pt-2 border-t border-gray-200">
-                    <p class="text-xs font-medium text-gray-500">Observations</p>
-                    <p class="text-sm text-gray-700 mt-1">${sale.observations}</p>
-                </div>
-                ` : ''}
+                ${sale.observations ? `<div class="pt-2 border-t border-gray-200"><p class="text-xs font-medium text-gray-500">Observations</p><p class="text-sm text-gray-700 mt-1">${sale.observations}</p></div>` : ''}
             </div>
         `;
         openModal('validation-modal');
@@ -809,15 +688,11 @@ function openValidationModal(saleId) {
     });
 }
 
-/**
- * Validate sale (no missing amount)
- */
 function validateSale() {
     const manquantUsd = parseFloat(document.getElementById('manquant-usd').value) || 0;
     const manquantFc = parseFloat(document.getElementById('manquant-fc').value) || 0;
     const raison = document.getElementById('manquant-raison').value.trim();
     
-    // If there's a missing amount, require a reason
     if ((manquantUsd > 0 || manquantFc > 0) && !raison) {
         showToast('Veuillez expliquer la raison du manquant', 'error');
         return;
@@ -858,15 +733,11 @@ function validateSale() {
     });
 }
 
-/**
- * Report missing amount
- */
 function reportMissing() {
     const manquantUsd = parseFloat(document.getElementById('manquant-usd').value) || 0;
     const manquantFc = parseFloat(document.getElementById('manquant-fc').value) || 0;
     const raison = document.getElementById('manquant-raison').value.trim();
     
-    // Validate inputs
     if (manquantUsd === 0 && manquantFc === 0) {
         showToast('Veuillez saisir le montant manquant', 'error');
         return;
@@ -912,29 +783,35 @@ function reportMissing() {
     });
 }
 
-/**
- * Helper: Show coming soon toast
- */
-function showComingSoon(feature) {
-    showToast(`${feature} - Prochainement disponible`, 'error');
+function formatNumber(num) {
+    return parseFloat(num).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-/**
- * Helper: Get CSRF cookie
- */
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+function formatCurrency(value, currency) {
+    const num = parseFloat(value) || 0;
+    if (currency === 'USD') {
+        return '$' + num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else {
+        return num.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' FC';
     }
-    return cookieValue;
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md shadow-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 </script>
 {% endblock %}
