@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta, date
 from apps.core.models import (
-    User, Branche, TauxChange, CategorieDepense, Vente, Depense, 
+    Document, DocumentCategory, User, Branche, TauxChange, CategorieDepense, Vente, Depense, 
     PaiementSalaire, Pompiste, Abonne, ConsommationAbonne, TypeCarburant,
     MoyenPaiement, Notification
 )
@@ -92,7 +92,6 @@ class CaissierDashboardView(CaissierRequiredMixin, CaissierContextMixin, Templat
 class CaissierDashboardStatsAPIView(CaissierRequiredMixin, View):
     """
     Returns dashboard statistics (KPIs)
-    Used for AJAX updates
     """
     
     def get(self, request):
@@ -100,38 +99,35 @@ class CaissierDashboardStatsAPIView(CaissierRequiredMixin, View):
         period = request.GET.get('period', 'today')
         devise = request.GET.get('devise', 'USD')
         
-        # Calculate date range
-        date_range = self._get_date_range(period)
-        
-        # Get validated sales
-        validated_sales = Vente.objects.filter(
-            branche=branche,
-            created_at__gte=date_range['start'],
-            created_at__lte=date_range['end'],
-            statut='validee'
-        )
-        
-        total_entries_usd = validated_sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-        total_entries_fc = validated_sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-        
-        # Get approved expenses
-        expenses = Depense.objects.filter(
-            branche=branche,
-            created_at__gte=date_range['start'],
-            created_at__lte=date_range['end'],
-            statut='approuvee'
-        )
-        
-        total_expenses_usd = expenses.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0
-        total_expenses_fc = expenses.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0
-        
-        # Calculate balance
-        balance_usd = float(total_entries_usd) - float(total_expenses_usd)
-        balance_fc = float(total_entries_fc) - float(total_expenses_fc)
+        # Get date range
+        date_range = self._get_date_range(period, request)
+        start = date_range['start']
+        end = date_range['end']
         
         # Get current exchange rate
         current_rate = TauxChange.objects.filter(is_active=True).first()
         current_rate_value = current_rate.taux_usd_fc if current_rate else Decimal('2800.00')
+        
+        # Total validated sales (entries)
+        validated_sales = Vente.objects.filter(
+            branche=branche,
+            statut='validee',
+            created_at__range=[start, end]
+        )
+        total_entries_usd = validated_sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
+        total_entries_fc = validated_sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
+        
+        # Total expenses (sorties)
+        expenses = Depense.objects.filter(
+            branche=branche,
+            created_at__range=[start, end]
+        )
+        total_expenses_usd = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
+        total_expenses_fc = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
+        
+        # Calculate balance
+        balance_usd = total_entries_usd - total_expenses_usd
+        balance_fc = total_entries_fc - total_expenses_fc
         
         # Count pending validations
         pending_validations = Vente.objects.filter(
@@ -139,30 +135,19 @@ class CaissierDashboardStatsAPIView(CaissierRequiredMixin, View):
             statut='en_attente'
         ).count()
         
-        # Count missing reports
-        missing_reports = Vente.objects.filter(
-            branche=branche,
-            created_at__gte=date_range['start'],
-            created_at__lte=date_range['end'],
-            statut='manquant'
-        ).count()
-        
         return JsonResponse({
-            'branche_nom': branche.nom,
-            'branche_code': branche.code,
-            'total_entries_today': f"{total_entries_usd:.2f}",
-            'total_entries_today_fc': f"{total_entries_fc:.0f}",
-            'total_expenses_today': f"{total_expenses_usd:.2f}",
-            'total_expenses_today_fc': f"{total_expenses_fc:.0f}",
-            'balance_usd': f"{balance_usd:.2f}",
-            'balance_fc': f"{balance_fc:.0f}",
-            'balance_status': 'Positif' if balance_usd >= 0 else 'Négatif',
+            'success': True,
+            'total_entries_today': float(total_entries_usd),
+            'total_entries_today_fc': float(total_entries_fc),
+            'total_expenses_today': float(total_expenses_usd),
+            'total_expenses_today_fc': float(total_expenses_fc),
+            'balance_usd': float(balance_usd),
+            'balance_fc': float(balance_fc),
             'pending_validations': pending_validations,
-            'missing_reports': missing_reports,
-            'current_rate': f"{current_rate_value:.2f}"
+            'current_rate': float(current_rate_value)
         })
     
-    def _get_date_range(self, period):
+    def _get_date_range(self, period, request):
         """Calculate start and end dates for the given period"""
         today = timezone.now().date()
         now = timezone.now()
@@ -176,6 +161,20 @@ class CaissierDashboardStatsAPIView(CaissierRequiredMixin, View):
         elif period == 'month':
             start = timezone.make_aware(datetime.combine(today - timedelta(days=30), datetime.min.time()))
             end = now
+        elif period == 'custom':
+            # Get custom dates from request
+            start_date_str = request.GET.get('start_date')
+            end_date_str = request.GET.get('end_date')
+            
+            if start_date_str and end_date_str:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                start = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+                end = timezone.make_aware(datetime.combine(end_date, datetime.max.time()))
+            else:
+                # Default to today if custom dates not provided
+                start = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+                end = now
         else:
             start = timezone.make_aware(datetime.combine(today, datetime.min.time()))
             end = now
@@ -194,20 +193,18 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
         devise = request.GET.get('devise', 'USD')
         
         # Get sales vs expenses data
-        sales_vs_expenses = self._get_sales_vs_expenses_data(branche, period, devise)
-        
-        # Get forex impact data
-        forex_impact = self._get_forex_impact_data(branche, period, devise)
+        sales_vs_expenses = self._get_sales_vs_expenses_data(branche, period, devise, request)
         
         return JsonResponse({
-            'sales_vs_expenses': sales_vs_expenses,
-            'forex_impact': forex_impact
+            'success': True,
+            'sales_vs_expenses': sales_vs_expenses
         })
     
-    def _get_sales_vs_expenses_data(self, branche, period, devise):
+    def _get_sales_vs_expenses_data(self, branche, period, devise, request):
         """Generate sales vs expenses chart data"""
         today = timezone.now().date()
         
+        # Determine date range and grouping
         if period == 'today':
             # Hourly data for today
             data = []
@@ -215,135 +212,156 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
                 hour_start = timezone.make_aware(datetime.combine(today, datetime.min.time()) + timedelta(hours=hour))
                 hour_end = hour_start + timedelta(hours=1)
                 
+                # Get sales for this hour
+                sales = Vente.objects.filter(
+                    branche=branche,
+                    created_at__gte=hour_start,
+                    created_at__lt=hour_end,
+                    statut='validee'
+                )
+                
+                # Get expenses for this hour
+                expenses = Depense.objects.filter(
+                    branche=branche,
+                    created_at__gte=hour_start,
+                    created_at__lt=hour_end
+                )
+                
                 if devise == 'USD':
-                    entries = Vente.objects.filter(
-                        branche=branche,
-                        created_at__gte=hour_start,
-                        created_at__lt=hour_end,
-                        statut='validee'
-                    ).aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                    
-                    expenses = Depense.objects.filter(
-                        branche=branche,
-                        created_at__gte=hour_start,
-                        created_at__lt=hour_end,
-                        statut='approuvee',
-                        devise='USD'
-                    ).aggregate(Sum('montant'))['montant__sum'] or 0
+                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
                 else:
-                    entries = Vente.objects.filter(
-                        branche=branche,
-                        created_at__gte=hour_start,
-                        created_at__lt=hour_end,
-                        statut='validee'
-                    ).aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                    
-                    expenses = Depense.objects.filter(
-                        branche=branche,
-                        created_at__gte=hour_start,
-                        created_at__lt=hour_end,
-                        statut='approuvee',
-                        devise='FC'
-                    ).aggregate(Sum('montant'))['montant__sum'] or 0
+                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
                 
                 data.append({
                     'date': f"{hour:02d}h",
-                    'entries': float(entries),
-                    'expenses': float(expenses)
+                    'entries': float(entries_value),
+                    'expenses': float(expenses_value)
                 })
-        
+            
+            return data
+            
         elif period == 'week':
-            # Daily data for last 7 days
+            # Daily data for 7 days
             data = []
             for i in range(7):
-                day = today - timedelta(days=6-i)
-                day_start = timezone.make_aware(datetime.combine(day, datetime.min.time()))
-                day_end = day_start + timedelta(days=1)
+                date = today - timedelta(days=6-i)
+                day_start = timezone.make_aware(datetime.combine(date, datetime.min.time()))
+                day_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
+                
+                sales = Vente.objects.filter(
+                    branche=branche,
+                    created_at__gte=day_start,
+                    created_at__lte=day_end,
+                    statut='validee'
+                )
+                
+                expenses = Depense.objects.filter(
+                    branche=branche,
+                    created_at__gte=day_start,
+                    created_at__lte=day_end
+                )
                 
                 if devise == 'USD':
-                    entries = Vente.objects.filter(
-                        branche=branche,
-                        created_at__gte=day_start,
-                        created_at__lt=day_end,
-                        statut='validee'
-                    ).aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                    
-                    expenses = Depense.objects.filter(
-                        branche=branche,
-                        created_at__gte=day_start,
-                        created_at__lt=day_end,
-                        statut='approuvee',
-                        devise='USD'
-                    ).aggregate(Sum('montant'))['montant__sum'] or 0
+                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
                 else:
-                    entries = Vente.objects.filter(
-                        branche=branche,
-                        created_at__gte=day_start,
-                        created_at__lt=day_end,
-                        statut='validee'
-                    ).aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                    
-                    expenses = Depense.objects.filter(
-                        branche=branche,
-                        created_at__gte=day_start,
-                        created_at__lt=day_end,
-                        statut='approuvee',
-                        devise='FC'
-                    ).aggregate(Sum('montant'))['montant__sum'] or 0
+                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
                 
                 data.append({
-                    'date': day.strftime('%d/%m'),
-                    'entries': float(entries),
-                    'expenses': float(expenses)
+                    'date': date.strftime('%d/%m'),
+                    'entries': float(entries_value),
+                    'expenses': float(expenses_value)
                 })
-        
-        else:  # month
-            # Weekly data for last 4 weeks
+            
+            return data
+            
+        elif period == 'month':
+            # Daily data for 30 days
             data = []
-            for i in range(4):
-                week_start = today - timedelta(days=today.weekday() + 7*(3-i))
-                week_end = week_start + timedelta(days=7)
-                week_start_aware = timezone.make_aware(datetime.combine(week_start, datetime.min.time()))
-                week_end_aware = timezone.make_aware(datetime.combine(week_end, datetime.min.time()))
+            for i in range(30):
+                date = today - timedelta(days=29-i)
+                day_start = timezone.make_aware(datetime.combine(date, datetime.min.time()))
+                day_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
+                
+                sales = Vente.objects.filter(
+                    branche=branche,
+                    created_at__gte=day_start,
+                    created_at__lte=day_end,
+                    statut='validee'
+                )
+                
+                expenses = Depense.objects.filter(
+                    branche=branche,
+                    created_at__gte=day_start,
+                    created_at__lte=day_end
+                )
                 
                 if devise == 'USD':
-                    entries = Vente.objects.filter(
-                        branche=branche,
-                        created_at__gte=week_start_aware,
-                        created_at__lt=week_end_aware,
-                        statut='validee'
-                    ).aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                    
-                    expenses = Depense.objects.filter(
-                        branche=branche,
-                        created_at__gte=week_start_aware,
-                        created_at__lt=week_end_aware,
-                        statut='approuvee',
-                        devise='USD'
-                    ).aggregate(Sum('montant'))['montant__sum'] or 0
+                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
                 else:
-                    entries = Vente.objects.filter(
-                        branche=branche,
-                        created_at__gte=week_start_aware,
-                        created_at__lt=week_end_aware,
-                        statut='validee'
-                    ).aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                    
-                    expenses = Depense.objects.filter(
-                        branche=branche,
-                        created_at__gte=week_start_aware,
-                        created_at__lt=week_end_aware,
-                        statut='approuvee',
-                        devise='FC'
-                    ).aggregate(Sum('montant'))['montant__sum'] or 0
+                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
                 
                 data.append({
-                    'date': f"S{i+1}",
-                    'entries': float(entries),
-                    'expenses': float(expenses)
+                    'date': date.strftime('%d/%m'),
+                    'entries': float(entries_value),
+                    'expenses': float(expenses_value)
                 })
+            
+            return data
+            
+        elif period == 'custom':
+            # Custom date range
+            start_date_str = request.GET.get('start_date')
+            end_date_str = request.GET.get('end_date')
+            
+            if not start_date_str or not end_date_str:
+                return []
+            
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            
+            data = []
+            current_date = start_date
+            while current_date <= end_date:
+                day_start = timezone.make_aware(datetime.combine(current_date, datetime.min.time()))
+                day_end = timezone.make_aware(datetime.combine(current_date, datetime.max.time()))
+                
+                sales = Vente.objects.filter(
+                    branche=branche,
+                    created_at__gte=day_start,
+                    created_at__lte=day_end,
+                    statut='validee'
+                )
+                
+                expenses = Depense.objects.filter(
+                    branche=branche,
+                    created_at__gte=day_start,
+                    created_at__lte=day_end
+                )
+                
+                if devise == 'USD':
+                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                else:
+                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                
+                data.append({
+                    'date': current_date.strftime('%d/%m'),
+                    'entries': float(entries_value),
+                    'expenses': float(expenses_value)
+                })
+                
+                current_date += timedelta(days=1)
+            
+            return data
         
-        return data
+        return []
     
     def _get_forex_impact_data(self, branche, period, devise):
         """Generate forex impact by fuel type chart data"""
@@ -398,20 +416,19 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
 
 class RecentTransactionsAPIView(CaissierRequiredMixin, View):
     """
-    Returns recent transactions (sales and expenses)
+    Returns recent transactions (last 5)
     """
     
     def get(self, request):
         branche = request.user.branche
-        limit = int(request.GET.get('limit', 10))
         
         transactions = []
         
-        # Get recent validated sales
+        # Get recent validated sales (entries)
         recent_sales = Vente.objects.filter(
             branche=branche,
             statut='validee'
-        ).select_related('pompiste', 'type_carburant').order_by('-validated_at')[:limit]
+        ).select_related('pompiste', 'type_carburant').order_by('-created_at')[:3]
         
         for sale in recent_sales:
             transactions.append({
@@ -419,33 +436,38 @@ class RecentTransactionsAPIView(CaissierRequiredMixin, View):
                 'description': f"Vente {sale.type_carburant.nom} - {sale.pompiste.get_full_name()}",
                 'amount': float(sale.montant_usd),
                 'currency': 'USD',
-                'date': sale.validated_at.strftime('%d/%m/%Y') if sale.validated_at else sale.created_at.strftime('%d/%m/%Y'),
-                'time': sale.validated_at.strftime('%H:%M') if sale.validated_at else sale.created_at.strftime('%H:%M'),
-                'timestamp': sale.validated_at.timestamp() if sale.validated_at else sale.created_at.timestamp()
+                'date': sale.created_at.strftime('%d/%m/%Y'),
+                'time': sale.created_at.strftime('%H:%M'),
+                'created_at': sale.created_at
             })
         
-        # Get recent expenses
+        # Get recent expenses (sorties)
         recent_expenses = Depense.objects.filter(
-            branche=branche,
-            statut='approuvee'
-        ).select_related('categorie').order_by('-created_at')[:limit]
+            branche=branche
+        ).select_related('categorie').order_by('-created_at')[:3]
         
         for expense in recent_expenses:
             transactions.append({
                 'type': 'expense',
-                'description': f"Dépense {expense.categorie.nom}",
-                'amount': float(expense.montant),
-                'currency': expense.devise,
+                'description': f"{expense.categorie.nom} - {expense.description[:50]}",
+                'amount': float(expense.montant_usd),
+                'currency': 'USD',
                 'date': expense.created_at.strftime('%d/%m/%Y'),
                 'time': expense.created_at.strftime('%H:%M'),
-                'timestamp': expense.created_at.timestamp()
+                'created_at': expense.created_at
             })
         
-        # Sort by timestamp (most recent first)
-        transactions.sort(key=lambda x: x['timestamp'], reverse=True)
+        # Sort by date and limit to 5
+        transactions.sort(key=lambda x: x['created_at'], reverse=True)
+        transactions = transactions[:5]
+        
+        # Remove the created_at field (used only for sorting)
+        for txn in transactions:
+            del txn['created_at']
         
         return JsonResponse({
-            'transactions': transactions[:limit]
+            'success': True,
+            'transactions': transactions
         })
 
 
@@ -2224,13 +2246,10 @@ class RegisterPaymentView(CaissierRequiredMixin, View):
             ConsommationAbonne.objects.create(
                 abonne=abonne,
                 branche=request.user.branche,
-                vente=None,  # No associated sale
                 quantite=Decimal('0'),  # No fuel quantity
                 type_carburant=None,
                 montant=-montant,  # Negative for payment (increases balance)
-                devise=data['devise'],
-                taux_change=taux,
-                notes=data.get('notes', f'Paiement reçu par {request.user.get_full_name()}')
+                devise=data['devise']
             )
             
             # Create expense record (payment received is income, not expense)
@@ -2334,7 +2353,7 @@ class PaymentHistoryAPIView(CaissierRequiredMixin, View):
                 'date': consumption.created_at.strftime('%d/%m/%Y %H:%M'),
                 'montant': str(abs(consumption.montant)),
                 'devise': consumption.devise,
-                'description': consumption.notes or ('Paiement reçu' if is_payment else 'Consommation carburant'),
+                'description': 'Paiement reçu' if is_payment else 'Consommation carburant',
                 'quantite': str(consumption.quantite) if consumption.quantite else '0',
                 'type_carburant': consumption.type_carburant.nom if consumption.type_carburant else None
             })
@@ -2474,3 +2493,239 @@ class ExportAbonnesExcelView(CaissierRequiredMixin, View):
             import traceback
             print(f"Error exporting to Excel: {traceback.format_exc()}")
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
+        
+class DocumentsPageView(CaissierRequiredMixin, CaissierContextMixin, TemplateView):
+    """Documents page with filtering"""
+    template_name = 'caissier/documents.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['branche'] = self.request.user.branche
+        
+        # Get all active categories
+        context['categories'] = DocumentCategory.objects.filter(is_active=True).order_by('nom')
+        
+        # Get documents (public only for caissiers)
+        documents = Document.objects.filter(
+            visibilite='public'
+        ).select_related('categorie', 'uploaded_by').order_by('-created_at')
+        
+        # Apply filters
+        search = self.request.GET.get('search')
+        if search:
+            documents = documents.filter(
+                Q(titre__icontains=search) | Q(description__icontains=search)
+            )
+        
+        category_id = self.request.GET.get('category_id')
+        if category_id:
+            documents = documents.filter(categorie_id=category_id)
+        
+        date_range = self.request.GET.get('date_range')
+        if date_range:
+            today = timezone.now().date()
+            if date_range == 'today':
+                documents = documents.filter(created_at__date=today)
+            elif date_range == 'week':
+                week_start = today - timedelta(days=today.weekday())
+                documents = documents.filter(created_at__date__gte=week_start)
+            elif date_range == 'month':
+                documents = documents.filter(
+                    created_at__year=today.year,
+                    created_at__month=today.month
+                )
+            elif date_range == 'year':
+                documents = documents.filter(created_at__year=today.year)
+        
+        context['documents'] = documents[:50]
+        return context
+
+
+class DocumentsAPIView(CaissierRequiredMixin, View):
+    """API endpoint to get documents"""
+    
+    def get(self, request):
+        try:
+            documents = Document.objects.filter(
+                visibilite='public'
+            ).select_related('categorie', 'uploaded_by')
+            
+            search = request.GET.get('search')
+            if search:
+                documents = documents.filter(
+                    Q(titre__icontains=search) | Q(description__icontains=search)
+                )
+            
+            category_id = request.GET.get('category_id')
+            if category_id:
+                documents = documents.filter(categorie_id=category_id)
+            
+            documents = documents.order_by('-created_at')[:50]
+            
+            documents_data = []
+            for doc in documents:
+                documents_data.append({
+                    'id': doc.id,
+                    'titre': doc.titre,
+                    'description': doc.description or '',
+                    'categorie': doc.categorie.nom if doc.categorie else 'Sans catégorie',
+                    'type_fichier': doc.type_fichier,
+                    'taille': doc.taille_fichier,
+                    'taille_lisible': doc.get_taille_lisible(),
+                    'uploaded_by': doc.uploaded_by.get_full_name() if doc.uploaded_by else 'Système',
+                    'created_at': doc.created_at.strftime('%d/%m/%Y %H:%M')
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'documents': documents_data
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error in DocumentsAPIView: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class UploadDocumentView(CaissierRequiredMixin, View):
+    """Upload a new public document"""
+    
+    def post(self, request):
+        try:
+            titre = request.POST.get('titre')
+            description = request.POST.get('description', '')
+            categorie_id = request.POST.get('categorie_id')
+            fichier = request.FILES.get('fichier')
+            
+            if not all([titre, categorie_id, fichier]):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Titre, catégorie et fichier requis'
+                }, status=400)
+            
+            try:
+                categorie = DocumentCategory.objects.get(id=categorie_id, is_active=True)
+            except DocumentCategory.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Catégorie introuvable'
+                }, status=404)
+            
+            if fichier.size > 10 * 1024 * 1024:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Fichier trop volumineux (max 10MB)'
+                }, status=400)
+            
+            allowed_types = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'image/jpeg',
+                'image/png',
+                'image/jpg'
+            ]
+            
+            if fichier.content_type not in allowed_types:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Type de fichier non autorisé. Utilisez PDF, DOC, XLS ou images.'
+                }, status=400)
+            
+            document = Document.objects.create(
+                titre=titre,
+                description=description,
+                categorie=categorie,
+                fichier=fichier,
+                type_fichier=fichier.content_type,
+                taille_fichier=fichier.size,
+                visibilite='public',
+                uploaded_by=request.user
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Document téléversé avec succès',
+                'document': {
+                    'id': document.id,
+                    'titre': document.titre,
+                    'categorie': document.categorie.nom if document.categorie else 'Sans catégorie'
+                }
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error uploading document: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur: {str(e)}'
+            }, status=500)
+
+
+class ViewDocumentView(CaissierRequiredMixin, View):
+    """View/preview document in browser"""
+    
+    def get(self, request, document_id):
+        try:
+            import os
+            document = Document.objects.get(id=document_id, visibilite='public')
+            
+            file_path = document.fichier.path
+            
+            # Get the original file extension
+            file_extension = os.path.splitext(document.fichier.name)[1]
+            
+            # Create filename with extension
+            filename = f"{document.titre}{file_extension}"
+            
+            # Set proper content type
+            content_type = document.type_fichier or 'application/octet-stream'
+            
+            with open(file_path, 'rb') as f:
+                response = HttpResponse(f.read(), content_type=content_type)
+                response['Content-Disposition'] = f'inline; filename="{filename}"'
+                return response
+                
+        except Document.DoesNotExist:
+            return HttpResponse('Document introuvable', status=404)
+        except Exception as e:
+            import traceback
+            print(f"Error viewing document: {traceback.format_exc()}")
+            return HttpResponse(f'Erreur: {str(e)}', status=500)
+
+
+class DownloadDocumentView(CaissierRequiredMixin, View):
+    """Download document"""
+    
+    def get(self, request, document_id):
+        try:
+            import os
+            document = Document.objects.get(id=document_id, visibilite='public')
+            
+            file_path = document.fichier.path
+            
+            # Get the original file extension
+            file_extension = os.path.splitext(document.fichier.name)[1]
+            
+            # Create filename with extension
+            filename = f"{document.titre}{file_extension}"
+            
+            # Set proper content type based on file extension
+            content_type = document.type_fichier if document.type_fichier else 'application/octet-stream'
+            
+            with open(file_path, 'rb') as f:
+                response = HttpResponse(f.read(), content_type=content_type)
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+                
+        except Document.DoesNotExist:
+            return HttpResponse('Document introuvable', status=404)
+        except Exception as e:
+            import traceback
+            print(f"Error downloading document: {traceback.format_exc()}")
+            return HttpResponse(f'Erreur: {str(e)}', status=500)

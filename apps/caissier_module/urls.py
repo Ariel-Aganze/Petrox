@@ -58,6 +58,13 @@ urlpatterns = [
     path('api/abonnes/payment/', views.RegisterPaymentView.as_view(), name='register_payment'),
     path('api/abonnes/history/', views.PaymentHistoryAPIView.as_view(), name='payment_history'),
     path('api/abonnes/export/excel/', views.ExportAbonnesExcelView.as_view(), name='export_abonnes_excel'),
+
+    # ---------- Documents URLs ----------
+    path('documents/', views.DocumentsPageView.as_view(), name='documents'),
+    path('api/documents/', views.DocumentsAPIView.as_view(), name='documents_api'),
+    path('api/documents/upload/', views.UploadDocumentView.as_view(), name='upload_document'),
+    path('api/documents/<int:document_id>/view/', views.ViewDocumentView.as_view(), name='view_document'),
+    path('api/documents/<int:document_id>/download/', views.DownloadDocumentView.as_view(), name='download_document'),
     
     # # ---------- Financial Reports APIs (Future) ----------
     # path('api/financial/daily/', views.DailyFinancialReportView.as_view(), name='daily_financial'),
