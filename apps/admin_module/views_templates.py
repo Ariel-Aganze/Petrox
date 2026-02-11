@@ -539,68 +539,33 @@ class BranchDetailView(AdminRequiredMixin, AdminContextMixin, TemplateView):
 
 
 class VentesListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """List all sales with filters"""
     template_name = 'admin/ventes.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Get filter parameters
-        branche_id = self.request.GET.get('branche_id', 'all')
-        period = self.request.GET.get('period', 'month')
-        status = self.request.GET.get('status', 'all')
-        carburant_id = self.request.GET.get('carburant_id', 'all')
-        
-        # Base queryset
+        # Get all ventes
         ventes = Vente.objects.select_related(
-            'branche', 'pompiste', 'manager', 'caissier', 
-            'type_carburant', 'moyen_paiement', 'abonne'
-        )
+            'branche', 
+            'pompiste', 
+            'manager', 
+            'type_carburant'
+        ).order_by('-created_at')
         
-        # Apply filters
-        if branche_id and branche_id != 'all':
-            ventes = ventes.filter(branche_id=branche_id)
-        
-        today = timezone.now().date()
-        if period == 'today':
-            ventes = ventes.filter(created_at__date=today)
-        elif period == 'week':
-            ventes = ventes.filter(created_at__date__gte=today - timedelta(days=7))
-        elif period == 'month':
-            ventes = ventes.filter(created_at__date__gte=today - timedelta(days=30))
-        
-        if status and status != 'all':
-            ventes = ventes.filter(statut=status)
-        
-        if carburant_id and carburant_id != 'all':
-            ventes = ventes.filter(type_carburant_id=carburant_id)
-        
-        context['ventes'] = ventes.order_by('-created_at')[:100]
+        # Calculate stats
+        context['ventes'] = ventes
         context['ventes_count'] = ventes.count()
+        context['validated_count'] = ventes.filter(statut='validee').count()  # ← ADD THIS LINE
+        context['manquants_count'] = ventes.filter(statut='manquant').count()
         
-        # Summary statistics
+        # Calculate totals
+        from django.db.models import Sum
         context['total_usd'] = ventes.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
         context['total_fc'] = ventes.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-        context['manquants_count'] = ventes.filter(statut='manquant').count()
-        context['total_manquant_usd'] = ventes.filter(statut='manquant').aggregate(
-            Sum('manquant_usd'))['manquant_usd__sum'] or 0
         
-        # Filter options
-        context['statuts'] = [
-            ('all', 'Tous les statuts'),
-            ('en_attente', 'En attente'),
-            ('validee', 'Validées'),
-            ('manquant', 'Manquants'),
-            ('rejetee', 'Rejetées'),
-        ]
-        
-        # Current filters
-        context['current_filters'] = {
-            'branche_id': branche_id,
-            'period': period,
-            'status': status,
-            'carburant_id': carburant_id,
-        }
+        # Get branches and fuel types for filters
+        context['all_branches'] = Branche.objects.filter(is_active=True)
+        context['types_carburant'] = TypeCarburant.objects.filter(is_active=True)
         
         return context
 

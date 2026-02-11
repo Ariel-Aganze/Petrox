@@ -89,9 +89,6 @@ path('api/dashboard/export/excel/', views.ExportDashboardExcelView.as_view(), na
    path('api/users/', views.UsersListAPIView.as_view(), name='users_api'),
     
     # # ---------- Sales (Ventes) APIs ----------
-    # Ventes Template View
-   path('ventes/', views_templates.VentesListView.as_view(), name='ventes'),
-
    # Ventes API Views
    path('api/ventes/', views.VentesListAPIView.as_view(), name='ventes_api'),
    path('api/ventes/<int:vente_id>/', views.VenteDetailAPIView.as_view(), name='vente_detail_api'),
@@ -121,6 +118,20 @@ path('api/dashboard/export/excel/', views.ExportDashboardExcelView.as_view(), na
    path('api/depenses/<int:depense_id>/update/', views.UpdateDepenseView.as_view(), name='update_depense'),
    path('api/depenses/<int:depense_id>/delete/', views.DeleteDepenseView.as_view(), name='delete_depense'),
    path('api/depenses/stats/', views.ExpensesStatsView.as_view(), name='expenses_stats'),
+
+   # Analytics
+   path('api/depenses/analytics/', views.DepensesAnalyticsAPIView.as_view(), name='depenses_analytics_api'),
+
+   # Categories
+   path('api/categories/', views.CategoriesListAPIView.as_view(), name='categories_list_api'),
+   path('api/categories/pending/', views.PendingCategoriesCountAPIView.as_view(), name='categories_pending_count_api'),
+   path('api/categories/create/', views.CategoryCreateAPIView.as_view(), name='category_create_api'),
+   path('api/categories/<int:category_id>/update/', views.CategoryUpdateAPIView.as_view(), name='category_update_api'),
+   path('api/categories/<int:category_id>/delete/', views.CategoryDeleteAPIView.as_view(), name='category_delete_api'),
+    
+    # IMPORTANT: These URLs should NOT have /request/ in them
+   path('api/categories/<int:category_id>/approve/', views.ApproveCategoryRequestView.as_view(), name='category_approve_api'),
+   path('api/categories/<int:category_id>/reject/', views.RejectCategoryRequestView.as_view(), name='category_reject_api'),
 
    # Add in Dépenses API section:
    # Analytics
@@ -160,6 +171,24 @@ path('api/dashboard/export/excel/', views.ExportDashboardExcelView.as_view(), na
    path('api/fuel-types/<int:fuel_id>/update/', views.UpdateFuelTypeView.as_view(), name='update_fuel_type'),
    path('api/fuel-types/<int:fuel_id>/toggle-active/', views.ToggleFuelTypeStatusView.as_view(), name='toggle_fuel_type_status'),
    path('api/fuel-types/<int:fuel_id>/stats/', views.FuelTypeStatsView.as_view(), name='fuel_type_stats'),
+
+
+   # Partners
+   path('partners/', views.PartnersListView.as_view(), name='partners'),
+   path('api/partners/create/', views.PartnerCreateAPIView.as_view()),
+   path('api/partners/<int:partner_id>/', views.PartnerDetailAPIView.as_view()),
+   path('api/partners/<int:partner_id>/update/', views.PartnerUpdateAPIView.as_view()),
+   path('api/partners/<int:partner_id>/payment/', views.PartnerPaymentAPIView.as_view()),
+    
+    # Deliveries
+   path('deliveries/', views.DeliveriesListView.as_view(), name='deliveries'),
+   path('api/deliveries/plan/', views.DeliveryPlanAPIView.as_view()),
+   path('api/deliveries/<int:delivery_id>/', views.DeliveryDetailAPIView.as_view()),
+   path('api/deliveries/<int:delivery_id>/confirm/', views.DeliveryConfirmAPIView.as_view()),
+   path('api/deliveries/<int:delivery_id>/cancel/', views.DeliveryCancelAPIView.as_view()),
+   path('api/deliveries/pending/', views.PendingDeliveriesAPIView.as_view()),
+
+
 
    # Stock Management URLs
    path('api/stock/', views.StockListAPIView.as_view(), name='stock_api'),

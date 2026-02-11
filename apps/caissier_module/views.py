@@ -92,6 +92,7 @@ class CaissierDashboardView(CaissierRequiredMixin, CaissierContextMixin, Templat
 class CaissierDashboardStatsAPIView(CaissierRequiredMixin, View):
     """
     Returns dashboard statistics (KPIs)
+    FIXED: Corrected Depense field references from montant_usd/montant_fc to montant+devise
     """
     
     def get(self, request):
@@ -117,13 +118,16 @@ class CaissierDashboardStatsAPIView(CaissierRequiredMixin, View):
         total_entries_usd = validated_sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
         total_entries_fc = validated_sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
         
-        # Total expenses (sorties)
+        # FIXED: Total expenses (sorties) - using correct field names
+        # Depense model has 'montant' and 'devise' fields, not 'montant_usd' and 'montant_fc'
         expenses = Depense.objects.filter(
             branche=branche,
             created_at__range=[start, end]
         )
-        total_expenses_usd = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
-        total_expenses_fc = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
+        
+        # Aggregate expenses by currency
+        total_expenses_usd = expenses.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
+        total_expenses_fc = expenses.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
         
         # Calculate balance
         balance_usd = total_entries_usd - total_expenses_usd
@@ -185,6 +189,7 @@ class CaissierDashboardStatsAPIView(CaissierRequiredMixin, View):
 class ChartDataAPIView(CaissierRequiredMixin, View):
     """
     Returns chart data for dashboard visualizations
+    FIXED: Corrected Depense field references
     """
     
     def get(self, request):
@@ -201,7 +206,7 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
         })
     
     def _get_sales_vs_expenses_data(self, branche, period, devise, request):
-        """Generate sales vs expenses chart data"""
+        """Generate sales vs expenses chart data - FIXED"""
         today = timezone.now().date()
         
         # Determine date range and grouping
@@ -220,35 +225,34 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
                     statut='validee'
                 )
                 
-                # Get expenses for this hour
+                # FIXED: Get expenses for this hour using correct fields
                 expenses = Depense.objects.filter(
                     branche=branche,
                     created_at__gte=hour_start,
-                    created_at__lt=hour_end
+                    created_at__lt=hour_end,
+                    devise=devise  # Filter by currency
                 )
                 
                 if devise == 'USD':
-                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                else:
-                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    sales_total = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
+                    expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
+                else:  # FC
+                    sales_total = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
+                    expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
                 
                 data.append({
-                    'date': f"{hour:02d}h",
-                    'entries': float(entries_value),
-                    'expenses': float(expenses_value)
+                    'date': f"{hour:02d}:00",
+                    'entries': float(sales_total),
+                    'expenses': float(expenses_total)
                 })
-            
-            return data
             
         elif period == 'week':
-            # Daily data for 7 days
+            # Daily data for last 7 days
             data = []
-            for i in range(7):
-                date = today - timedelta(days=6-i)
-                day_start = timezone.make_aware(datetime.combine(date, datetime.min.time()))
-                day_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
+            for day_offset in range(7):
+                day_date = today - timedelta(days=6 - day_offset)
+                day_start = timezone.make_aware(datetime.combine(day_date, datetime.min.time()))
+                day_end = timezone.make_aware(datetime.combine(day_date, datetime.max.time()))
                 
                 sales = Vente.objects.filter(
                     branche=branche,
@@ -257,34 +261,34 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
                     statut='validee'
                 )
                 
+                # FIXED: Expenses with correct field names
                 expenses = Depense.objects.filter(
                     branche=branche,
                     created_at__gte=day_start,
-                    created_at__lte=day_end
+                    created_at__lte=day_end,
+                    devise=devise
                 )
                 
                 if devise == 'USD':
-                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                    sales_total = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
+                    expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
                 else:
-                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    sales_total = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
+                    expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
                 
                 data.append({
-                    'date': date.strftime('%d/%m'),
-                    'entries': float(entries_value),
-                    'expenses': float(expenses_value)
+                    'date': day_date.strftime('%d/%m'),
+                    'entries': float(sales_total),
+                    'expenses': float(expenses_total)
                 })
-            
-            return data
             
         elif period == 'month':
-            # Daily data for 30 days
+            # Daily data for last 30 days (show every 3 days for readability)
             data = []
-            for i in range(30):
-                date = today - timedelta(days=29-i)
-                day_start = timezone.make_aware(datetime.combine(date, datetime.min.time()))
-                day_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
+            for day_offset in range(0, 30, 3):
+                day_date = today - timedelta(days=29 - day_offset)
+                day_start = timezone.make_aware(datetime.combine(day_date, datetime.min.time()))
+                day_end = timezone.make_aware(datetime.combine(day_date, datetime.max.time()))
                 
                 sales = Vente.objects.filter(
                     branche=branche,
@@ -293,123 +297,91 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
                     statut='validee'
                 )
                 
+                # FIXED: Expenses query
                 expenses = Depense.objects.filter(
                     branche=branche,
                     created_at__gte=day_start,
-                    created_at__lte=day_end
+                    created_at__lte=day_end,
+                    devise=devise
                 )
                 
                 if devise == 'USD':
-                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                    sales_total = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
+                    expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
                 else:
-                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    sales_total = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
+                    expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
                 
                 data.append({
-                    'date': date.strftime('%d/%m'),
-                    'entries': float(entries_value),
-                    'expenses': float(expenses_value)
+                    'date': day_date.strftime('%d/%m'),
+                    'entries': float(sales_total),
+                    'expenses': float(expenses_total)
                 })
-            
-            return data
-            
+        
         elif period == 'custom':
-            # Custom date range
+            # Custom period - need to get dates from request
             start_date_str = request.GET.get('start_date')
             end_date_str = request.GET.get('end_date')
             
-            if not start_date_str or not end_date_str:
-                return []
-            
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-            
-            data = []
-            current_date = start_date
-            while current_date <= end_date:
-                day_start = timezone.make_aware(datetime.combine(current_date, datetime.min.time()))
-                day_end = timezone.make_aware(datetime.combine(current_date, datetime.max.time()))
+            if start_date_str and end_date_str:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
                 
-                sales = Vente.objects.filter(
-                    branche=branche,
-                    created_at__gte=day_start,
-                    created_at__lte=day_end,
-                    statut='validee'
-                )
+                # Calculate number of days
+                days_diff = (end_date - start_date).days + 1
                 
-                expenses = Depense.objects.filter(
-                    branche=branche,
-                    created_at__gte=day_start,
-                    created_at__lte=day_end
-                )
-                
-                if devise == 'USD':
-                    entries_value = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
+                # Determine grouping based on period length
+                if days_diff <= 7:
+                    # Daily grouping
+                    interval = 1
+                elif days_diff <= 30:
+                    # Every 3 days
+                    interval = 3
                 else:
-                    entries_value = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                    expenses_value = expenses.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
+                    # Weekly grouping
+                    interval = 7
                 
-                data.append({
-                    'date': current_date.strftime('%d/%m'),
-                    'entries': float(entries_value),
-                    'expenses': float(expenses_value)
-                })
+                data = []
+                current_date = start_date
                 
-                current_date += timedelta(days=1)
-            
-            return data
-        
-        return []
-    
-    def _get_forex_impact_data(self, branche, period, devise):
-        """Generate forex impact by fuel type chart data"""
-        today = timezone.now().date()
-        
-        if period == 'today':
-            start_date = timezone.make_aware(datetime.combine(today, datetime.min.time()))
-        elif period == 'week':
-            start_date = timezone.make_aware(datetime.combine(today - timedelta(days=7), datetime.min.time()))
-        else:
-            start_date = timezone.make_aware(datetime.combine(today - timedelta(days=30), datetime.min.time()))
-        
-        end_date = timezone.now()
-        
-        # Get current exchange rate
-        current_rate = TauxChange.objects.filter(is_active=True).first()
-        current_rate_value = current_rate.taux_usd_fc if current_rate else Decimal('2800.00')
-        
-        # Get sales by fuel type
-        sales_by_fuel = Vente.objects.filter(
-            branche=branche,
-            created_at__gte=start_date,
-            created_at__lte=end_date,
-            statut='validee'
-        ).values('type_carburant__nom').annotate(
-            total_usd=Sum('montant_usd'),
-            total_fc=Sum('montant_fc'),
-            avg_rate=Avg('taux_change')
-        )
-        
-        data = []
-        for item in sales_by_fuel:
-            # Calculate forex impact (difference between rate used and current rate)
-            avg_rate = float(item['avg_rate'] or current_rate_value)
-            total_fc = float(item['total_fc'] or 0)
-            
-            # Impact = (current_rate - avg_rate) * (total_fc / avg_rate)
-            impact = ((float(current_rate_value) - avg_rate) / avg_rate) * total_fc if avg_rate > 0 else 0
-            
-            if devise == 'USD':
-                impact_value = impact / float(current_rate_value) if current_rate_value > 0 else 0
+                while current_date <= end_date:
+                    day_start = timezone.make_aware(datetime.combine(current_date, datetime.min.time()))
+                    day_end = timezone.make_aware(datetime.combine(current_date, datetime.max.time()))
+                    
+                    sales = Vente.objects.filter(
+                        branche=branche,
+                        created_at__gte=day_start,
+                        created_at__lte=day_end,
+                        statut='validee'
+                    )
+                    
+                    # FIXED: Expenses query
+                    expenses = Depense.objects.filter(
+                        branche=branche,
+                        created_at__gte=day_start,
+                        created_at__lte=day_end,
+                        devise=devise
+                    )
+                    
+                    if devise == 'USD':
+                        sales_total = sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or Decimal('0')
+                        expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
+                    else:
+                        sales_total = sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or Decimal('0')
+                        expenses_total = expenses.aggregate(Sum('montant'))['montant__sum'] or Decimal('0')
+                    
+                    data.append({
+                        'date': current_date.strftime('%d/%m'),
+                        'entries': float(sales_total),
+                        'expenses': float(expenses_total)
+                    })
+                    
+                    current_date += timedelta(days=interval)
             else:
-                impact_value = impact
-            
-            data.append({
-                'fuel': item['type_carburant__nom'],
-                'impact': round(impact_value, 2)
-            })
+                # Fallback to today's data
+                data = self._get_sales_vs_expenses_data(branche, 'today', devise, request)
+        else:
+            data = []
         
         return data
 
@@ -417,6 +389,7 @@ class ChartDataAPIView(CaissierRequiredMixin, View):
 class RecentTransactionsAPIView(CaissierRequiredMixin, View):
     """
     Returns recent transactions (last 5)
+    FIXED: Uses correct Depense model fields (montant + devise)
     """
     
     def get(self, request):
@@ -441,17 +414,20 @@ class RecentTransactionsAPIView(CaissierRequiredMixin, View):
                 'created_at': sale.created_at
             })
         
-        # Get recent expenses (sorties)
+        # ✅ FIXED: Get recent expenses (sorties) - using correct field names
         recent_expenses = Depense.objects.filter(
             branche=branche
         ).select_related('categorie').order_by('-created_at')[:3]
         
         for expense in recent_expenses:
+            # ✅ CRITICAL FIX: Use expense.montant and expense.devise
+            # The Depense model has 'montant' (amount) and 'devise' (currency),
+            # NOT 'montant_usd' which doesn't exist!
             transactions.append({
                 'type': 'expense',
                 'description': f"{expense.categorie.nom} - {expense.description[:50]}",
-                'amount': float(expense.montant_usd),
-                'currency': 'USD',
+                'amount': float(expense.montant),   # ✅ FIXED: was expense.montant_usd
+                'currency': expense.devise,          # ✅ FIXED: was hardcoded 'USD'
                 'date': expense.created_at.strftime('%d/%m/%Y'),
                 'time': expense.created_at.strftime('%H:%M'),
                 'created_at': expense.created_at

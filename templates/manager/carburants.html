@@ -47,7 +47,7 @@
             Stock de Carburants
         </h2>
         <p class="mt-1 text-sm text-gray-500">
-            Suivi du stock et confirmation des livraisons - Branche: <span class="font-semibold">{{ branche.nom }}</span>
+            Suivi du stock et confirmation des livraisons - Branche: <span class="font-semibold">{{ request.user.branche.nom }}</span>
         </p>
     </div>
     <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
@@ -57,11 +57,12 @@
             </svg>
             Actualiser
         </button>
-        <button onclick="openModal('delivery-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+        <button onclick="loadPendingDeliveries()" class="relative inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            Confirmer une Livraison
+            Livraisons En Attente
+            <span id="pending-badge" class="hidden ml-2 px-2 py-0.5 text-xs font-bold rounded-full bg-yellow-400 text-yellow-900"></span>
         </button>
     </div>
 </div>
@@ -75,14 +76,24 @@
             </svg>
         </div>
         <div class="ml-3">
-            <h3 class="text-sm font-medium text-blue-800">Mise à jour automatique du stock</h3>
+            <h3 class="text-sm font-medium text-blue-800">Nouveau système de livraisons</h3>
             <div class="mt-2 text-sm text-blue-700">
-                <p>Le stock se met à jour automatiquement via :</p>
-                <ul class="list-disc list-inside mt-1 space-y-1">
+                <p class="mb-2">Le stock se met à jour automatiquement via :</p>
+                <ul class="list-disc list-inside space-y-1 ml-2">
                     <li><strong>Ventes validées</strong> : diminue le stock</li>
-                    <li><strong>Livraisons confirmées</strong> : augmente le stock (vous confirmez ici)</li>
+                    <li><strong>Livraisons confirmées</strong> : augmente le stock (cliquez sur "Livraisons En Attente" ci-dessus)</li>
                     <li><strong>Consommations abonnés</strong> : diminue le stock</li>
                 </ul>
+                <div class="mt-3 p-3 bg-white rounded border border-blue-300">
+                    <p class="font-semibold text-blue-900">Comment confirmer une livraison ?</p>
+                    <ol class="list-decimal list-inside space-y-1 mt-1 text-xs">
+                        <li>L'admin planifie une livraison</li>
+                        <li>Vous recevez une notification</li>
+                        <li>Cliquez sur "Livraisons En Attente" pour voir les livraisons</li>
+                        <li>Confirmez la quantité réellement reçue</li>
+                        <li>Le stock est mis à jour automatiquement</li>
+                    </ol>
+                </div>
             </div>
         </div>
     </div>
@@ -151,152 +162,140 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Confirm Delivery Modal -->
-<div id="delivery-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-            <h3 class="text-xl font-semibold text-gray-900">Confirmer une Livraison</h3>
-            <button onclick="closeModal('delivery-modal')" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
+{% block modals %}
+<!-- Pending Deliveries Modal -->
+<div id="pending-deliveries-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('pending-deliveries-modal')"></div>
         
-        <form id="delivery-form" class="mt-6" onsubmit="submitDelivery(event)">
-            {% csrf_token %}
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Livraisons En Attente de Confirmation</h3>
+                <div id="pending-deliveries-content"></div>
+            </div>
             
-            <div class="space-y-6">
-                <!-- Type de Carburant -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Type de Carburant <span class="text-red-600">*</span>
-                    </label>
-                    <select id="delivery-fuel-type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
-                        <option value="">Sélectionner un carburant</option>
-                        {% for fuel in types_carburant %}
-                        <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Quantité Livrée -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Quantité Livrée (Litres) <span class="text-red-600">*</span>
-                    </label>
-                    <input type="number" id="delivery-quantity" step="0.01" min="0.01" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
-                           placeholder="0.00">
-                    <p class="mt-1 text-xs text-gray-500">Quantité mesurée sur place au moment de la livraison</p>
-                </div>
-
-                <!-- Fournisseur -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Fournisseur <span class="text-red-600">*</span>
-                    </label>
-                    <div class="space-y-2">
-                        <div class="flex items-center">
-                            <input type="radio" id="supplier-internal" name="supplier-type" value="internal" checked 
-                                   class="h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300"
-                                   onchange="toggleSupplierInput()">
-                            <label for="supplier-internal" class="ml-2 text-sm text-gray-700">Achat Direct (Interne)</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="radio" id="supplier-partner" name="supplier-type" value="partner" 
-                                   class="h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-300"
-                                   onchange="toggleSupplierInput()">
-                            <label for="supplier-partner" class="ml-2 text-sm text-gray-700">Partenaire Externe</label>
-                        </div>
-                    </div>
-                    <input type="text" id="delivery-supplier" required 
-                           class="mt-3 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
-                           placeholder="Nom du fournisseur" value="Interne">
-                </div>
-
-                <!-- Référence Document -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Référence Document
-                    </label>
-                    <input type="text" id="delivery-reference" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
-                           placeholder="Ex: BL-2026-001, Facture-456">
-                    <p class="mt-1 text-xs text-gray-500">Bon de livraison, facture, ou autre référence</p>
-                </div>
-
-                <!-- Prix d'achat (optionnel) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Prix d'Achat (USD/Litre)
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span class="text-gray-500 sm:text-sm">$</span>
-                        </div>
-                        <input type="number" id="delivery-price" step="0.01" min="0" 
-                               class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
-                               placeholder="0.00">
-                    </div>
-                    <p class="mt-1 text-xs text-gray-500">Optionnel - pour mettre à jour le prix d'achat dans le stock</p>
-                </div>
-            </div>
-
-            <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                <div class="flex">
-                    <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <div class="ml-3">
-                        <p class="text-sm text-yellow-700">
-                            <strong>Important:</strong> Cette action augmentera <strong>définitivement</strong> le stock. 
-                            Assurez-vous que la livraison a bien été reçue et mesurée physiquement.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-end space-x-3">
-                <button type="button" onclick="closeModal('delivery-modal')" 
-                        class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                    Annuler
-                </button>
-                <button type="submit" 
-                        class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
-                    <span id="delivery-submit-text">Confirmer la Livraison</span>
-                    <span id="delivery-submit-loading" class="hidden">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Confirmation...
-                    </span>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeModal('pending-deliveries-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                    Fermer
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
+<!-- Confirm Delivery Modal -->
+<div id="confirm-delivery-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('confirm-delivery-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <form id="confirm-delivery-form" onsubmit="submitDeliveryConfirmation(event)">
+                <input type="hidden" id="delivery-id" name="delivery_id">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Confirmer la Réception</h3>
+                    <div id="delivery-details-preview" class="mb-6"></div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="quantite-recue" class="block text-sm font-medium text-gray-700">Quantité Réellement Reçue (L) *</label>
+                            <input type="number" id="quantite-recue" name="quantite_recue" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Entrez la quantité mesurée sur place</p>
+                        </div>
+                        
+                        <div>
+                            <label for="observations-manager" class="block text-sm font-medium text-gray-700">Observations</label>
+                            <textarea id="observations-manager" name="observations" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Notes sur la livraison, état du carburant, etc."></textarea>
+                        </div>
+                        
+                        <div id="ecart-warning" class="hidden p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>Attention:</strong> Il y a un écart entre la quantité prévue et la quantité reçue. 
+                                        Veuillez ajouter une observation pour expliquer la différence.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:ml-3 sm:w-auto sm:text-sm">
+                        Confirmer la Réception
+                    </button>
+                    <button type="button" onclick="closeModal('confirm-delivery-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-const csrfToken = '{{ csrf_token }}';
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
 let currentMovementsPage = 1;
 let movementsFilter = 'all';
+let expectedQuantity = 0;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadStockData();
     loadStockMovements();
+    loadPendingCount();
+    
+    // Check for pending deliveries every 30 seconds
+    setInterval(loadPendingCount, 30000);
+    
+    // Listen for quantity changes to show ecart warning
+    const quantiteInput = document.getElementById('quantite-recue');
+    if (quantiteInput) {
+        quantiteInput.addEventListener('input', checkEcart);
+    }
 });
+
+// Helper to safely get nested property
+function safeGet(obj, path, defaultValue = '-') {
+    const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    return value !== undefined && value !== null ? value : defaultValue;
+}
+
+// Helper to parse float safely
+function safeFloat(value, decimals = 2) {
+    const num = parseFloat(value);
+    return isNaN(num) ? 0 : num.toFixed(decimals);
+}
 
 // Load stock data
 function loadStockData() {
-    fetch('{% url "manager_module:stock_api" %}')
+    fetch('/manager/api/stock/')
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                renderStockCards(data.data);
+                renderStockCards(data.stocks || []);
             } else {
                 showNotification('Erreur lors du chargement du stock', 'error');
             }
@@ -325,7 +324,7 @@ function renderStockCards(stocks) {
     }
     
     container.innerHTML = stocks.map(stock => {
-        const percentage = stock.percentage;
+        const percentage = (stock.quantite_actuelle / stock.capacite_max) * 100;
         const isLow = stock.quantite_actuelle <= stock.seuil_alerte;
         const isCritical = stock.quantite_actuelle <= (stock.seuil_alerte * 0.5);
         
@@ -356,7 +355,7 @@ function renderStockCards(stocks) {
                         </div>
                     </div>
                     <div class="ml-4 flex-1">
-                        <h3 class="text-lg font-semibold text-gray-900">${stock.fuel}</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">${stock.type_carburant.nom}</h3>
                         <p class="text-xs text-gray-500">Type de carburant</p>
                     </div>
                 </div>
@@ -397,12 +396,12 @@ function renderStockCards(stocks) {
 function loadStockMovements(page = 1) {
     currentMovementsPage = page;
     
-    fetch(`{% url "manager_module:stock_movements" %}?page=${page}&per_page=15`)
+    fetch(`/manager/api/stock/movements/?page=${page}&per_page=15`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                renderStockMovements(data.data);
-                updateMovementsPagination(data.pagination);
+                renderStockMovements(data.movements || []);
+                updateMovementsPagination(data.pagination || {total_items: 0, current_page: 1});
             }
         })
         .catch(error => console.error('Error:', error));
@@ -427,7 +426,7 @@ function renderStockMovements(movements) {
     }
     
     tbody.innerHTML = movements.map(movement => {
-        const isDelivery = movement.type === 'delivery';
+        const isDelivery = movement.type === 'delivery' || movement.type === 'livraison';
         const typeBadge = isDelivery 
             ? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Livraison</span>'
             : '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Vente</span>';
@@ -437,14 +436,14 @@ function renderStockMovements(movements) {
         
         return `
             <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${movement.date}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${movement.date || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap">${typeBadge}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${movement.fuel}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${movement.carburant || movement.fuel || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${quantityClass}">
-                    ${quantitySign}${Math.abs(parseFloat(movement.quantity)).toFixed(2)} L
+                    ${quantitySign}${Math.abs(parseFloat(movement.quantite || movement.quantity || 0)).toFixed(2)} L
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${movement.reference}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${movement.actor}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${movement.reference || '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${movement.actor || movement.par || '-'}</td>
             </tr>
         `;
     }).join('');
@@ -497,79 +496,286 @@ function filterMovements(filter) {
     });
 }
 
-// Toggle supplier input based on radio selection
-function toggleSupplierInput() {
-    const isInternal = document.getElementById('supplier-internal').checked;
-    const supplierInput = document.getElementById('delivery-supplier');
+// Load pending deliveries count
+function loadPendingCount() {
+    fetch('/manager/api/deliveries/pending/')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const deliveries = data.deliveries || [];
+                const count = deliveries.length;
+                const badge = document.getElementById('pending-badge');
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        })
+        .catch(error => console.error('Error loading pending count:', error));
+}
+
+// Load and show pending deliveries
+function loadPendingDeliveries() {
+    fetch('/manager/api/deliveries/pending/')
+        .then(r => r.json())
+        .then(data => {
+            console.log('Pending deliveries response:', data); // Debug
+            
+            if (data.success) {
+                const deliveries = data.deliveries || [];
+                const content = document.getElementById('pending-deliveries-content');
+                
+                if (deliveries.length === 0) {
+                    content.innerHTML = `
+                        <div class="text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-500">Aucune livraison en attente</p>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div class="space-y-4">
+                            ${deliveries.map(d => {
+                                console.log('Delivery item:', d); // Debug each delivery
+                                
+                                // Get type livraison display text
+                                const typeDisplay = d.type_livraison === 'propre' ? 'Notre carburant' : 
+                                                   d.type_livraison === 'partenaire_donne' ? 'Donné par partenaire' :
+                                                   d.type_livraison === 'partenaire_prend' ? 'Pris par partenaire' : 
+                                                   (d.type || 'Non spécifié');
+                                
+                                // Get status display text
+                                const statusDisplay = d.statut === 'planifiee' ? 'Planifiée' :
+                                                     d.statut === 'en_transit' ? 'En transit' :
+                                                     d.statut === 'livree' ? 'Livrée' : 
+                                                     (d.statut || 'Unknown');
+                                
+                                // Get carburant name - try multiple paths
+                                const carburantName = safeGet(d, 'type_carburant.nom', 
+                                                      safeGet(d, 'carburant', 
+                                                      safeGet(d, 'fuel', 'Non spécifié')));
+                                
+                                // Get quantity - IMPORTANT FIX
+                                const quantitePrevue = parseFloat(d.quantite_prevue || d.quantite || 0);
+                                
+                                // Get partenaire name
+                                const partenaireNom = d.partenaire ? 
+                                                     (typeof d.partenaire === 'object' ? d.partenaire.nom : d.partenaire) : 
+                                                     null;
+                                
+                                // Get branche name  
+                                const brancheNom = d.branche ?
+                                                  (typeof d.branche === 'object' ? d.branche.nom : d.branche) :
+                                                  'Non spécifié';
+                                
+                                return `
+                                <div class="border-2 border-gray-200 rounded-lg p-5 hover:border-petrox-red transition-colors bg-white">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-3">
+                                                <h4 class="text-lg font-semibold text-gray-900">${d.numero || 'N/A'}</h4>
+                                                <span class="px-3 py-1 text-xs font-semibold rounded-full ${
+                                                    d.statut === 'livree' ? 'bg-yellow-100 text-yellow-800' : 
+                                                    d.statut === 'en_transit' ? 'bg-blue-100 text-blue-800' :
+                                                    'bg-gray-100 text-gray-800'
+                                                }">${statusDisplay}</span>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mb-4">
+                                                <div class="flex flex-col">
+                                                    <span class="text-gray-500 text-xs font-medium mb-1">Carburant</span>
+                                                    <span class="font-semibold text-gray-900">${carburantName}</span>
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="text-gray-500 text-xs font-medium mb-1">Branche</span>
+                                                    <span class="font-medium text-gray-700">${brancheNom}</span>
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="text-gray-500 text-xs font-medium mb-1">Type de livraison</span>
+                                                    <span class="font-medium text-gray-700">${typeDisplay}</span>
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="text-gray-500 text-xs font-medium mb-1">Date prévue</span>
+                                                    <span class="font-medium text-gray-700">${d.date_prevue || '-'}</span>
+                                                </div>
+                                                <div class="flex flex-col bg-blue-50 p-3 rounded-lg">
+                                                    <span class="text-blue-600 text-xs font-medium mb-1">Quantité prévue</span>
+                                                    <span class="font-bold text-blue-900 text-xl">${quantitePrevue.toLocaleString()} L</span>
+                                                </div>
+                                                ${d.prix_unitaire ? `
+                                                    <div class="flex flex-col bg-green-50 p-3 rounded-lg">
+                                                        <span class="text-green-600 text-xs font-medium mb-1">Prix unitaire</span>
+                                                        <span class="font-bold text-green-900">${safeFloat(d.prix_unitaire)} ${d.devise || 'USD'}/L</span>
+                                                    </div>
+                                                ` : ''}
+                                                ${partenaireNom ? `
+                                                    <div class="col-span-2 flex flex-col border-t border-gray-200 pt-3 mt-2">
+                                                        <span class="text-gray-500 text-xs font-medium mb-1">Partenaire</span>
+                                                        <span class="font-semibold text-gray-900">${partenaireNom}</span>
+                                                    </div>
+                                                ` : ''}
+                                                ${d.observations_admin ? `
+                                                    <div class="col-span-2 flex flex-col border-t border-gray-200 pt-3 mt-2">
+                                                        <span class="text-gray-500 text-xs font-medium mb-1">Observations (Admin)</span>
+                                                        <span class="text-sm text-gray-600 italic bg-gray-50 p-2 rounded">${d.observations_admin}</span>
+                                                    </div>
+                                                ` : ''}
+                                                ${d.transporteur ? `
+                                                    <div class="flex flex-col">
+                                                        <span class="text-gray-500 text-xs font-medium mb-1">Transporteur</span>
+                                                        <span class="font-medium text-gray-700">${d.transporteur}</span>
+                                                    </div>
+                                                ` : ''}
+                                                ${d.immatriculation ? `
+                                                    <div class="flex flex-col">
+                                                        <span class="text-gray-500 text-xs font-medium mb-1">Immatriculation</span>
+                                                        <span class="font-medium text-gray-700">${d.immatriculation}</span>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                                        <button onclick='openConfirmModal(${d.id}, "${carburantName}", ${quantitePrevue})' 
+                                                class="px-6 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-md hover:bg-green-700 transition-colors shadow-sm flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Confirmer la Réception
+                                        </button>
+                                    </div>
+                                </div>
+                            `}).join('')}
+                        </div>
+                    `;
+                }
+                
+                openModal('pending-deliveries-modal');
+            } else {
+                showNotification('Erreur lors du chargement', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading deliveries:', error);
+            showNotification('Erreur de connexion', 'error');
+        });
+}
+
+// Open confirm delivery modal
+function openConfirmModal(deliveryId, carburant, quantitePrevue) {
+    expectedQuantity = quantitePrevue; // Store for ecart checking
     
-    if (isInternal) {
-        supplierInput.value = 'Interne';
-        supplierInput.disabled = true;
-        supplierInput.classList.add('bg-gray-100');
+    document.getElementById('delivery-id').value = deliveryId;
+    document.getElementById('quantite-recue').value = quantitePrevue;
+    document.getElementById('delivery-details-preview').innerHTML = `
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-xs text-blue-700 font-medium mb-1">Carburant</p>
+                    <p class="text-base font-bold text-blue-900">${carburant}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-blue-700 font-medium mb-1">Quantité prévue</p>
+                    <p class="text-base font-bold text-blue-900">${parseFloat(quantitePrevue).toLocaleString()} L</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Reset observations field
+    document.getElementById('observations-manager').value = '';
+    document.getElementById('observations-manager').required = false;
+    document.getElementById('ecart-warning').classList.add('hidden');
+    
+    closeModal('pending-deliveries-modal');
+    openModal('confirm-delivery-modal');
+}
+
+// Check ecart when quantity changes
+function checkEcart() {
+    const quantiteRecue = parseFloat(document.getElementById('quantite-recue').value) || 0;
+    const ecartWarning = document.getElementById('ecart-warning');
+    const observationsField = document.getElementById('observations-manager');
+    
+    const ecart = Math.abs(quantiteRecue - expectedQuantity);
+    const ecartPourcentage = expectedQuantity > 0 ? (ecart / expectedQuantity) * 100 : 0;
+    
+    if (ecartPourcentage > 2) { // More than 2% difference
+        ecartWarning.classList.remove('hidden');
+        observationsField.required = true;
     } else {
-        supplierInput.value = '';
-        supplierInput.disabled = false;
-        supplierInput.classList.remove('bg-gray-100');
-        supplierInput.focus();
+        ecartWarning.classList.add('hidden');
+        observationsField.required = false;
     }
 }
 
 // Submit delivery confirmation
-function submitDelivery(e) {
-    e.preventDefault();
+function submitDeliveryConfirmation(event) {
+    event.preventDefault();
+    event.stopPropagation();
     
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const btnText = document.getElementById('delivery-submit-text');
-    const btnLoading = document.getElementById('delivery-submit-loading');
+    const formData = new FormData(event.target);
+    const deliveryId = formData.get('delivery_id');
+    formData.delete('delivery_id');
+    const data = Object.fromEntries(formData.entries());
     
-    submitBtn.disabled = true;
-    btnText.classList.add('hidden');
-    btnLoading.classList.remove('hidden');
+    // Remove empty fields
+    Object.keys(data).forEach(key => {
+        if (data[key] === '') delete data[key];
+    });
     
-    const data = {
-        type_carburant_id: document.getElementById('delivery-fuel-type').value,
-        quantite: document.getElementById('delivery-quantity').value,
-        fournisseur: document.getElementById('delivery-supplier').value,
-        reference_document: document.getElementById('delivery-reference').value || '',
-        prix_achat: document.getElementById('delivery-price').value || null
-    };
+    console.log('Submitting confirmation for delivery:', deliveryId);
+    console.log('Data:', data);
     
-    fetch('{% url "manager_module:confirm_delivery" %}', {
+    // Use manager's endpoint, not admin's
+    fetch(`/manager/api/deliveries/${deliveryId}/confirm/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrfToken
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        credentials: 'same-origin'
     })
-    .then(r => r.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || 'Erreur de confirmation');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Confirmation response:', data);
         if (data.success) {
-            showNotification(`Livraison confirmée: ${data.livraison.quantite}L de ${data.livraison.carburant}`, 'success');
-            closeModal('delivery-modal');
-            document.getElementById('delivery-form').reset();
-            document.getElementById('delivery-supplier').value = 'Interne';
+            closeModal('confirm-delivery-modal');
+            showNotification(`Livraison confirmée: ${data.delivery.quantite_recue}L reçus. Nouveau stock: ${data.delivery.nouveau_stock}L`, 'success', 5000);
             loadStockData();
             loadStockMovements();
+            loadPendingCount();
         } else {
             showNotification(data.message || 'Erreur lors de la confirmation', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('Erreur de connexion', 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        btnText.classList.remove('hidden');
-        btnLoading.classList.add('hidden');
+        showNotification(error.message || 'Erreur de connexion', 'error');
     });
+    
+    return false;
 }
 
 // Refresh stock
 function refreshStock() {
     loadStockData();
     loadStockMovements();
+    loadPendingCount();
     showNotification('Stock actualisé', 'success');
 }
 
@@ -580,6 +786,17 @@ function openModal(modalId) {
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
+}
+
+// Notification function
+function showNotification(message, type, duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    } text-white max-w-md`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), duration);
 }
 </script>
 {% endblock %}

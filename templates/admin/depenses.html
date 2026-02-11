@@ -85,12 +85,16 @@
             </div>
         </div>
         
-        <button onclick="openModal('add-category-modal')" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+        <!-- Categories Button with Badge -->
+        <button onclick="openCategoriesManagement()" class="relative inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
             Catégories
+            <!-- Pending Requests Badge -->
+            <span id="pending-categories-badge" class="hidden absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full"></span>
         </button>
+        
         <button onclick="openModal('add-expense-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -332,11 +336,9 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Catégorie *</label>
-                            <select name="categorie_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select name="categorie_id" required id="expense-category-select" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner une catégorie</option>
-                                {% for cat in categories %}
-                                <option value="{{ cat.id }}">{{ cat.nom }}</option>
-                                {% endfor %}
+                                <!-- Will be populated by JavaScript -->
                             </select>
                         </div>
                         
@@ -380,36 +382,110 @@
     </div>
 </div>
 
-<!-- Add Category Modal -->
-<div id="add-category-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+<!-- Categories Management Modal -->
+<div id="categories-management-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-category-modal')"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('categories-management-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Gestion des Catégories
+                    </h3>
+                    <button onclick="closeModal('categories-management-modal')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Pending Requests Section -->
+                <div id="pending-requests-section" class="hidden mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h4 class="text-sm font-semibold text-yellow-800 mb-3 flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Demandes de Nouvelles Catégories (<span id="pending-count">0</span>)
+                    </h4>
+                    <div id="pending-requests-list">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Add New Category Form -->
+                <form onsubmit="submitCategory(event)" class="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Nouvelle Catégorie</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <input type="text" name="nom" required placeholder="Nom de la catégorie" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Categories List -->
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Catégories Existantes</h4>
+                    <div class="max-h-96 overflow-y-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="categories-list-body">
+                                <tr>
+                                    <td colspan="2" class="px-4 py-8 text-center text-gray-500">
+                                        <div class="flex flex-col items-center">
+                                            <svg class="h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                                            </svg>
+                                            <p>Chargement...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div id="edit-category-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('edit-category-modal')"></div>
         
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form onsubmit="submitCategory(event)" id="category-form">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <form onsubmit="updateCategory(event)" id="edit-category-form">
+                <input type="hidden" name="category_id" id="edit-category-id">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Nouvelle Catégorie
+                        Modifier la Catégorie
                     </h3>
                     
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
-                            <input type="text" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Ex: Carburant, Entretien, Salaires...">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Description (optionnelle)</label>
-                            <textarea name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Description de la catégorie..."></textarea>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
+                        <input type="text" name="nom" id="edit-category-name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                     </div>
                 </div>
                 
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                        Créer
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
+                        Mettre à jour
                     </button>
-                    <button type="button" onclick="closeModal('add-category-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" onclick="closeModal('edit-category-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         Annuler
                     </button>
                 </div>
@@ -460,15 +536,37 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+// NOTE: csrfToken is defined in base.html
+
 let selectedExpenses = new Set();
 let currentExpenseId = null;
 let expensesCharts = {};
+let allCategories = []; // Store all categories globally
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     loadExpensesData();
     loadExpensesAnalytics();
+    loadPendingCategoryRequests(); // Load pending requests for badge
 });
+
+// Load pending category requests count for badge
+function loadPendingCategoryRequests() {
+    fetch('/dashboard/api/categories/pending/', {
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.pending_count > 0) {
+            const badge = document.getElementById('pending-categories-badge');
+            badge.textContent = data.pending_count;
+            badge.classList.remove('hidden');
+        }
+    })
+    .catch(error => console.error('Error loading pending requests:', error));
+}
 
 // Load expenses data
 function loadExpensesData() {
@@ -483,15 +581,19 @@ function loadExpensesData() {
     if (currency !== 'all') params.append('devise', currency);
     if (period !== 'all') params.append('period', period);
     
-    fetch(`/dashboard/api/depenses/?${params.toString()}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateStats(data);
-                updateExpensesTable(data.depenses);
-            }
-        })
-        .catch(error => console.error('Error loading expenses:', error));
+    fetch(`/dashboard/api/depenses/?${params.toString()}`, {
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateStats(data);
+            updateExpensesTable(data.depenses);
+        }
+    })
+    .catch(error => console.error('Error loading expenses:', error));
 }
 
 // Update stats cards
@@ -573,7 +675,7 @@ function updateExpensesTable(expenses) {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                         </svg>
                     </button>
-                    <button onclick="deleteExpense(${exp.id}, '${exp.description.substring(0, 30)}')" class="text-red-600 hover:text-red-900" title="Supprimer">
+                    <button onclick="deleteExpense(${exp.id}, '${exp.description.substring(0, 30).replace(/'/g, "\\'")}'))" class="text-red-600 hover:text-red-900" title="Supprimer">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -593,32 +695,41 @@ function loadExpensesAnalytics() {
     if (period !== 'all') params.append('period', period);
     if (branch !== 'all') params.append('branche_id', branch);
     
-    fetch(`/dashboard/api/depenses/analytics/?${params.toString()}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                createExpensesCharts(data);
-            }
-        })
-        .catch(error => console.error('Error loading analytics:', error));
+    fetch(`/dashboard/api/depenses/analytics/?${params.toString()}`, {
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            createExpensesCharts(data);
+        }
+    })
+    .catch(error => console.error('Error loading analytics:', error));
 }
 
-// Create charts
+// Create charts - FIXED VERSION
 function createExpensesCharts(data) {
     // Destroy existing charts
     Object.values(expensesCharts).forEach(chart => {
         if (chart) chart.destroy();
     });
     
-    // 1. By Category (Pie Chart)
+    // 1. By Category (Pie Chart) - FIXED TO SHOW ALL CATEGORIES
     if (data.by_category && data.by_category.length > 0) {
         const ctx1 = document.getElementById('expenses-by-category-chart').getContext('2d');
+        
+        // Extract category names and totals
+        const categoryNames = data.by_category.map(c => c.categorie__nom || c.categorie || 'Sans catégorie');
+        const categoryTotals = data.by_category.map(c => parseFloat(c.total || 0));
+        
         expensesCharts.byCategory = new Chart(ctx1, {
             type: 'pie',
             data: {
-                labels: data.by_category.map(c => c.categorie__nom),
+                labels: categoryNames,
                 datasets: [{
-                    data: data.by_category.map(c => c.total),
+                    data: categoryTotals,
                     backgroundColor: [
                         '#DC2626', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6',
                         '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'
@@ -629,7 +740,22 @@ function createExpensesCharts(data) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'right' }
+                    legend: { 
+                        position: 'right',
+                        labels: {
+                            padding: 10,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                return label + ': $' + value.toFixed(2);
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -644,7 +770,7 @@ function createExpensesCharts(data) {
                 labels: data.trend.map(t => t.date__date || t.date),
                 datasets: [{
                     label: 'Montant Total',
-                    data: data.trend.map(t => t.total),
+                    data: data.trend.map(t => parseFloat(t.total || 0)),
                     borderColor: '#DC2626',
                     backgroundColor: 'rgba(220, 38, 38, 0.1)',
                     fill: true,
@@ -669,7 +795,7 @@ function createExpensesCharts(data) {
                 labels: data.by_branch.map(b => b.branche__nom),
                 datasets: [{
                     label: 'Total USD',
-                    data: data.by_branch.map(b => b.total_usd || 0),
+                    data: data.by_branch.map(b => parseFloat(b.total_usd || 0)),
                     backgroundColor: '#10B981'
                 }]
             },
@@ -682,21 +808,43 @@ function createExpensesCharts(data) {
         });
     }
     
-    // 4. Currency Distribution (Doughnut)
+    // 4. Currency Distribution (Doughnut) - FIXED TO SHOW BOTH CURRENCIES
     const ctx4 = document.getElementById('currency-distribution-chart').getContext('2d');
+    
+    // Get actual totals from data
+    const totalUSD = parseFloat(data.total_usd || 0);
+    const totalFC = parseFloat(data.total_fc || 0);
+    
     expensesCharts.currency = new Chart(ctx4, {
         type: 'doughnut',
         data: {
             labels: ['USD', 'FC'],
             datasets: [{
-                data: [data.total_usd || 0, data.total_fc || 0],
+                data: [totalUSD, totalFC],
                 backgroundColor: ['#10B981', '#8B5CF6']
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: { size: 12 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            return label === 'USD' ? label + ': $' + value.toFixed(2) : label + ': ' + value.toFixed(0) + ' FC';
+                        }
+                    }
+                }
+            }
         }
     });
 }
@@ -763,9 +911,248 @@ function toggleBulkExpensesMenu() {
     menu.classList.toggle('hidden');
 }
 
+// Open categories management - FIXED TO LOAD DATA
+function openCategoriesManagement() {
+    // Fetch categories from backend
+    fetch('/dashboard/api/categories/', {
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Categories API response:', data); // Debug
+        if (data.success) {
+            allCategories = data.categories || []; // Store globally
+            updateCategoriesList(data.categories || []);
+            
+            // Load pending requests
+            if (data.pending_requests && data.pending_requests.length > 0) {
+                showPendingRequests(data.pending_requests);
+            }
+            
+            // Populate expense form dropdown
+            updateExpenseCategoryDropdown(data.categories || []);
+            
+            openModal('categories-management-modal');
+        } else {
+            console.error('API returned success: false', data);
+            showNotification('Erreur lors du chargement des catégories', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading categories:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Update expense form category dropdown
+function updateExpenseCategoryDropdown(categories) {
+    const select = document.getElementById('expense-category-select');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Sélectionner une catégorie</option>' +
+        categories.map(cat => `<option value="${cat.id}">${cat.nom}</option>`).join('');
+}
+
+// Show pending requests
+function showPendingRequests(requests) {
+    const section = document.getElementById('pending-requests-section');
+    const list = document.getElementById('pending-requests-list');
+    const countSpan = document.getElementById('pending-count');
+    
+    if (requests && requests.length > 0) {
+        countSpan.textContent = requests.length;
+        list.innerHTML = requests.map(req => `
+            <div class="flex items-start justify-between p-3 bg-white rounded border border-yellow-300 mb-2">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">${req.nom}</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        <span class="font-semibold">Demandé par:</span> ${req.created_by}
+                    </p>
+                    ${req.justification ? `
+                    <p class="text-xs text-gray-600 mt-1">
+                        <span class="font-semibold">Justification:</span> ${req.justification}
+                    </p>
+                    ` : ''}
+                    <p class="text-xs text-gray-400 mt-1">${req.created_at}</p>
+                </div>
+                <div class="flex space-x-2 ml-4">
+                    <button onclick="approveCategory('${req.nom.replace(/'/g, "\\'")}', ${req.id})" 
+                            class="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 flex items-center">
+                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Approuver
+                    </button>
+                    <button onclick="rejectCategoryRequest(${req.id})" 
+                            class="px-3 py-1 text-xs font-medium text-white bg-red-600 rounded hover:bg-red-700 flex items-center">
+                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Rejeter
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        section.classList.remove('hidden');
+    } else {
+        section.classList.add('hidden');
+    }
+}
+
+// Approve category from request - FIXED
+function approveCategory(nom, categoryId) {
+    if (!confirm(`Approuver la catégorie "${nom}"?`)) return;
+    
+    fetch(`/dashboard/api/categories/${categoryId}/approve/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`Catégorie "${nom}" approuvée`, 'success');
+            openCategoriesManagement(); // Refresh
+            loadPendingCategoryRequests(); // Update badge
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de l\'approbation', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Reject category request - FIXED
+function rejectCategoryRequest(categoryId) {
+    if (!confirm('Rejeter cette demande de catégorie?')) return;
+    
+    fetch(`/dashboard/api/categories/${categoryId}/reject/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Demande rejetée', 'success');
+            openCategoriesManagement(); // Refresh
+            loadPendingCategoryRequests(); // Update badge
+        } else {
+            showNotification(data.message || 'Erreur lors du rejet', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Update categories list - FIXED
+function updateCategoriesList(categories) {
+    const tbody = document.getElementById('categories-list-body');
+    
+    console.log('Updating categories list with:', categories); // Debug
+    
+    if (!categories || categories.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-gray-500">Aucune catégorie</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = categories.map(cat => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-900">${cat.nom}</td>
+            <td class="px-4 py-3 text-right text-sm font-medium">
+                <button onclick="editCategory(${cat.id}, '${cat.nom.replace(/'/g, "\\'")}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                    <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </button>
+                <button onclick="deleteCategory(${cat.id}, '${cat.nom.replace(/'/g, "\\'")}')" class="text-red-600 hover:text-red-900">
+                    <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Edit category
+function editCategory(id, name) {
+    document.getElementById('edit-category-id').value = id;
+    document.getElementById('edit-category-name').value = name;
+    openModal('edit-category-modal');
+}
+
+// Update category
+function updateCategory(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const categoryId = formData.get('category_id');
+    const data = { nom: formData.get('nom') };
+    
+    fetch(`/dashboard/api/categories/${categoryId}/update/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('edit-category-modal');
+            showNotification('Catégorie mise à jour', 'success');
+            openCategoriesManagement(); // Refresh list
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
+// Delete category
+function deleteCategory(id, name) {
+    if (!confirm(`Supprimer la catégorie "${name}"?`)) return;
+    
+    fetch(`/dashboard/api/categories/${id}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Catégorie supprimée', 'success');
+            openCategoriesManagement(); // Refresh list
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+}
+
 // Bulk delete
 function bulkDeleteExpenses() {
-    if (!confirm(`Supprimer ${selectedExpenses.size} dépense(s) sélectionnée(s)?`)) return;
+    if (!confirm(`Supprimer ${selectedExpenses.size} dépense(s)?`)) return;
     
     const ids = Array.from(selectedExpenses);
     
@@ -773,7 +1160,7 @@ function bulkDeleteExpenses() {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify({ ids: ids })
     })
@@ -783,7 +1170,7 @@ function bulkDeleteExpenses() {
             showNotification(`${data.deleted_count} dépenses supprimées`, 'success');
             setTimeout(() => location.reload(), 1000);
         } else {
-            showNotification(data.message || 'Erreur lors de la suppression', 'error');
+            showNotification(data.message || 'Erreur', 'error');
         }
     })
     .catch(error => {
@@ -844,76 +1231,80 @@ function exportExpensesExcel() {
 function viewExpenseDetail(expenseId) {
     currentExpenseId = expenseId;
     
-    fetch(`/dashboard/api/depenses/${expenseId}/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const exp = data.expense;
-                const content = `
-                    <div class="grid grid-cols-2 gap-6">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Informations Générales</h4>
-                            <dl class="space-y-2">
-                                <div>
-                                    <dt class="text-xs text-gray-500">Date</dt>
-                                    <dd class="text-sm font-medium text-gray-900">${exp.date} ${exp.time}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-xs text-gray-500">Branche</dt>
-                                    <dd class="text-sm text-gray-900">${exp.branche}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-xs text-gray-500">Catégorie</dt>
-                                    <dd class="text-sm text-gray-900">${exp.categorie}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-xs text-gray-500">Enregistré par</dt>
-                                    <dd class="text-sm text-gray-900">${exp.created_by}</dd>
-                                </div>
-                            </dl>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Détails Financiers</h4>
-                            <dl class="space-y-2">
-                                <div>
-                                    <dt class="text-xs text-gray-500">Montant</dt>
-                                    <dd class="text-2xl font-bold text-petrox-red">
-                                        ${exp.devise === 'USD' ? '$' : ''}${parseFloat(exp.montant).toFixed(2)}${exp.devise === 'FC' ? ' FC' : ''}
-                                    </dd>
-                                </div>
-                                ${exp.beneficiaire ? `
-                                <div>
-                                    <dt class="text-xs text-gray-500">Bénéficiaire</dt>
-                                    <dd class="text-sm text-gray-900">${exp.beneficiaire}</dd>
-                                </div>
-                                ` : ''}
-                                <div>
-                                    <dt class="text-xs text-gray-500">Statut</dt>
-                                    <dd class="mt-1">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                            exp.statut === 'approuvee' ? 'bg-green-100 text-green-800' :
-                                            exp.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' :
-                                            'bg-red-100 text-red-800'
-                                        }">
-                                            ${exp.statut_display}
-                                        </span>
-                                    </dd>
-                                </div>
-                            </dl>
-                        </div>
+    fetch(`/dashboard/api/depenses/${expenseId}/`, {
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const exp = data.expense;
+            const content = `
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Informations Générales</h4>
+                        <dl class="space-y-2">
+                            <div>
+                                <dt class="text-xs text-gray-500">Date</dt>
+                                <dd class="text-sm font-medium text-gray-900">${exp.date} ${exp.time}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-500">Branche</dt>
+                                <dd class="text-sm text-gray-900">${exp.branche}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-500">Catégorie</dt>
+                                <dd class="text-sm text-gray-900">${exp.categorie}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-500">Enregistré par</dt>
+                                <dd class="text-sm text-gray-900">${exp.created_by}</dd>
+                            </div>
+                        </dl>
                     </div>
                     
-                    <div class="mt-6">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Description</h4>
-                        <p class="text-sm text-gray-600">${exp.description}</p>
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Détails Financiers</h4>
+                        <dl class="space-y-2">
+                            <div>
+                                <dt class="text-xs text-gray-500">Montant</dt>
+                                <dd class="text-2xl font-bold text-petrox-red">
+                                    ${exp.devise === 'USD' ? '$' : ''}${parseFloat(exp.montant).toFixed(2)}${exp.devise === 'FC' ? ' FC' : ''}
+                                </dd>
+                            </div>
+                            ${exp.beneficiaire ? `
+                            <div>
+                                <dt class="text-xs text-gray-500">Bénéficiaire</dt>
+                                <dd class="text-sm text-gray-900">${exp.beneficiaire}</dd>
+                            </div>
+                            ` : ''}
+                            <div>
+                                <dt class="text-xs text-gray-500">Statut</dt>
+                                <dd class="mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                        exp.statut === 'approuvee' ? 'bg-green-100 text-green-800' :
+                                        exp.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-red-100 text-red-800'
+                                    }">
+                                        ${exp.statut_display}
+                                    </span>
+                                </dd>
+                            </div>
+                        </dl>
                     </div>
-                `;
-                document.getElementById('expense-detail-content').innerHTML = content;
-                openModal('view-expense-modal');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Description</h4>
+                    <p class="text-sm text-gray-600">${exp.description}</p>
+                </div>
+            `;
+            document.getElementById('expense-detail-content').innerHTML = content;
+            openModal('view-expense-modal');
+        }
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 // Print expense
@@ -935,16 +1326,16 @@ function deleteExpense(expenseId, description) {
     fetch(`/dashboard/api/depenses/${expenseId}/delete/`, {
         method: 'DELETE',
         headers: {
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showNotification('Dépense supprimée avec succès', 'success');
+            showNotification('Dépense supprimée', 'success');
             setTimeout(() => location.reload(), 1000);
         } else {
-            showNotification(data.message || 'Erreur lors de la suppression', 'error');
+            showNotification(data.message || 'Erreur', 'error');
         }
     })
     .catch(error => {
@@ -964,7 +1355,7 @@ function submitExpense(event) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
@@ -972,10 +1363,10 @@ function submitExpense(event) {
     .then(data => {
         if (data.success) {
             closeModal('add-expense-modal');
-            showNotification('Dépense enregistrée avec succès', 'success');
+            showNotification('Dépense enregistrée', 'success');
             setTimeout(() => location.reload(), 1000);
         } else {
-            showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
+            showNotification(data.message || 'Erreur', 'error');
         }
     })
     .catch(error => {
@@ -995,18 +1386,19 @@ function submitCategory(event) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            closeModal('add-category-modal');
-            showNotification('Catégorie créée avec succès', 'success');
+            event.target.reset();
+            showNotification('Catégorie créée', 'success');
+            openCategoriesManagement(); // Refresh list
             setTimeout(() => location.reload(), 1000);
         } else {
-            showNotification(data.message || 'Erreur lors de la création', 'error');
+            showNotification(data.message || 'Erreur', 'error');
         }
     })
     .catch(error => {
@@ -1040,22 +1432,6 @@ function showNotification(message, type) {
         notification.style.opacity = '0';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
-}
-
-// Get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
 }
 
 // Close bulk menu when clicking outside

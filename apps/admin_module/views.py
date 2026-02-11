@@ -24,7 +24,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 
 from apps.core.models import (
-    User, Branche, TauxChange, TypeCarburant, CategorieDepense,
+    LivraisonCarburant, PaiementPartenaire, Partenaire, User, Branche, TauxChange, TypeCarburant, CategorieDepense,
     Vente, Depense, Stock, Pompiste, Abonne, ConsommationAbonne,
     Document, DocumentCategory, Notification, Livraison, MoyenPaiement,
     PaiementSalaire
@@ -34,7 +34,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Value, DecimalField, F
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from decimal import Decimal
@@ -63,6 +63,7 @@ from apps.core.models import PaiementSalaire, Pompiste
 from datetime import datetime
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from django.db.models.functions import TruncDate
+from django.db import transaction
 
 
 
@@ -872,6 +873,445 @@ class DepensesListView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         return context
 
 
+class DepensesAnalyticsAPIView(AdminRequiredMixin, View):
+    """Get analytics data for expenses"""
+    
+    def get(self, request):
+        try:
+            # Get filters
+            period = request.GET.get('period', 'month')
+            branche_id = request.GET.get('branche_id')
+            
+            # Base queryset
+            depenses = Depense.objects.filter(statut='approuvee')
+            
+            # Apply branch filter
+            if branche_id and branche_id != 'all':
+                depenses = depenses.filter(branche_id=branche_id)
+            
+            # Apply period filter
+            from datetime import datetime, timedelta
+            today = timezone.now()
+            
+            if period == 'today':
+                start_date = today.replace(hour=0, minute=0, second=0, microsecond=0)
+                depenses = depenses.filter(created_at__gte=start_date)
+            elif period == 'week':
+                start_date = today - timedelta(days=7)
+                depenses = depenses.filter(created_at__gte=start_date)
+            elif period == 'month':
+                start_date = today - timedelta(days=30)
+                depenses = depenses.filter(created_at__gte=start_date)
+            
+            # === FIX 1: BY CATEGORY - Group properly by category ===
+            # WRONG WAY (returns only one group):
+            # by_category = depenses.aggregate(total=Sum('montant'))
+            
+            # CORRECT WAY (returns separate row for each category):
+            from django.db.models import Sum, Count
+            from django.db.models.functions import TruncDate
+            
+            by_category = list(depenses.values('categorie__nom').annotate(
+                total=Sum(
+                    Case(
+                        When(devise='USD', then=F('montant')),
+                        default=Value(0),
+                        output_field=DecimalField()
+                    )
+                )
+            ).order_by('-total'))
+            
+            # === FIX 2: CURRENCY DISTRIBUTION - Calculate both USD and FC ===
+            # Calculate totals for EACH currency separately
+            total_usd = float(depenses.filter(devise='USD').aggregate(
+                total=Sum('montant')
+            )['total'] or 0)
+            
+            total_fc = float(depenses.filter(devise='FC').aggregate(
+                total=Sum('montant')
+            )['total'] or 0)
+            
+            # Trend data (30 days)
+            if period in ['month', 'all']:
+                trend_days = 30
+            elif period == 'week':
+                trend_days = 7
+            else:
+                trend_days = 1
+            
+            trend_start = today - timedelta(days=trend_days)
+            trend = list(depenses.filter(created_at__gte=trend_start)
+                .annotate(date=TruncDate('created_at'))
+                .values('date')
+                .annotate(
+                    total=Sum(
+                        Case(
+                            When(devise='USD', then=F('montant')),
+                            default=Value(0),
+                            output_field=DecimalField()
+                        )
+                    )
+                )
+                .order_by('date'))
+            
+            # By branch
+            by_branch = list(depenses.values('branche__nom').annotate(
+                total_usd=Sum(
+                    Case(
+                        When(devise='USD', then=F('montant')),
+                        default=Value(0),
+                        output_field=DecimalField()
+                    )
+                ),
+                total_fc=Sum(
+                    Case(
+                        When(devise='FC', then=F('montant')),
+                        default=Value(0),
+                        output_field=DecimalField()
+                    )
+                )
+            ).order_by('-total_usd'))
+            
+            # Convert Decimals to float for JSON
+            for item in by_category:
+                item['total'] = float(item['total'] or 0)
+            
+            for item in trend:
+                item['total'] = float(item['total'] or 0)
+                item['date'] = item['date'].strftime('%d/%m')
+            
+            for item in by_branch:
+                item['total_usd'] = float(item['total_usd'] or 0)
+                item['total_fc'] = float(item['total_fc'] or 0)
+            
+            return JsonResponse({
+                'success': True,
+                'by_category': by_category,  # NOW RETURNS MULTIPLE CATEGORIES
+                'trend': trend,
+                'by_branch': by_branch,
+                'total_usd': total_usd,  # PROPERLY CALCULATED
+                'total_fc': total_fc     # PROPERLY CALCULATED
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error in DepensesAnalyticsAPIView: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+class CategoriesListAPIView(AdminRequiredMixin, View):
+    """Get all categories + pending requests"""
+    
+    def get(self, request):
+        try:
+            # Get APPROVED categories (is_active=True)
+            categories = CategorieDepense.objects.filter(is_active=True).order_by('nom')
+            
+            categories_data = [{
+                'id': cat.id,
+                'nom': cat.nom,
+                'description': cat.description if cat.description else ''
+            } for cat in categories]
+            
+            # Get PENDING category requests (is_active=False)
+            pending_categories = CategorieDepense.objects.filter(
+                is_active=False
+            ).select_related('created_by', 'created_by__branche').order_by('-created_at')
+            
+            pending_data = []
+            for cat in pending_categories:
+                # Parse the description to extract info
+                description_lines = cat.description.split('\n') if cat.description else []
+                requested_by = description_lines[0].replace('Demandée par: ', '') if len(description_lines) > 0 else 'Inconnu'
+                justification = description_lines[1].replace('Justification: ', '') if len(description_lines) > 1 else ''
+                
+                pending_data.append({
+                    'id': cat.id,
+                    'nom': cat.nom,
+                    'created_by': requested_by,
+                    'justification': justification,
+                    'created_at': cat.created_at.strftime('%d/%m/%Y %H:%M') if hasattr(cat, 'created_at') else 'N/A'
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'categories': categories_data,
+                'pending_requests': pending_data
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error in CategoriesListAPIView: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': str(e),
+                'categories': [],
+                'pending_requests': []
+            }, status=500)
+        
+class PendingCategoriesCountAPIView(AdminRequiredMixin, View):
+    """Get count of pending category requests for badge"""
+    
+    def get(self, request):
+        try:
+            # Count categories with is_active=False
+            pending_count = CategorieDepense.objects.filter(is_active=False).count()
+            
+            return JsonResponse({
+                'success': True,
+                'pending_count': pending_count
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'pending_count': 0
+            }, status=500)
+
+class ApproveCategoryRequestView(AdminRequiredMixin, View):
+    """Approve a pending category request"""
+    
+    def post(self, request, category_id):
+        try:
+            # Get the pending category (is_active=False)
+            category = CategorieDepense.objects.filter(
+                id=category_id, 
+                is_active=False
+            ).first()
+            
+            if not category:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Demande de catégorie non trouvée ou déjà approuvée'
+                }, status=404)
+            
+            # Check if an ACTIVE category with the same name already exists
+            # This handles the case where admin manually created it while request was pending
+            existing_active = CategorieDepense.objects.filter(
+                nom__iexact=category.nom,
+                is_active=True
+            ).exclude(id=category_id).first()
+            
+            if existing_active:
+                # If active version exists, delete this pending request
+                category.delete()
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Une catégorie "{category.nom}" existe déjà (approuvée précédemment)'
+                }, status=400)
+            
+            # Approve the category by setting is_active=True
+            category.is_active = True
+            category.save()
+            
+            # Notify the requester if they exist
+            if hasattr(category, 'created_by') and category.created_by:
+                try:
+                    Notification.objects.create(
+                        destinataire=category.created_by,
+                        titre=f"Catégorie approuvée: {category.nom}",
+                        message=f"Votre demande de création de la catégorie '{category.nom}' a été approuvée par {request.user.get_full_name()}.",
+                        type_notification='reponse_demande',
+                        priorite='normale',
+                        expediteur=request.user
+                    )
+                except Exception as e:
+                    print(f"Error creating notification: {e}")
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Catégorie "{category.nom}" approuvée avec succès',
+                'category': {
+                    'id': category.id,
+                    'nom': category.nom
+                }
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error approving category: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de l\'approbation: {str(e)}'
+            }, status=500)
+
+
+class RejectCategoryRequestView(AdminRequiredMixin, View):
+    """Reject a pending category request"""
+    
+    def post(self, request, category_id):
+        try:
+            # Get the pending category (is_active=False)
+            category = CategorieDepense.objects.filter(
+                id=category_id,
+                is_active=False
+            ).first()
+            
+            if not category:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Demande de catégorie non trouvée ou déjà traitée'
+                }, status=404)
+            
+            category_name = category.nom
+            requester = category.created_by if hasattr(category, 'created_by') else None
+            
+            # Notify the requester before deletion
+            if requester:
+                try:
+                    Notification.objects.create(
+                        destinataire=requester,
+                        titre=f"Catégorie rejetée: {category_name}",
+                        message=f"Votre demande de création de la catégorie '{category_name}' a été rejetée par {request.user.get_full_name()}.",
+                        type_notification='reponse_demande',
+                        priorite='normale',
+                        expediteur=request.user
+                    )
+                except Exception as e:
+                    print(f"Error creating notification: {e}")
+            
+            # Delete the rejected category
+            category.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Demande "{category_name}" rejetée avec succès'
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error rejecting category: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors du rejet: {str(e)}'
+            }, status=500)
+
+
+
+
+class CategoryCreateAPIView(AdminRequiredMixin, View):
+    """Create new category directly by admin"""
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            nom = data.get('nom', '').strip()
+            
+            if not nom:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Nom de catégorie requis'
+                }, status=400)
+            
+            # Check if category already exists (active or pending)
+            if CategorieDepense.objects.filter(nom__iexact=nom).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cette catégorie existe déjà'
+                }, status=400)
+            
+            # Create category as active (admin creates directly approved)
+            category = CategorieDepense.objects.create(
+                nom=nom,
+                description=data.get('description', ''),
+                is_active=True,
+                created_by=request.user
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'category': {
+                    'id': category.id,
+                    'nom': category.nom
+                }
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error creating category: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+        
+
+class CategoryUpdateAPIView(AdminRequiredMixin, View):
+    """Update category name"""
+    
+    def put(self, request, category_id):
+        try:
+            # Only update ACTIVE categories
+            category = get_object_or_404(CategorieDepense, id=category_id, is_active=True)
+            data = json.loads(request.body)
+            
+            nom = data.get('nom', '').strip()
+            if not nom:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Nom de catégorie requis'
+                }, status=400)
+            
+            # Check if name already exists (excluding current category)
+            if CategorieDepense.objects.filter(nom__iexact=nom).exclude(id=category_id).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Ce nom de catégorie existe déjà'
+                }, status=400)
+            
+            category.nom = nom
+            if 'description' in data:
+                category.description = data['description']
+            category.save()
+            
+            return JsonResponse({
+                'success': True,
+                'category': {
+                    'id': category.id,
+                    'nom': category.nom
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class CategoryDeleteAPIView(AdminRequiredMixin, View):
+    """Delete category if not in use"""
+    
+    def delete(self, request, category_id):
+        try:
+            category = get_object_or_404(CategorieDepense, id=category_id, is_active=True)
+            
+            # Check if category has any expenses
+            expense_count = Depense.objects.filter(categorie=category).count()
+            
+            if expense_count > 0:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Impossible de supprimer. Cette catégorie a {expense_count} dépense(s) associée(s).'
+                }, status=400)
+            
+            category_name = category.nom
+            category.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Catégorie "{category_name}" supprimée'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+    
+
+
 class AdminDashboardView(AdminRequiredMixin, TemplateView):
     """Vue principale du dashboard administrateur"""
     template_name = 'admin/dashboard.html'
@@ -886,307 +1326,254 @@ class AdminDashboardView(AdminRequiredMixin, TemplateView):
 
 class DashboardStatsAPIView(AdminRequiredMixin, View):
     """
-    Enhanced Dashboard Stats API with complete aggregations
-    Returns KPIs, chart data, recent transactions, and stock alerts
+    Admin Dashboard Stats API
+    Returns all data needed for the dashboard in one call
     """
     
     def get(self, request):
         try:
-            # Get filter parameters
+            # Get parameters
             branche_id = request.GET.get('branche_id', 'all')
             period = request.GET.get('period', 'month')
             devise = request.GET.get('devise', 'USD')
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
             
             # Calculate date range
-            date_range = self.get_date_range(period)
-            previous_range = self.get_previous_period_range(period)
+            if period == 'custom' and start_date and end_date:
+                start = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+                end = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+            else:
+                start, end = self.get_period_range(period)
+            
+            # Get previous period for trend calculation
+            period_length = (end - start).days
+            prev_start = start - timedelta(days=period_length)
+            prev_end = start
             
             # Base querysets
             sales_qs = Vente.objects.filter(
-                created_at__gte=date_range['start'],
-                created_at__lte=date_range['end'],
+                created_at__gte=start,
+                created_at__lte=end,
                 statut='validee'
             )
             
             expenses_qs = Depense.objects.filter(
-                created_at__gte=date_range['start'],
-                created_at__lte=date_range['end'],
+                created_at__gte=start,
+                created_at__lte=end,
                 statut='approuvee'
             )
             
             # Apply branch filter
-            if branche_id and branche_id != 'all':
-                try:
-                    branche = Branche.objects.get(id=branche_id)
-                    sales_qs = sales_qs.filter(branche=branche)
-                    expenses_qs = expenses_qs.filter(branche=branche)
-                except Branche.DoesNotExist:
-                    pass
+            if branche_id != 'all':
+                sales_qs = sales_qs.filter(branche_id=branche_id)
+                expenses_qs = expenses_qs.filter(branche_id=branche_id)
             
             # Calculate KPIs
             if devise == 'USD':
-                total_sales = sales_qs.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                total_expenses = expenses_qs.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0
-                total_manquants = Vente.objects.filter(
-                    created_at__gte=date_range['start'],
-                    created_at__lte=date_range['end'],
-                    statut='manquant'
-                ).aggregate(Sum('manquant_usd'))['manquant_usd__sum'] or 0
+                total_sales = float(sales_qs.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0)
+                total_expenses = float(expenses_qs.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0)
+                
+                # Previous period for trends
+                prev_sales = float(Vente.objects.filter(
+                    created_at__gte=prev_start,
+                    created_at__lt=prev_end,
+                    statut='validee'
+                ).aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0)
+                
+                prev_expenses = float(Depense.objects.filter(
+                    created_at__gte=prev_start,
+                    created_at__lt=prev_end,
+                    statut='approuvee',
+                    devise='USD'
+                ).aggregate(Sum('montant'))['montant__sum'] or 0)
             else:  # FC
-                total_sales = sales_qs.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                total_expenses = expenses_qs.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0
-                total_manquants = Vente.objects.filter(
-                    created_at__gte=date_range['start'],
-                    created_at__lte=date_range['end'],
-                    statut='manquant'
-                ).aggregate(Sum('manquant_fc'))['manquant_fc__sum'] or 0
+                total_sales = float(sales_qs.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0)
+                total_expenses = float(expenses_qs.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0)
+                
+                prev_sales = float(Vente.objects.filter(
+                    created_at__gte=prev_start,
+                    created_at__lt=prev_end,
+                    statut='validee'
+                ).aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0)
+                
+                prev_expenses = float(Depense.objects.filter(
+                    created_at__gte=prev_start,
+                    created_at__lt=prev_end,
+                    statut='approuvee',
+                    devise='FC'
+                ).aggregate(Sum('montant'))['montant__sum'] or 0)
             
-            # Calculate trends (compare with previous period)
-            previous_sales_qs = Vente.objects.filter(
-                created_at__gte=previous_range['start'],
-                created_at__lte=previous_range['end'],
-                statut='validee'
-            )
-            previous_expenses_qs = Depense.objects.filter(
-                created_at__gte=previous_range['start'],
-                created_at__lte=previous_range['end'],
-                statut='approuvee'
-            )
-            
-            if branche_id and branche_id != 'all':
-                try:
-                    branche = Branche.objects.get(id=branche_id)
-                    previous_sales_qs = previous_sales_qs.filter(branche=branche)
-                    previous_expenses_qs = previous_expenses_qs.filter(branche=branche)
-                except Branche.DoesNotExist:
-                    pass
-            
-            if devise == 'USD':
-                previous_sales = previous_sales_qs.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
-                previous_expenses = previous_expenses_qs.filter(devise='USD').aggregate(Sum('montant'))['montant__sum'] or 0
-            else:
-                previous_sales = previous_sales_qs.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
-                previous_expenses = previous_expenses_qs.filter(devise='FC').aggregate(Sum('montant'))['montant__sum'] or 0
-            
-            # Calculate percentage changes
-            sales_trend = self.calculate_trend(total_sales, previous_sales)
-            expenses_trend = self.calculate_trend(total_expenses, previous_expenses)
-            
-            # Manquants count
-            manquants_count = Vente.objects.filter(
-                created_at__gte=date_range['start'],
-                created_at__lte=date_range['end'],
-                statut='manquant'
-            ).count()
+            # Calculate trends
+            sales_trend = ((total_sales - prev_sales) / prev_sales * 100) if prev_sales > 0 else 0
+            expenses_trend = ((total_expenses - prev_expenses) / prev_expenses * 100) if prev_expenses > 0 else 0
             
             # Get chart data
-            chart_data = self.get_chart_data(sales_qs, expenses_qs, period, devise, date_range)
+            chart_data = self.get_chart_data(sales_qs, expenses_qs, period, devise, start, end)
             
-            # Get fuel type breakdown
-            fuel_data = self.get_fuel_breakdown(sales_qs, devise)
+            # Get sales by fuel
+            sales_by_fuel = self.get_sales_by_fuel(sales_qs, devise)
             
-            # Get recent transactions
-            recent_transactions = self.get_recent_transactions(branche_id, devise)
+            # Get forex impact
+            forex_impact = self.get_forex_impact(sales_qs, devise)
+            
+            # Get recent transactions (LIMIT TO 5)
+            recent_transactions = self.get_recent_transactions(branche_id, devise, start, end)[:5]
             
             # Get stock alerts
             stock_alerts = self.get_stock_alerts(branche_id)
             
             return JsonResponse({
                 'success': True,
-                'total_sales': float(total_sales),
-                'total_expenses': float(total_expenses),
-                'total_manquants': float(total_manquants),
-                'manquants_count': manquants_count,
-                'sales_trend': sales_trend,
-                'expenses_trend': expenses_trend,
+                'total_sales': total_sales,
+                'total_expenses': total_expenses,
+                'sales_trend': round(sales_trend, 1),
+                'expenses_trend': round(expenses_trend, 1),
                 'chart_data': chart_data,
-                'fuel_data': fuel_data,
+                'sales_by_fuel': sales_by_fuel,
+                'forex_impact': forex_impact,
                 'recent_transactions': recent_transactions,
-                'stock_alerts': stock_alerts,
-                'period': period,
-                'devise': devise,
-                'branche_id': branche_id
+                'stock_alerts': stock_alerts
             })
             
         except Exception as e:
+            import traceback
+            print(f"Dashboard API Error: {traceback.format_exc()}")
             return JsonResponse({
                 'success': False,
-                'message': f'Erreur lors du chargement des statistiques: {str(e)}'
+                'message': str(e)
             }, status=500)
     
-    def get_date_range(self, period):
-        """Calculate start and end dates based on period"""
+    def get_period_range(self, period):
+        """Calculate start and end dates for period"""
         now = timezone.now()
         
-        if period == 'today':
+        if period == 'day':
             start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-            end = now
+            end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
         elif period == 'week':
             start = now - timedelta(days=7)
             end = now
         elif period == 'month':
             start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             end = now
-        elif period == 'year':
-            start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-            end = now
         else:
-            # Default to month
             start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             end = now
         
-        return {'start': start, 'end': end}
+        return start, end
     
-    def get_previous_period_range(self, period):
-        """Calculate start and end dates for previous period (for trend comparison)"""
-        now = timezone.now()
-        
-        if period == 'today':
-            start = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            end = (now - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=999999)
-        elif period == 'week':
-            start = now - timedelta(days=14)
-            end = now - timedelta(days=7)
-        elif period == 'month':
-            # Previous month
-            first_day_current = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            end = first_day_current - timedelta(days=1)
-            start = end.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        elif period == 'year':
-            # Previous year
-            start = now.replace(year=now.year-1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-            end = now.replace(year=now.year-1, month=12, day=31, hour=23, minute=59, second=59, microsecond=999999)
-        else:
-            # Default to previous month
-            first_day_current = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            end = first_day_current - timedelta(days=1)
-            start = end.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        
-        return {'start': start, 'end': end}
-    
-    def calculate_trend(self, current, previous):
-        """Calculate percentage change"""
-        if previous == 0:
-            return 100 if current > 0 else 0
-        
-        change = ((current - previous) / previous) * 100
-        return round(change, 1)
-    
-    def get_chart_data(self, sales_qs, expenses_qs, period, devise, date_range):
-        """Generate time-series data for sales vs expenses chart"""
+    def get_chart_data(self, sales_qs, expenses_qs, period, devise, start, end):
+        """Generate chart data based on period"""
         labels = []
         sales_data = []
         expenses_data = []
         
-        # Determine aggregation interval
-        if period == 'today':
-            # Hourly data
-            current = date_range['start']
-            while current <= date_range['end']:
-                next_hour = current + timedelta(hours=1)
+        if period == 'day':
+            # Hourly data for today
+            for hour in range(24):
+                hour_start = start.replace(hour=hour, minute=0, second=0)
+                hour_end = start.replace(hour=hour, minute=59, second=59)
+                
+                labels.append(f"{hour:02d}h")
                 
                 if devise == 'USD':
-                    sales = sales_qs.filter(
-                        created_at__gte=current,
-                        created_at__lt=next_hour
+                    sales_sum = sales_qs.filter(
+                        created_at__gte=hour_start,
+                        created_at__lte=hour_end
                     ).aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
                     
-                    expenses = expenses_qs.filter(
-                        devise='USD',
-                        created_at__gte=current,
-                        created_at__lt=next_hour
+                    expenses_sum = expenses_qs.filter(
+                        created_at__gte=hour_start,
+                        created_at__lte=hour_end,
+                        devise='USD'
                     ).aggregate(Sum('montant'))['montant__sum'] or 0
                 else:
-                    sales = sales_qs.filter(
-                        created_at__gte=current,
-                        created_at__lt=next_hour
+                    sales_sum = sales_qs.filter(
+                        created_at__gte=hour_start,
+                        created_at__lte=hour_end
                     ).aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
                     
-                    expenses = expenses_qs.filter(
-                        devise='FC',
-                        created_at__gte=current,
-                        created_at__lt=next_hour
+                    expenses_sum = expenses_qs.filter(
+                        created_at__gte=hour_start,
+                        created_at__lte=hour_end,
+                        devise='FC'
                     ).aggregate(Sum('montant'))['montant__sum'] or 0
                 
-                labels.append(current.strftime('%H:00'))
-                sales_data.append(float(sales))
-                expenses_data.append(float(expenses))
-                
-                current = next_hour
+                sales_data.append(float(sales_sum))
+                expenses_data.append(float(expenses_sum))
         
-        elif period in ['week', 'month']:
-            # Daily data
-            current = date_range['start'].replace(hour=0, minute=0, second=0, microsecond=0)
-            while current <= date_range['end']:
-                next_day = current + timedelta(days=1)
+        elif period == 'week':
+            # Daily data for last 7 days
+            for i in range(7):
+                day = start + timedelta(days=i)
+                day_start = day.replace(hour=0, minute=0, second=0)
+                day_end = day.replace(hour=23, minute=59, second=59)
+                
+                labels.append(day.strftime('%d/%m'))
                 
                 if devise == 'USD':
-                    sales = sales_qs.filter(
-                        created_at__gte=current,
-                        created_at__lt=next_day
+                    sales_sum = sales_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end
                     ).aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
                     
-                    expenses = expenses_qs.filter(
-                        devise='USD',
-                        created_at__gte=current,
-                        created_at__lt=next_day
+                    expenses_sum = expenses_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end,
+                        devise='USD'
                     ).aggregate(Sum('montant'))['montant__sum'] or 0
                 else:
-                    sales = sales_qs.filter(
-                        created_at__gte=current,
-                        created_at__lt=next_day
+                    sales_sum = sales_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end
                     ).aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
                     
-                    expenses = expenses_qs.filter(
-                        devise='FC',
-                        created_at__gte=current,
-                        created_at__lt=next_day
+                    expenses_sum = expenses_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end,
+                        devise='FC'
                     ).aggregate(Sum('montant'))['montant__sum'] or 0
                 
-                labels.append(current.strftime('%d/%m'))
-                sales_data.append(float(sales))
-                expenses_data.append(float(expenses))
-                
-                current = next_day
+                sales_data.append(float(sales_sum))
+                expenses_data.append(float(expenses_sum))
         
-        else:  # year
-            # Monthly data
-            current = date_range['start'].replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            while current <= date_range['end']:
-                # Get last day of month
-                if current.month == 12:
-                    next_month = current.replace(year=current.year+1, month=1)
-                else:
-                    next_month = current.replace(month=current.month+1)
+        else:  # month or custom
+            # Group by day
+            days_count = (end - start).days + 1
+            
+            for i in range(min(days_count, 30)):  # Limit to 30 days for performance
+                day = start + timedelta(days=i)
+                day_start = day.replace(hour=0, minute=0, second=0)
+                day_end = day.replace(hour=23, minute=59, second=59)
+                
+                labels.append(day.strftime('%d/%m'))
                 
                 if devise == 'USD':
-                    sales = sales_qs.filter(
-                        created_at__gte=current,
-                        created_at__lt=next_month
+                    sales_sum = sales_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end
                     ).aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0
                     
-                    expenses = expenses_qs.filter(
-                        devise='USD',
-                        created_at__gte=current,
-                        created_at__lt=next_month
+                    expenses_sum = expenses_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end,
+                        devise='USD'
                     ).aggregate(Sum('montant'))['montant__sum'] or 0
                 else:
-                    sales = sales_qs.filter(
-                        created_at__gte=current,
-                        created_at__lt=next_month
+                    sales_sum = sales_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end
                     ).aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0
                     
-                    expenses = expenses_qs.filter(
-                        devise='FC',
-                        created_at__gte=current,
-                        created_at__lt=next_month
+                    expenses_sum = expenses_qs.filter(
+                        created_at__gte=day_start,
+                        created_at__lte=day_end,
+                        devise='FC'
                     ).aggregate(Sum('montant'))['montant__sum'] or 0
                 
-                labels.append(current.strftime('%b'))
-                sales_data.append(float(sales))
-                expenses_data.append(float(expenses))
-                
-                current = next_month
+                sales_data.append(float(sales_sum))
+                expenses_data.append(float(expenses_sum))
         
         return {
             'labels': labels,
@@ -1194,102 +1581,177 @@ class DashboardStatsAPIView(AdminRequiredMixin, View):
             'expenses': expenses_data
         }
     
-    def get_fuel_breakdown(self, sales_qs, devise):
+    def get_sales_by_fuel(self, sales_qs, devise):
         """Get sales breakdown by fuel type"""
-        if devise == 'USD':
-            fuel_stats = sales_qs.values('type_carburant__nom').annotate(
-                total=Sum('montant_usd')
-            ).order_by('-total')
-        else:
-            fuel_stats = sales_qs.values('type_carburant__nom').annotate(
-                total=Sum('montant_fc')
-            ).order_by('-total')
+        fuel_types = TypeCarburant.objects.filter(is_active=True)
+        sales_by_fuel = []
         
-        labels = [stat['type_carburant__nom'] or 'Non spécifié' for stat in fuel_stats]
-        values = [float(stat['total']) for stat in fuel_stats]
+        for fuel in fuel_types:
+            fuel_sales = sales_qs.filter(type_carburant=fuel)
+            
+            quantity = float(fuel_sales.aggregate(Sum('quantite'))['quantite__sum'] or 0)
+            
+            if devise == 'USD':
+                amount = float(fuel_sales.aggregate(Sum('montant_usd'))['montant_usd__sum'] or 0)
+            else:
+                amount = float(fuel_sales.aggregate(Sum('montant_fc'))['montant_fc__sum'] or 0)
+            
+            if quantity > 0:  # Only include fuels with sales
+                sales_by_fuel.append({
+                    'fuel_type': fuel.nom,
+                    'quantity': quantity,
+                    'amount': amount
+                })
         
-        return {
-            'labels': labels,
-            'values': values
-        }
+        return sales_by_fuel
     
-    def get_recent_transactions(self, branche_id, devise, limit=10):
-        """Get recent sales and expenses combined"""
+    def get_forex_impact(self, sales_qs, devise):
+        """Calculate forex impact"""
+        try:
+            current_rate = TauxChange.objects.filter(is_active=True).first()
+            if not current_rate:
+                return {
+                    'total_impact': 0,
+                    'gains': 0,
+                    'losses': 0,
+                    'avg_rate': 0,
+                    'by_fuel': []
+                }
+            
+            total_impact = Decimal('0')
+            gains = Decimal('0')
+            losses = Decimal('0')
+            rates_sum = Decimal('0')
+            rates_count = 0
+            fuel_impacts = {}
+            
+            for sale in sales_qs:
+                if sale.taux_change and sale.taux_change != current_rate.taux_usd_fc:
+                    # Calculate impact
+                    expected_fc = sale.montant_usd * current_rate.taux_usd_fc
+                    actual_fc = sale.montant_fc
+                    fc_diff = actual_fc - expected_fc
+                    usd_impact = fc_diff / current_rate.taux_usd_fc if current_rate.taux_usd_fc > 0 else Decimal('0')
+                    
+                    total_impact += usd_impact
+                    
+                    if usd_impact > 0:
+                        gains += usd_impact
+                    else:
+                        losses += usd_impact
+                    
+                    # Track by fuel type
+                    if sale.type_carburant:
+                        fuel_name = sale.type_carburant.nom
+                        if fuel_name not in fuel_impacts:
+                            fuel_impacts[fuel_name] = Decimal('0')
+                        fuel_impacts[fuel_name] += usd_impact
+                
+                if sale.taux_change:
+                    rates_sum += sale.taux_change
+                    rates_count += 1
+            
+            avg_rate = float(rates_sum / rates_count) if rates_count > 0 else float(current_rate.taux_usd_fc)
+            
+            by_fuel = [
+                {'fuel_type': fuel, 'impact': float(impact)}
+                for fuel, impact in fuel_impacts.items()
+            ]
+            
+            return {
+                'total_impact': float(total_impact),
+                'gains': float(gains),
+                'losses': float(losses),
+                'avg_rate': avg_rate,
+                'by_fuel': by_fuel
+            }
+            
+        except Exception as e:
+            print(f"Forex impact error: {e}")
+            return {
+                'total_impact': 0,
+                'gains': 0,
+                'losses': 0,
+                'avg_rate': 0,
+                'by_fuel': []
+            }
+    
+    def get_recent_transactions(self, branche_id, devise, start, end):
+        """Get 5 most recent transactions"""
         transactions = []
         
         # Get recent sales
-        sales_qs = Vente.objects.select_related('branche', 'pompiste', 'type_carburant')
-        if branche_id and branche_id != 'all':
-            try:
-                sales_qs = sales_qs.filter(branche_id=branche_id)
-            except:
-                pass
+        sales = Vente.objects.filter(
+            created_at__gte=start,
+            created_at__lte=end,
+            statut='validee'
+        ).select_related('branche')
         
-        recent_sales = sales_qs.order_by('-created_at')[:limit]
+        if branche_id != 'all':
+            sales = sales.filter(branche_id=branche_id)
         
-        for sale in recent_sales:
-            amount = sale.montant_usd if devise == 'USD' else sale.montant_fc
+        sales = sales.order_by('-created_at')[:3]
+        
+        for sale in sales:
+            if devise == 'USD':
+                amount = float(sale.montant_usd)
+            else:
+                amount = float(sale.montant_fc)
+            
             transactions.append({
-                'type': 'sale',
-                'id': sale.id,
-                'description': f'Vente {sale.type_carburant.nom if sale.type_carburant else "N/A"} - {sale.pompiste.get_full_name() if sale.pompiste else "N/A"}',
-                'branch': sale.branche.nom if sale.branche else 'N/A',
-                'date': sale.created_at.strftime('%d/%m/%Y %H:%M'),
-                'amount': float(amount),
-                'status': sale.get_statut_display()
+                'date': sale.created_at.strftime('%d/%m/%Y'),
+                'time': sale.created_at.strftime('%H:%M'),
+                'type': 'vente',
+                'branche': sale.branche.nom if sale.branche else 'N/A',
+                'amount': amount,
+                'currency': devise
             })
         
         # Get recent expenses
-        expenses_qs = Depense.objects.select_related('branche', 'categorie').filter(devise=devise)
-        if branche_id and branche_id != 'all':
-            try:
-                expenses_qs = expenses_qs.filter(branche_id=branche_id)
-            except:
-                pass
+        expenses = Depense.objects.filter(
+            created_at__gte=start,
+            created_at__lte=end,
+            statut='approuvee'
+        ).select_related('branche')
         
-        recent_expenses = expenses_qs.order_by('-created_at')[:limit]
+        if branche_id != 'all':
+            expenses = expenses.filter(branche_id=branche_id)
         
-        for expense in recent_expenses:
+        if devise:
+            expenses = expenses.filter(devise=devise)
+        
+        expenses = expenses.order_by('-created_at')[:3]
+        
+        for expense in expenses:
             transactions.append({
-                'type': 'expense',
-                'id': expense.id,
-                'description': f'{expense.categorie.nom if expense.categorie else "Dépense"} - {expense.description}',
-                'branch': expense.branche.nom if expense.branche else 'N/A',
-                'date': expense.created_at.strftime('%d/%m/%Y %H:%M'),
-                'amount': -float(expense.montant),  # Negative for expenses
-                'status': expense.get_statut_display()
+                'date': expense.created_at.strftime('%d/%m/%Y'),
+                'time': expense.created_at.strftime('%H:%M'),
+                'type': 'depense',
+                'branche': expense.branche.nom if expense.branche else 'N/A',
+                'amount': float(expense.montant),
+                'currency': expense.devise
             })
         
-        # Sort by date and limit
-        transactions.sort(key=lambda x: x['date'], reverse=True)
-        return transactions[:limit]
+        # Sort by date/time and limit to 5
+        transactions.sort(key=lambda x: f"{x['date']} {x['time']}", reverse=True)
+        return transactions[:5]
     
-    def get_stock_alerts(self, branche_id, limit=10):
-        """Get stock items below alert threshold"""
-        stocks_qs = Stock.objects.select_related('branche', 'type_carburant').filter(
+    def get_stock_alerts(self, branche_id):
+        """Get stock alerts for low inventory"""
+        stocks = Stock.objects.filter(
             quantite_actuelle__lte=F('seuil_alerte')
-        )
+        ).select_related('branche', 'type_carburant')
         
-        if branche_id and branche_id != 'all':
-            try:
-                stocks_qs = stocks_qs.filter(branche_id=branche_id)
-            except:
-                pass
-        
-        stocks_qs = stocks_qs.order_by('quantite_actuelle')[:limit]
+        if branche_id != 'all':
+            stocks = stocks.filter(branche_id=branche_id)
         
         alerts = []
-        for stock in stocks_qs:
-            # Determine alert level
-            percentage = (stock.quantite_actuelle / stock.seuil_alerte * 100) if stock.seuil_alerte > 0 else 0
-            level = 'critical' if percentage < 50 else 'low'
-            
+        for stock in stocks[:10]:  # Limit to 10 alerts
             alerts.append({
-                'fuel_type': stock.type_carburant.nom if stock.type_carburant else 'N/A',
-                'branch': stock.branche.nom if stock.branche else 'N/A',
+                'fuel_type': stock.type_carburant.nom if stock.type_carburant else 'Inconnu',
+                'branche': stock.branche.nom if stock.branche else 'N/A',
                 'current_stock': float(stock.quantite_actuelle),
-                'threshold': float(stock.seuil_alerte),
-                'level': level
+                'threshold': float(stock.seuil_alerte)
             })
         
         return alerts
@@ -3957,46 +4419,46 @@ class PrintExpenseReceiptView(AdminRequiredMixin, View):
 
 # ==================== EXPENSE CATEGORIES APIs ====================
 
-class CategoriesListAPIView(AdminRequiredMixin, View):
-    """Get list of expense categories"""
+# class CategoriesListAPIView(AdminRequiredMixin, View):
+#     """Get list of expense categories"""
     
-    def get(self, request):
-        try:
-            # Get active categories
-            active_categories = CategorieDepense.objects.filter(is_active=True)
+#     def get(self, request):
+#         try:
+#             # Get active categories
+#             active_categories = CategorieDepense.objects.filter(is_active=True)
             
-            # Get pending category requests
-            pending_categories = CategorieDepense.objects.filter(is_active=False)
+#             # Get pending category requests
+#             pending_categories = CategorieDepense.objects.filter(is_active=False)
             
-            active_data = [{
-                'id': cat.id,
-                'nom': cat.nom,
-                'description': cat.description or '',
-                'is_active': cat.is_active,
-                'created_at': cat.created_at.strftime('%Y-%m-%d')
-            } for cat in active_categories]
+#             active_data = [{
+#                 'id': cat.id,
+#                 'nom': cat.nom,
+#                 'description': cat.description or '',
+#                 'is_active': cat.is_active,
+#                 'created_at': cat.created_at.strftime('%Y-%m-%d')
+#             } for cat in active_categories]
             
-            pending_data = [{
-                'id': cat.id,
-                'nom': cat.nom,
-                'description': cat.description or '',
-                'created_by': cat.created_by.get_full_name() if hasattr(cat, 'created_by') and cat.created_by else 'N/A',
-                'created_at': cat.created_at.strftime('%Y-%m-%d')
-            } for cat in pending_categories]
+#             pending_data = [{
+#                 'id': cat.id,
+#                 'nom': cat.nom,
+#                 'description': cat.description or '',
+#                 'created_by': cat.created_by.get_full_name() if hasattr(cat, 'created_by') and cat.created_by else 'N/A',
+#                 'created_at': cat.created_at.strftime('%Y-%m-%d')
+#             } for cat in pending_categories]
             
-            return JsonResponse({
-                'success': True,
-                'active_categories': active_data,
-                'pending_categories': pending_data,
-                'active_count': len(active_data),
-                'pending_count': len(pending_data)
-            })
+#             return JsonResponse({
+#                 'success': True,
+#                 'active_categories': active_data,
+#                 'pending_categories': pending_data,
+#                 'active_count': len(active_data),
+#                 'pending_count': len(pending_data)
+#             })
             
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=500)
+#         except Exception as e:
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': str(e)
+#             }, status=500)
 
 
 class CreateCategoryView(AdminRequiredMixin, View):
@@ -4290,45 +4752,70 @@ class VentesListAPIView(AdminRequiredMixin, View):
 
 
 class VenteDetailAPIView(AdminRequiredMixin, View):
-    """Get detailed information about a sale"""
+    """Get detailed information about a single sale"""
     
     def get(self, request, vente_id):
         try:
-            vente = get_object_or_404(
-                Vente.objects.select_related(
-                    'branche', 'pompiste', 'manager', 'caissier',
-                    'type_carburant', 'moyen_paiement', 'abonne'
-                ),
-                id=vente_id
-            )
+            vente = Vente.objects.select_related(
+                'branche',
+                'pompiste',
+                'manager',
+                'type_carburant',
+                'moyen_paiement',
+                'abonne',
+                'caissier'
+            ).get(id=vente_id)
+            
+            # Build response matching frontend expectations
+            sale_data = {
+                'id': vente.id,
+                'date': vente.created_at.strftime('%d/%m/%Y %H:%M'),
+                'branche': vente.branche.nom if vente.branche else 'N/A',
+                'pompiste': f"{vente.pompiste.prenom} {vente.pompiste.nom}" if vente.pompiste else 'N/A',
+                'manager': f"{vente.manager.prenom} {vente.manager.nom}" if vente.manager else 'N/A',
+                'validated_by': f"{vente.caissier.prenom} {vente.caissier.nom}" if vente.caissier else None,
+                
+                # Fuel details
+                'fuel_type': vente.type_carburant.nom if vente.type_carburant else 'N/A',
+                'fuel_color': vente.type_carburant.couleur_hex if vente.type_carburant else '#000000',
+                'quantite': float(vente.quantite),
+                
+                # FIXED: Get prix_unitaire from type_carburant, not from vente
+                'prix_vente_usd': float(vente.type_carburant.prix_vente_usd) if vente.type_carburant else 0,
+                'prix_vente_fc': float(vente.type_carburant.prix_vente_fc) if vente.type_carburant else 0,
+                'montant_usd': float(vente.montant_usd),
+                'montant_fc': float(vente.montant_fc),
+                'taux_change': float(vente.taux_change),
+                
+                # Payment
+                'moyen_paiement': vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A',
+                
+                # Status
+                'statut': vente.statut,
+                'statut_display': vente.get_statut_display() if hasattr(vente, 'get_statut_display') else vente.statut.replace('_', ' ').title(),
+                
+                # Manquant details (if applicable)
+                'manquant_usd': float(vente.manquant_usd) if vente.manquant_usd else 0,
+                'manquant_fc': float(vente.manquant_fc) if vente.manquant_fc else 0,
+                'raison_manquant': vente.raison_manquant if hasattr(vente, 'raison_manquant') and vente.raison_manquant else None,
+                
+                # Notes
+                'observations': vente.observations if hasattr(vente, 'observations') and vente.observations else None
+            }
             
             return JsonResponse({
                 'success': True,
-                'sale': {
-                    'id': vente.id,
-                    'date': vente.created_at.strftime('%d/%m/%Y %H:%M'),
-                    'branche': vente.branche.nom,
-                    'pompiste': vente.pompiste.get_full_name(),
-                    'manager': vente.manager.get_full_name() if vente.manager else 'N/A',
-                    'caissier': vente.caissier.get_full_name() if vente.caissier else 'En attente',
-                    'type_carburant': vente.type_carburant.nom,
-                    'quantite': f"{float(vente.quantite):.2f}",
-                    'montant_usd': f"{float(vente.montant_usd):.2f}",
-                    'montant_fc': f"{float(vente.montant_fc):.0f}",
-                    'taux_change': f"{float(vente.taux_change):.2f}",
-                    'moyen_paiement': vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A',
-                    'abonne': vente.abonne.nom if vente.abonne else None,
-                    'statut': vente.statut,
-                    'statut_display': vente.get_statut_display(),
-                    'manquant_usd': f"{float(vente.manquant_usd):.2f}" if vente.manquant_usd else "0.00",
-                    'manquant_fc': f"{float(vente.manquant_fc):.0f}" if vente.manquant_fc else "0",
-                    'raison_manquant': vente.raison_manquant or '',
-                    'observations': vente.observations or '',
-                    'validated_at': vente.validated_at.strftime('%d/%m/%Y %H:%M') if hasattr(vente, 'validated_at') and vente.validated_at else None
-                }
+                'sale': sale_data
             })
             
+        except Vente.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Vente non trouvée'
+            }, status=404)
         except Exception as e:
+            import traceback
+            print(f"Error in VenteDetailAPIView: {traceback.format_exc()}")
             return JsonResponse({
                 'success': False,
                 'message': str(e)
@@ -9086,114 +9573,208 @@ class BulkExportSalesPDFView(AdminRequiredMixin, View):
 # ============================================
 
 class BulkExportSalesExcelView(AdminRequiredMixin, View):
-    """
-    Export selected sales to Excel with formatting
-    """
+    """Export selected sales to Excel"""
     
     def get(self, request):
         try:
             # Get selected IDs
-            ids_param = request.GET.get('ids', '')
-            if not ids_param:
+            ids = request.GET.get('ids', '')
+            if not ids:
                 return JsonResponse({
                     'success': False,
                     'message': 'Aucune vente sélectionnée'
                 }, status=400)
             
-            sale_ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+            id_list = [int(x) for x in ids.split(',') if x.strip()]
             
             # Get sales
-            ventes = Vente.objects.filter(
-                id__in=sale_ids
-            ).select_related(
+            ventes = Vente.objects.filter(id__in=id_list).select_related(
                 'branche', 'pompiste', 'manager', 'caissier',
-                'type_carburant', 'moyen_paiement'
+                'type_carburant', 'moyen_paiement', 'abonne'
             ).order_by('-created_at')
-            
-            if not ventes.exists():
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Aucune vente trouvée'
-                }, status=404)
             
             # Create workbook
             wb = openpyxl.Workbook()
             ws = wb.active
-            ws.title = 'Ventes Sélectionnées'
+            ws.title = "Ventes"
             
             # Header styling
-            header_fill = PatternFill(start_color='DC2626', end_color='DC2626', fill_type='solid')
-            header_font = Font(bold=True, color='FFFFFF', size=12)
-            border = Border(
-                left=Side(style='thin'),
-                right=Side(style='thin'),
-                top=Side(style='thin'),
-                bottom=Side(style='thin')
-            )
+            header_fill = PatternFill(start_color="DC2626", end_color="DC2626", fill_type="solid")
+            header_font = Font(color="FFFFFF", bold=True)
             
             # Headers
             headers = [
-                'Date', 'Heure', 'Branche', 'Pompiste', 'Manager',
-                'Carburant', 'Quantité (L)', 'Prix Unit. USD', 'Montant USD',
-                'Montant FC', 'Moyen Paiement', 'Statut', 'Taux Change'
+                'N°', 'Date', 'Heure', 'Branche', 'Pompiste', 
+                'Carburant', 'Quantité (L)', 'Prix Unit. USD', 
+                'Montant USD', 'Montant FC', 'Taux', 
+                'Moyen Paiement', 'Statut', 'Validé par'
             ]
             
-            for col_num, header in enumerate(headers, 1):
-                cell = ws.cell(row=1, column=col_num)
-                cell.value = header
+            for col, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col, value=header)
                 cell.fill = header_fill
                 cell.font = header_font
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.border = border
             
             # Data rows
-            for row_num, vente in enumerate(ventes, 2):
-                ws.cell(row=row_num, column=1).value = vente.created_at.strftime('%d/%m/%Y')
-                ws.cell(row=row_num, column=2).value = vente.created_at.strftime('%H:%M')
-                ws.cell(row=row_num, column=3).value = vente.branche.nom
-                ws.cell(row=row_num, column=4).value = f"{vente.pompiste.prenom} {vente.pompiste.nom}"
-                ws.cell(row=row_num, column=5).value = f"{vente.manager.prenom} {vente.manager.nom}"
-                ws.cell(row=row_num, column=6).value = vente.type_carburant.nom
-                ws.cell(row=row_num, column=7).value = float(vente.quantite)
-                ws.cell(row=row_num, column=8).value = float(vente.type_carburant.prix_unitaire_usd)
-                ws.cell(row=row_num, column=9).value = float(vente.montant_usd)
-                ws.cell(row=row_num, column=10).value = float(vente.montant_fc)
-                ws.cell(row=row_num, column=11).value = vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A'
-                ws.cell(row=row_num, column=12).value = vente.get_statut_display()
-                ws.cell(row=row_num, column=13).value = float(vente.taux_change)
+            for idx, vente in enumerate(ventes, 2):
+                # FIXED: Use prix_vente_usd instead of prix_unitaire_usd
+                prix_unit = float(vente.type_carburant.prix_vente_usd) if vente.type_carburant and vente.type_carburant.prix_vente_usd else 0
                 
-                # Apply border to all cells
-                for col_num in range(1, 14):
-                    ws.cell(row=row_num, column=col_num).border = border
+                ws.cell(row=idx, column=1, value=vente.id)
+                ws.cell(row=idx, column=2, value=vente.created_at.strftime('%d/%m/%Y'))
+                ws.cell(row=idx, column=3, value=vente.created_at.strftime('%H:%M'))
+                ws.cell(row=idx, column=4, value=vente.branche.nom if vente.branche else 'N/A')
+                ws.cell(row=idx, column=5, value=f"{vente.pompiste.prenom} {vente.pompiste.nom}" if vente.pompiste else 'N/A')
+                ws.cell(row=idx, column=6, value=vente.type_carburant.nom if vente.type_carburant else 'N/A')
+                ws.cell(row=idx, column=7, value=float(vente.quantite))
+                ws.cell(row=idx, column=8, value=prix_unit)
+                ws.cell(row=idx, column=9, value=float(vente.montant_usd))
+                ws.cell(row=idx, column=10, value=float(vente.montant_fc))
+                ws.cell(row=idx, column=11, value=float(vente.taux_change))
+                ws.cell(row=idx, column=12, value=vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A')
+                ws.cell(row=idx, column=13, value=vente.get_statut_display())
+                ws.cell(row=idx, column=14, value=f"{vente.caissier.prenom} {vente.caissier.nom}" if vente.caissier else 'N/A')
             
             # Adjust column widths
-            column_widths = [12, 8, 15, 20, 20, 12, 12, 12, 12, 12, 15, 12, 12]
-            for col_num, width in enumerate(column_widths, 1):
-                ws.column_dimensions[openpyxl.utils.get_column_letter(col_num)].width = width
-            
-            # Summary
-            summary_row = len(ventes) + 3
-            ws.cell(row=summary_row, column=1).value = 'TOTAL'
-            ws.cell(row=summary_row, column=1).font = Font(bold=True, size=12)
-            
-            total_usd = sum(float(v.montant_usd) for v in ventes)
-            total_fc = sum(float(v.montant_fc) for v in ventes)
-            
-            ws.cell(row=summary_row, column=9).value = total_usd
-            ws.cell(row=summary_row, column=9).font = Font(bold=True, size=12)
-            ws.cell(row=summary_row, column=10).value = total_fc
-            ws.cell(row=summary_row, column=10).font = Font(bold=True, size=12)
+            for col in ws.columns:
+                max_length = 0
+                column = col[0].column_letter
+                for cell in col:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                ws.column_dimensions[column].width = adjusted_width
             
             # Save to response
             response = HttpResponse(
                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             )
             response['Content-Disposition'] = f'attachment; filename="ventes_selection_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
-            
             wb.save(response)
+            
             return response
             
         except Exception as e:
+            import traceback
+            print(f"Error in BulkExportSalesExcelView: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur lors de l\'export Excel: {str(e)}'
+            }, status=500)
+        
+class ExportSalesExcelView(AdminRequiredMixin, View):
+    """Export all filtered sales to Excel"""
+    
+    def get(self, request):
+        try:
+            # Get filter parameters
+            branche_id = request.GET.get('branche_id')
+            period = request.GET.get('period')
+            status = request.GET.get('status')
+            carburant_id = request.GET.get('carburant_id')
+            
+            # Build queryset
+            ventes = Vente.objects.select_related(
+                'branche', 'pompiste', 'manager', 'caissier',
+                'type_carburant', 'moyen_paiement', 'abonne'
+            )
+            
+            # Apply filters
+            if branche_id and branche_id != 'all':
+                ventes = ventes.filter(branche_id=branche_id)
+            
+            if status and status != 'all':
+                ventes = ventes.filter(statut=status)
+            
+            if carburant_id and carburant_id != 'all':
+                ventes = ventes.filter(type_carburant_id=carburant_id)
+            
+            if period and period != 'all':
+                from datetime import datetime, timedelta
+                today = timezone.now()
+                
+                if period == 'today':
+                    start_date = today.replace(hour=0, minute=0, second=0, microsecond=0)
+                    ventes = ventes.filter(created_at__gte=start_date)
+                elif period == 'week':
+                    start_date = today - timedelta(days=7)
+                    ventes = ventes.filter(created_at__gte=start_date)
+                elif period == 'month':
+                    start_date = today - timedelta(days=30)
+                    ventes = ventes.filter(created_at__gte=start_date)
+            
+            ventes = ventes.order_by('-created_at')
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "Ventes"
+            
+            # Header styling
+            header_fill = PatternFill(start_color="DC2626", end_color="DC2626", fill_type="solid")
+            header_font = Font(color="FFFFFF", bold=True)
+            
+            # Headers
+            headers = [
+                'N°', 'Date', 'Heure', 'Branche', 'Pompiste', 
+                'Carburant', 'Quantité (L)', 'Prix Unit. USD', 
+                'Montant USD', 'Montant FC', 'Taux', 
+                'Moyen Paiement', 'Statut', 'Validé par'
+            ]
+            
+            for col, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col, value=header)
+                cell.fill = header_fill
+                cell.font = header_font
+            
+            # Data rows
+            for idx, vente in enumerate(ventes, 2):
+                # FIXED: Use prix_vente_usd instead of prix_unitaire_usd
+                prix_unit = float(vente.type_carburant.prix_vente_usd) if vente.type_carburant and vente.type_carburant.prix_vente_usd else 0
+                
+                ws.cell(row=idx, column=1, value=vente.id)
+                ws.cell(row=idx, column=2, value=vente.created_at.strftime('%d/%m/%Y'))
+                ws.cell(row=idx, column=3, value=vente.created_at.strftime('%H:%M'))
+                ws.cell(row=idx, column=4, value=vente.branche.nom if vente.branche else 'N/A')
+                ws.cell(row=idx, column=5, value=f"{vente.pompiste.prenom} {vente.pompiste.nom}" if vente.pompiste else 'N/A')
+                ws.cell(row=idx, column=6, value=vente.type_carburant.nom if vente.type_carburant else 'N/A')
+                ws.cell(row=idx, column=7, value=float(vente.quantite))
+                ws.cell(row=idx, column=8, value=prix_unit)
+                ws.cell(row=idx, column=9, value=float(vente.montant_usd))
+                ws.cell(row=idx, column=10, value=float(vente.montant_fc))
+                ws.cell(row=idx, column=11, value=float(vente.taux_change))
+                ws.cell(row=idx, column=12, value=vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A')
+                ws.cell(row=idx, column=13, value=vente.get_statut_display())
+                ws.cell(row=idx, column=14, value=f"{vente.caissier.prenom} {vente.caissier.nom}" if vente.caissier else 'N/A')
+            
+            # Adjust column widths
+            for col in ws.columns:
+                max_length = 0
+                column = col[0].column_letter
+                for cell in col:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                ws.column_dimensions[column].width = adjusted_width
+            
+            # Save to response
+            response = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="ventes_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+            wb.save(response)
+            
+            return response
+            
+        except Exception as e:
+            import traceback
+            print(f"Error in ExportSalesExcelView: {traceback.format_exc()}")
             return JsonResponse({
                 'success': False,
                 'message': f'Erreur lors de l\'export Excel: {str(e)}'
@@ -9219,6 +9800,12 @@ class PrintSaleReceiptView(AdminRequiredMixin, View):
                 ),
                 id=vente_id
             )
+            
+            # Get abonne name correctly
+            abonne_name = vente.abonne.nom_entreprise if vente.abonne else None
+            
+            # CORRECT: Use prix_vente_usd (not prix_unitaire_usd)
+            prix_unitaire = float(vente.type_carburant.prix_vente_usd) if vente.type_carburant and vente.type_carburant.prix_vente_usd else 0
             
             # Generate HTML receipt
             html_content = f"""
@@ -9308,8 +9895,8 @@ class PrintSaleReceiptView(AdminRequiredMixin, View):
                     <div class="logo">PETROX</div>
                     <div class="branch">{vente.branche.nom}</div>
                     <div style="font-size: 10px; color: #999;">
-                        {vente.branche.adresse}<br>
-                        {vente.branche.ville}, {vente.branche.province}
+                        {vente.branche.adresse if hasattr(vente.branche, 'adresse') and vente.branche.adresse else ''}<br>
+                        {vente.branche.ville if hasattr(vente.branche, 'ville') and vente.branche.ville else ''}{', ' + vente.branche.province if hasattr(vente.branche, 'province') and vente.branche.province else ''}
                     </div>
                 </div>
                 
@@ -9323,8 +9910,7 @@ class PrintSaleReceiptView(AdminRequiredMixin, View):
                     <div class="label">Pompiste</div>
                     <div class="value">{vente.pompiste.prenom} {vente.pompiste.nom}</div>
                     
-                    {'<div class="label">Client Abonné</div>' if vente.abonne else ''}
-                    {'<div class="value">' + vente.abonne.nom + '</div>' if vente.abonne else ''}
+                    {f'<div class="label">Client Abonné</div><div class="value">{abonne_name}</div>' if abonne_name else ''}
                 </div>
                 
                 <div class="section">
@@ -9335,7 +9921,7 @@ class PrintSaleReceiptView(AdminRequiredMixin, View):
                     <div class="value">{float(vente.quantite):.2f} Litres</div>
                     
                     <div class="label">Prix Unitaire</div>
-                    <div class="value">${float(vente.type_carburant.prix_unitaire_usd):.2f} / L</div>
+                    <div class="value">${prix_unitaire:.2f} / L</div>
                     
                     <div class="label">Moyen de Paiement</div>
                     <div class="value">{vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A'}</div>
@@ -9363,7 +9949,7 @@ class PrintSaleReceiptView(AdminRequiredMixin, View):
                     <div class="value" style="color: #DC2626;">
                         ${float(vente.manquant_usd):.2f} / {float(vente.manquant_fc):.0f} FC
                     </div>
-                    {f'<div style="font-size: 10px; color: #991B1B;">{vente.raison_manquant}</div>' if vente.raison_manquant else ''}
+                    {f'<div style="font-size: 10px; color: #991B1B;">{vente.raison_manquant}</div>' if hasattr(vente, 'raison_manquant') and vente.raison_manquant else ''}
                 </div>
                 ''' if vente.statut == 'manquant' else ''}
                 
@@ -9385,7 +9971,20 @@ class PrintSaleReceiptView(AdminRequiredMixin, View):
             return HttpResponse(html_content, content_type='text/html')
             
         except Exception as e:
-            return HttpResponse(f'<html><body><h3>Erreur: {str(e)}</h3></body></html>')
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"Error in PrintSaleReceiptView: {error_trace}")
+            return HttpResponse(
+                f'''<html><body style="font-family: Arial; padding: 20px;">
+                <h3 style="color: #DC2626;">Erreur lors de l'impression</h3>
+                <p><strong>Message:</strong> {str(e)}</p>
+                <details>
+                    <summary>Détails techniques</summary>
+                    <pre style="background: #f5f5f5; padding: 10px; overflow: auto;">{error_trace}</pre>
+                </details>
+                </body></html>''', 
+                status=500
+            )
 
 
 # ============================================
@@ -10377,6 +10976,634 @@ class EmployeeSalaryHistoryView(AdminRequiredMixin, View):
                     'total_usd': float(total_usd),
                     'total_fc': float(total_fc)
                 }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+class PartnersListView(AdminRequiredMixin, View):
+    """List all fuel partners"""
+    
+    def get(self, request):
+        partners = Partenaire.objects.filter(is_active=True).order_by('nom')
+        
+        context = {
+            'partners': partners,
+            'partners_count': partners.count(),
+            'partners_with_debt': partners.filter(
+                Q(solde_usd__gt=0) | Q(solde_fc__gt=0)
+            ).count(),
+            'partners_we_owe': partners.filter(
+                Q(solde_usd__lt=0) | Q(solde_fc__lt=0)
+            ).count(),
+        }
+        
+        return render(request, 'admin/partners.html', context)
+
+
+class PartnerCreateAPIView(AdminRequiredMixin, View):
+    """Create new partner"""
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Check if code exists
+            if Partenaire.objects.filter(code=data['code']).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Ce code partenaire existe déjà'
+                }, status=400)
+            
+            partner = Partenaire.objects.create(
+                nom=data['nom'],
+                code=data['code'],
+                contact=data.get('contact', ''),
+                telephone=data.get('telephone', ''),
+                email=data.get('email', ''),
+                adresse=data.get('adresse', ''),
+                notes=data.get('notes', ''),
+                created_by=request.user
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'partner': {
+                    'id': partner.id,
+                    'nom': partner.nom,
+                    'code': partner.code
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class PartnerDetailAPIView(AdminRequiredMixin, View):
+    """Get partner details"""
+    
+    def get(self, request, partner_id):
+        try:
+            partner = get_object_or_404(Partenaire, id=partner_id)
+            
+            # Get recent deliveries
+            deliveries = LivraisonCarburant.objects.filter(
+                partenaire=partner
+            ).select_related(
+                'type_carburant', 'branche'
+            ).order_by('-date_prevue')[:10]
+            
+            # Get payments
+            payments = PaiementPartenaire.objects.filter(
+                partenaire=partner
+            ).order_by('-date_paiement')[:10]
+            
+            return JsonResponse({
+                'success': True,
+                'partner': {
+                    'id': partner.id,
+                    'nom': partner.nom,
+                    'code': partner.code,
+                    'contact': partner.contact,
+                    'telephone': partner.telephone,
+                    'email': partner.email,
+                    'adresse': partner.adresse,
+                    'solde_usd': float(partner.solde_usd),
+                    'solde_fc': float(partner.solde_fc),
+                    'notes': partner.notes,
+                },
+                'deliveries': [{
+                    'numero': d.numero,
+                    'type': d.get_type_livraison_display(),
+                    'carburant': d.type_carburant.nom,
+                    'branche': d.branche.nom,
+                    'quantite': float(d.quantite_prevue),
+                    'statut': d.get_statut_display(),
+                    'date': d.date_prevue.strftime('%d/%m/%Y')
+                } for d in deliveries],
+                'payments': [{
+                    'numero': p.numero,
+                    'type': p.get_type_transaction_display(),
+                    'montant': float(p.montant),
+                    'devise': p.devise,
+                    'date': p.date_paiement.strftime('%d/%m/%Y')
+                } for p in payments]
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================================================
+# DELIVERY VIEWS
+# ============================================================================
+
+class DeliveriesListView(AdminRequiredMixin, View):
+    """List all fuel deliveries"""
+    
+    def get(self, request):
+        # Filters
+        statut = request.GET.get('statut', 'all')
+        branch_id = request.GET.get('branche_id')
+        partner_id = request.GET.get('partenaire_id')
+        
+        deliveries = LivraisonCarburant.objects.select_related(
+            'type_carburant', 'branche', 'partenaire', 
+            'planifiee_par', 'confirmee_par'
+        ).order_by('-date_prevue', '-created_at')
+        
+        if statut != 'all':
+            deliveries = deliveries.filter(statut=statut)
+        
+        if branch_id:
+            deliveries = deliveries.filter(branche_id=branch_id)
+        
+        if partner_id:
+            deliveries = deliveries.filter(partenaire_id=partner_id)
+        
+        # Stats
+        total_deliveries = deliveries.count()
+        pending_confirmation = deliveries.filter(statut='livree').count()
+        confirmed_today = deliveries.filter(
+            statut='confirmee',
+            date_confirmation__date=timezone.now().date()
+        ).count()
+        
+        context = {
+            'deliveries': deliveries,
+            'total_deliveries': total_deliveries,
+            'pending_confirmation': pending_confirmation,
+            'confirmed_today': confirmed_today,
+            'all_branches': Branche.objects.filter(is_active=True),
+            'partners': Partenaire.objects.filter(is_active=True),
+            'fuel_types': TypeCarburant.objects.filter(is_active=True),
+        }
+        
+        return render(request, 'admin/deliveries.html', context)
+
+
+class DeliveryPlanAPIView(AdminRequiredMixin, View):
+    """Plan a new delivery"""
+    
+    @transaction.atomic
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            type_livraison = data['type_livraison']
+            branche_id = data['branche_id']
+            type_carburant_id = data['type_carburant_id']
+            quantite = Decimal(str(data['quantite_prevue']))
+            
+            # Validate capacity
+            stock = Stock.objects.filter(
+                branche_id=branche_id,
+                type_carburant_id=type_carburant_id
+            ).first()
+            
+            if not stock:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Stock non trouvé pour cette branche et ce carburant'
+                }, status=400)
+            
+            # Check if delivery fits in capacity
+            if type_livraison in ['propre', 'partenaire_donne']:
+                espace_disponible = stock.capacite_max - stock.quantite_actuelle
+                if quantite > espace_disponible:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Capacité insuffisante. Espace disponible: {espace_disponible}L'
+                    }, status=400)
+            
+            # Check if partner provided for partner deliveries
+            if type_livraison in ['partenaire_donne', 'partenaire_prend']:
+                if not data.get('partenaire_id'):
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Partenaire requis pour ce type de livraison'
+                    }, status=400)
+            
+            # Create delivery
+            delivery = LivraisonCarburant.objects.create(
+                type_livraison=type_livraison,
+                type_carburant_id=type_carburant_id,
+                branche_id=branche_id,
+                quantite_prevue=quantite,
+                partenaire_id=data.get('partenaire_id'),
+                prix_unitaire=data.get('prix_unitaire'),
+                devise=data.get('devise', 'USD'),
+                date_prevue=data['date_prevue'],
+                bon_livraison=data.get('bon_livraison', ''),
+                transporteur=data.get('transporteur', ''),
+                immatriculation=data.get('immatriculation', ''),
+                observations_admin=data.get('observations', ''),
+                planifiee_par=request.user,
+                statut_paiement='non_requis' if type_livraison == 'propre' else 'en_attente'
+            )
+            
+            # Notify branch manager
+            manager = User.objects.filter(
+                role='gestionnaire',
+                branche_id=branche_id,
+                is_active=True
+            ).first()
+            
+            if manager:
+                action_text = "reçoit" if type_livraison != 'partenaire_prend' else "donne"
+                Notification.objects.create(
+                    destinataire=manager,
+                    titre=f"Nouvelle livraison planifiée: {delivery.numero}",
+                    message=f"Une livraison de {quantite}L de {delivery.type_carburant.nom} est planifiée pour le {delivery.date_prevue.strftime('%d/%m/%Y')}. Votre branche {action_text} ce carburant.",
+                    type_notification='livraison_planifiee',
+                    priorite='haute',
+                    expediteur=request.user,
+                    objet_id=delivery.id
+                )
+            
+            return JsonResponse({
+                'success': True,
+                'delivery': {
+                    'id': delivery.id,
+                    'numero': delivery.numero
+                }
+            })
+            
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class DeliveryConfirmAPIView(View):
+    """Manager confirms delivery reception"""
+    
+    @transaction.atomic
+    def post(self, request, delivery_id):
+        try:
+            data = json.loads(request.body)
+            
+            delivery = get_object_or_404(
+                LivraisonCarburant,
+                id=delivery_id
+            )
+            
+            # Only manager of the branch or admin can confirm
+            if request.user.role == 'gestionnaire':
+                if request.user.branche_id != delivery.branche_id:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Vous ne pouvez confirmer que les livraisons de votre branche'
+                    }, status=403)
+            elif request.user.role != 'admin':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Permission refusée'
+                }, status=403)
+            
+            if delivery.statut == 'confirmee':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cette livraison a déjà été confirmée'
+                }, status=400)
+            
+            quantite_recue = Decimal(str(data['quantite_recue']))
+            
+            # Update delivery
+            delivery.quantite_recue = quantite_recue
+            delivery.statut = 'confirmee'
+            delivery.date_confirmation = timezone.now()
+            delivery.confirmee_par = request.user
+            delivery.observations_manager = data.get('observations', '')
+            delivery.save()
+            
+            # Update stock
+            stock = Stock.objects.get(
+                branche=delivery.branche,
+                type_carburant=delivery.type_carburant
+            )
+            
+            if delivery.type_livraison in ['propre', 'partenaire_donne']:
+                # Increase stock
+                stock.quantite_actuelle += quantite_recue
+            else:  # partenaire_prend
+                # Decrease stock
+                stock.quantite_actuelle -= quantite_recue
+            
+            stock.save()
+            
+            # Update partner balance if applicable
+            if delivery.partenaire and delivery.prix_unitaire:
+                montant = delivery.montant_total
+                
+                if delivery.type_livraison == 'partenaire_donne':
+                    # They gave us fuel - we owe them
+                    if delivery.devise == 'USD':
+                        delivery.partenaire.solde_usd -= montant  # Negative = we owe
+                    else:
+                        delivery.partenaire.solde_fc -= montant
+                    
+                elif delivery.type_livraison == 'partenaire_prend':
+                    # They took fuel - they owe us
+                    if delivery.devise == 'USD':
+                        delivery.partenaire.solde_usd += montant  # Positive = they owe
+                    else:
+                        delivery.partenaire.solde_fc += montant
+                
+                delivery.partenaire.save()
+            
+            # Notify admin if there's a discrepancy
+            if delivery.has_ecart:
+                admins = User.objects.filter(role='admin', is_active=True)
+                for admin in admins:
+                    Notification.objects.create(
+                        destinataire=admin,
+                        titre=f"Écart de livraison: {delivery.numero}",
+                        message=f"Écart de {delivery.ecart_quantite}L ({delivery.ecart_percentage:.1f}%) détecté sur la livraison {delivery.numero}. Prévu: {delivery.quantite_prevue}L, Reçu: {delivery.quantite_recue}L",
+                        type_notification='ecart_livraison',
+                        priorite='haute',
+                        expediteur=request.user,
+                        objet_id=delivery.id
+                    )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Livraison confirmée avec succès',
+                'delivery': {
+                    'numero': delivery.numero,
+                    'quantite_recue': float(quantite_recue),
+                    'ecart': float(delivery.ecart_quantite),
+                    'has_ecart': delivery.has_ecart
+                }
+            })
+            
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+class DeliveryDetailAPIView(View):
+    """Get delivery details"""
+    
+    def get(self, request, delivery_id):
+        try:
+            delivery = get_object_or_404(
+                LivraisonCarburant.objects.select_related(
+                    'type_carburant', 'branche', 'partenaire',
+                    'planifiee_par', 'confirmee_par'
+                ),
+                id=delivery_id
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'delivery': {
+                    'id': delivery.id,
+                    'numero': delivery.numero,
+                    'type_livraison': delivery.type_livraison,
+                    'type_livraison_display': delivery.get_type_livraison_display(),
+                    'statut': delivery.statut,
+                    'statut_display': delivery.get_statut_display(),
+                    'carburant': delivery.type_carburant.nom,
+                    'branche': delivery.branche.nom,
+                    'partenaire': delivery.partenaire.nom if delivery.partenaire else None,
+                    'quantite_prevue': float(delivery.quantite_prevue),
+                    'quantite_recue': float(delivery.quantite_recue) if delivery.quantite_recue else None,
+                    'ecart': float(delivery.ecart_quantite),
+                    'ecart_percentage': float(delivery.ecart_percentage),
+                    'prix_unitaire': float(delivery.prix_unitaire) if delivery.prix_unitaire else None,
+                    'devise': delivery.devise,
+                    'montant_total': float(delivery.montant_total),
+                    'statut_paiement': delivery.statut_paiement,
+                    'date_prevue': delivery.date_prevue.strftime('%d/%m/%Y'),
+                    'date_livraison': delivery.date_livraison.strftime('%d/%m/%Y %H:%M') if delivery.date_livraison else None,
+                    'date_confirmation': delivery.date_confirmation.strftime('%d/%m/%Y %H:%M') if delivery.date_confirmation else None,
+                    'bon_livraison': delivery.bon_livraison,
+                    'transporteur': delivery.transporteur,
+                    'immatriculation': delivery.immatriculation,
+                    'observations_admin': delivery.observations_admin,
+                    'observations_manager': delivery.observations_manager,
+                    'planifiee_par': delivery.planifiee_par.get_full_name() if delivery.planifiee_par else None,
+                    'confirmee_par': delivery.confirmee_par.get_full_name() if delivery.confirmee_par else None,
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class DeliveryCancelAPIView(AdminRequiredMixin, View):
+    """Cancel a delivery"""
+    
+    def post(self, request, delivery_id):
+        try:
+            delivery = get_object_or_404(LivraisonCarburant, id=delivery_id)
+            
+            if delivery.statut == 'confirmee':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Impossible d\'annuler une livraison déjà confirmée'
+                }, status=400)
+            
+            delivery.statut = 'annulee'
+            delivery.save()
+            
+            # Notify manager
+            manager = User.objects.filter(
+                role='gestionnaire',
+                branche=delivery.branche,
+                is_active=True
+            ).first()
+            
+            if manager:
+                Notification.objects.create(
+                    destinataire=manager,
+                    titre=f"Livraison annulée: {delivery.numero}",
+                    message=f"La livraison de {delivery.quantite_prevue}L de {delivery.type_carburant.nom} prévue pour le {delivery.date_prevue.strftime('%d/%m/%Y')} a été annulée.",
+                    type_notification='livraison_annulee',
+                    priorite='normale',
+                    expediteur=request.user,
+                    objet_id=delivery.id
+                )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Livraison annulée'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class PendingDeliveriesAPIView(View):
+    """Get pending deliveries for manager"""
+    
+    def get(self, request):
+        try:
+            # For managers, only their branch
+            if request.user.role == 'gestionnaire':
+                deliveries = LivraisonCarburant.objects.filter(
+                    branche=request.user.branche,
+                    statut__in=['planifiee', 'en_transit', 'livree']
+                ).select_related('type_carburant', 'partenaire').order_by('date_prevue')
+            else:
+                # Admins see all
+                deliveries = LivraisonCarburant.objects.filter(
+                    statut__in=['planifiee', 'en_transit', 'livree']
+                ).select_related('type_carburant', 'branche', 'partenaire').order_by('date_prevue')
+            
+            return JsonResponse({
+                'success': True,
+                'deliveries': [{
+                    'id': d.id,
+                    'numero': d.numero,
+                    'type': d.get_type_livraison_display(),
+                    'carburant': d.type_carburant.nom,
+                    'branche': d.branche.nom,
+                    'partenaire': d.partenaire.nom if d.partenaire else None,
+                    'quantite': float(d.quantite_prevue),
+                    'date_prevue': d.date_prevue.strftime('%d/%m/%Y'),
+                    'statut': d.get_statut_display(),
+                    'can_confirm': d.statut in ['livree', 'en_transit']
+                } for d in deliveries]
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================================================
+# PARTNER PAYMENT VIEWS
+# ============================================================================
+
+class PartnerPaymentAPIView(AdminRequiredMixin, View):
+    """Record payment to/from partner"""
+    
+    @transaction.atomic
+    def post(self, request, partner_id):
+        try:
+            data = json.loads(request.body)
+            partner = get_object_or_404(Partenaire, id=partner_id)
+            
+            payment = PaiementPartenaire.objects.create(
+                partenaire=partner,
+                type_transaction=data['type_transaction'],
+                montant=Decimal(str(data['montant'])),
+                devise=data['devise'],
+                livraison_id=data.get('livraison_id'),
+                date_paiement=data['date_paiement'],
+                mode_paiement=data['mode_paiement'],
+                reference=data.get('reference', ''),
+                notes=data.get('notes', ''),
+                enregistre_par=request.user
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'payment': {
+                    'numero': payment.numero,
+                    'montant': float(payment.montant),
+                    'devise': payment.devise
+                },
+                'new_balance_usd': float(partner.solde_usd),
+                'new_balance_fc': float(partner.solde_fc)
+            })
+            
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class PartnerUpdateAPIView(AdminRequiredMixin, View):
+    """Update partner info"""
+    
+    def put(self, request, partner_id):
+        try:
+            partner = get_object_or_404(Partenaire, id=partner_id)
+            data = json.loads(request.body)
+            
+            # Check code uniqueness
+            if data.get('code') and data['code'] != partner.code:
+                if Partenaire.objects.filter(code=data['code']).exists():
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Ce code existe déjà'
+                    }, status=400)
+            
+            # Update fields
+            for field in ['nom', 'code', 'contact', 'telephone', 'email', 'adresse', 'notes']:
+                if field in data:
+                    setattr(partner, field, data[field])
+            
+            partner.save()
+            
+            return JsonResponse({
+                'success': True,
+                'partner': {
+                    'id': partner.id,
+                    'nom': partner.nom
+                }
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================================================
+# STOCK VIEWS (Updated to prevent direct modification)
+# ============================================================================
+
+class StockUpdateSettingsAPIView(AdminRequiredMixin, View):
+    """Update stock settings ONLY (not quantity)"""
+    
+    def put(self, request, stock_id):
+        try:
+            stock = get_object_or_404(Stock, id=stock_id)
+            data = json.loads(request.body)
+            
+            # ONLY allow updating settings, NOT quantity
+            stock.capacite_max = Decimal(str(data['capacite_max']))
+            stock.seuil_alerte = Decimal(str(data['seuil_alerte']))
+            
+            if data.get('prix_achat'):
+                stock.prix_achat = Decimal(str(data['prix_achat']))
+            
+            stock.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Paramètres mis à jour'
             })
             
         except Exception as e:
