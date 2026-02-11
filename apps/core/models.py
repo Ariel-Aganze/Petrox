@@ -864,3 +864,315 @@ class Notification(models.Model):
             self.lu = True
             self.date_lecture = timezone.now()
             self.save()
+
+class Partenaire(models.Model):
+    """Fuel partners - companies we trade fuel with"""
+    
+    nom = models.CharField(max_length=200, verbose_name="Nom du partenaire")
+    code = models.CharField(max_length=50, unique=True, verbose_name="Code partenaire")
+    contact = models.CharField(max_length=100, blank=True, verbose_name="Personne de contact")
+    telephone = models.CharField(max_length=20, blank=True, verbose_name="Téléphone")
+    email = models.EmailField(blank=True, verbose_name="Email")
+    adresse = models.TextField(blank=True, verbose_name="Adresse")
+    
+    # Financial tracking
+    solde_usd = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Solde USD",
+        help_text="Positif = ils nous doivent, Négatif = nous leur devons"
+    )
+    solde_fc = models.DecimalField(
+        max_digits=15, 
+        decimal_places=2, 
+        default=0,
+        verbose_name="Solde FC",
+        help_text="Positif = ils nous doivent, Négatif = nous leur devons"
+    )
+    
+    is_active = models.BooleanField(default=True, verbose_name="Actif")
+    notes = models.TextField(blank=True, verbose_name="Notes")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        'User',  # Reference to your User model
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='partenaires_created'
+    )
+    
+    class Meta:
+        verbose_name = "Partenaire"
+        verbose_name_plural = "Partenaires"
+        ordering = ['nom']
+    
+    def __str__(self):
+        return f"{self.nom} ({self.code})"
+    
+    @property
+    def has_outstanding_debt(self):
+        """Check if partner owes us money"""
+        return self.solde_usd > 0 or self.solde_fc > 0
+    
+    @property
+    def we_owe_them(self):
+        """Check if we owe partner money"""
+        return self.solde_usd < 0 or self.solde_fc < 0
+
+
+class LivraisonCarburant(models.Model):
+    """Fuel delivery records"""
+    
+    TYPE_CHOICES = [
+        ('propre', 'Notre carburant'),
+        ('partenaire_donne', 'Donné par partenaire'),
+        ('partenaire_prend', 'Pris par partenaire'),
+    ]
+    
+    STATUT_CHOICES = [
+        ('planifiee', 'Planifiée'),
+        ('en_transit', 'En transit'),
+        ('livree', 'Livrée'),
+        ('confirmee', 'Confirmée'),
+        ('annulee', 'Annulée'),
+    ]
+    
+    DEVISE_CHOICES = [
+        ('USD', 'USD'),
+        ('FC', 'FC'),
+    ]
+    
+    # Basic info
+    numero = models.CharField(max_length=50, unique=True, verbose_name="Numéro de livraison")
+    type_livraison = models.CharField(
+        max_length=20, 
+        choices=TYPE_CHOICES,
+        verbose_name="Type de livraison"
+    )
+    statut = models.CharField(
+        max_length=20,
+        choices=STATUT_CHOICES,
+        default='planifiee',
+        verbose_name="Statut"
+    )
+    
+    # Fuel details
+    type_carburant = models.ForeignKey(
+        'TypeCarburant',  # Reference to your TypeCarburant model
+        on_delete=models.PROTECT,
+        verbose_name="Type de carburant"
+    )
+    branche = models.ForeignKey(
+        'Branche',  # Reference to your Branche model
+        on_delete=models.PROTECT,
+        verbose_name="Branche destinataire/source"
+    )
+    
+    # Quantities
+    quantite_prevue = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name="Quantité prévue (L)"
+    )
+    quantite_recue = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Quantité réellement reçue (L)"
+    )
+    ecart_quantite = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Écart (L)"
+    )
+    
+    # Partner info
+    partenaire = models.ForeignKey(
+        'Partenaire',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name="Partenaire"
+    )
+    
+    # Financial info
+    prix_unitaire = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Prix unitaire"
+    )
+    devise = models.CharField(
+        max_length=3,
+        choices=DEVISE_CHOICES,
+        default='USD'
+    )
+    montant_total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+    statut_paiement = models.CharField(
+        max_length=20,
+        choices=[
+            ('non_requis', 'Non requis'),
+            ('en_attente', 'En attente'),
+            ('paye', 'Payé'),
+        ],
+        default='non_requis'
+    )
+    
+    # Dates
+    date_prevue = models.DateField(verbose_name="Date prévue")
+    date_livraison = models.DateTimeField(null=True, blank=True)
+    date_confirmation = models.DateTimeField(null=True, blank=True)
+    
+    # Documents
+    bon_livraison = models.CharField(max_length=100, blank=True)
+    transporteur = models.CharField(max_length=200, blank=True)
+    immatriculation = models.CharField(max_length=50, blank=True)
+    observations_admin = models.TextField(blank=True)
+    observations_manager = models.TextField(blank=True)
+    
+    # Users
+    planifiee_par = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='livraisons_planifiees'
+    )
+    confirmee_par = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='livraisons_confirmees'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Livraison de carburant"
+        verbose_name_plural = "Livraisons de carburant"
+        ordering = ['-date_prevue', '-created_at']
+    
+    def __str__(self):
+        return f"{self.numero} - {self.type_carburant.nom}"
+    
+    def save(self, *args, **kwargs):
+        if not self.numero:
+            from django.utils import timezone
+            timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+            self.numero = f"LIV-{timestamp}"
+        
+        if self.quantite_recue is not None:
+            self.ecart_quantite = self.quantite_recue - self.quantite_prevue
+        
+        if self.prix_unitaire:
+            qty = self.quantite_recue if self.quantite_recue else self.quantite_prevue
+            # self.montant_total = self.prix_unitaire * qty
+            if self.prix_unitaire not in (None, ''):
+                self.prix_unitaire = Decimal(self.prix_unitaire)
+        
+        super().save(*args, **kwargs)
+    
+    @property
+    def has_ecart(self):
+        return abs(self.ecart_quantite) > 0.01
+    
+    @property
+    def ecart_percentage(self):
+        if self.quantite_prevue > 0:
+            return (self.ecart_quantite / self.quantite_prevue) * 100
+        return 0
+
+
+class PaiementPartenaire(models.Model):
+    """Partner payment records"""
+    
+    TYPE_CHOICES = [
+        ('paiement', 'Paiement (nous payons)'),
+        ('reception', 'Réception (nous recevons)'),
+    ]
+    
+    numero = models.CharField(max_length=50, unique=True)
+    partenaire = models.ForeignKey('Partenaire', on_delete=models.PROTECT)
+    type_transaction = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    
+    montant = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))]
+    )
+    devise = models.CharField(max_length=3, choices=[('USD', 'USD'), ('FC', 'FC')])
+    
+    livraison = models.ForeignKey(
+        'LivraisonCarburant',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    
+    date_paiement = models.DateField()
+    mode_paiement = models.CharField(
+        max_length=50,
+        choices=[
+            ('espece', 'Espèces'),
+            ('virement', 'Virement bancaire'),
+            ('cheque', 'Chèque'),
+            ('mobile_money', 'Mobile Money'),
+        ]
+    )
+    reference = models.CharField(max_length=100, blank=True)
+    notes = models.TextField(blank=True)
+    
+    enregistre_par = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Paiement partenaire"
+        verbose_name_plural = "Paiements partenaires"
+        ordering = ['-date_paiement']
+    
+    def __str__(self):
+        return f"{self.numero} - {self.partenaire.nom}"
+    
+    def save(self, *args, **kwargs):
+        if not self.numero:
+            from django.utils import timezone
+            timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+            self.numero = f"PAY-{timestamp}"
+        
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        
+        if is_new:
+            self.update_partner_balance()
+    
+    def update_partner_balance(self):
+        """Update partner's balance"""
+        if self.type_transaction == 'paiement':
+            if self.devise == 'USD':
+                self.partenaire.solde_usd -= self.montant
+            else:
+                self.partenaire.solde_fc -= self.montant
+        else:  # reception
+            if self.devise == 'USD':
+                self.partenaire.solde_usd -= self.montant
+            else:
+                self.partenaire.solde_fc -= self.montant
+        
+        self.partenaire.save()

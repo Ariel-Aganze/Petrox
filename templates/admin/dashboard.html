@@ -65,7 +65,7 @@
 
 <!-- Filters -->
 <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-8">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Branch Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Branche</label>
@@ -85,6 +85,17 @@
                 <button data-period="week" onclick="updatePeriod('week')" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50">Semaine</button>
                 <button data-period="month" onclick="updatePeriod('month')" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium bg-petrox-red text-white">Mois</button>
             </div>
+        </div>
+        
+        <!-- Custom Date Range -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Personnalisé</label>
+            <button onclick="openModal('custom-date-modal')" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center justify-center">
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Sélectionner
+            </button>
         </div>
         
         <!-- Currency Filter -->
@@ -194,7 +205,7 @@
                     <dl>
                         <dt class="text-sm font-medium text-gray-500 truncate">Branches Actives</dt>
                         <dd>
-                            <div id="active-branches" class="text-lg font-bold text-gray-900">0</div>
+                            <div id="active-branches" class="text-lg font-bold text-gray-900">{{ all_branches.count }}</div>
                         </dd>
                     </dl>
                 </div>
@@ -208,7 +219,34 @@
     </div>
 </div>
 
-<!-- Forex Impact Section -->
+<!-- Charts Section - MOVED BEFORE FOREX -->
+ <!-- add "lg:grid-cols-2" to the grid classes to make it 2 columns on large screens -->
+<div class="grid grid-cols-1 gap-6 mb-8">
+    <!-- Sales vs Expenses Chart -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes vs Dépenses</h3>
+        <div style="height: 400px;">
+            <canvas id="sales-expenses-chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Sales by Fuel Type -->
+    <!-- <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes par Carburant</h3>
+        <div id="sales-by-fuel" class="space-y-3"> -->
+            <!-- Will be populated by JavaScript -->
+            <!-- <div class="text-center py-8 text-gray-500">
+                <svg class="animate-spin h-8 w-8 mx-auto text-petrox-red mb-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p>Chargement des données...</p>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<!-- Forex Impact Section - MOVED AFTER CHARTS -->
 <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6 mb-8">
     <div class="flex items-center justify-between mb-6">
         <div>
@@ -217,7 +255,7 @@
         </div>
         <div class="flex items-center space-x-2">
             <span class="text-xs text-gray-500">Taux actuel:</span>
-            <span class="text-sm font-medium text-petrox-red">{{ current_rate|floatformat:2 }} FC</span>
+            <span id="current-rate-display" class="text-sm font-medium text-petrox-red">{{ current_rate|floatformat:2 }} FC</span>
         </div>
     </div>
     
@@ -272,7 +310,7 @@
     </div>
     
     <!-- Forex by Fuel Type Chart -->
-    <div class="bg-gray-50 rounded-lg p-4">
+    <div id="forex-chart-container" class="bg-gray-50 rounded-lg p-4">
         <h4 class="text-sm font-medium text-gray-700 mb-3">Impact par Type de Carburant</h4>
         <div style="height: 250px;">
             <canvas id="forex-fuel-chart"></canvas>
@@ -301,7 +339,7 @@
             </button>
             
             <!-- Export Excel Button -->
-            <button id="export-excel-btn"
+            <button onclick="exportToExcel()"
                     class="inline-flex items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
                 <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -310,7 +348,7 @@
             </button>
             
             <!-- Export PDF Button -->
-            <button id="export-pdf-btn"
+            <button onclick="exportToPDF()"
                     class="inline-flex items-center px-4 py-2 border border-petrox-red rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red transition-colors">
                 <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -321,47 +359,22 @@
     </div>
 </div>
 
-<!-- Charts Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Sales vs Expenses Chart -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes vs Dépenses</h3>
-        <div style="height: 300px;">
-            <canvas id="sales-expenses-chart"></canvas>
-        </div>
-    </div>
-    
-    <!-- Sales by Fuel Type -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventes par Carburant</h3>
-        <div id="sales-by-fuel" class="space-y-3">
-            <!-- Will be populated by JavaScript -->
-            <div class="text-center py-8 text-gray-500">
-                <svg class="animate-spin h-8 w-8 mx-auto text-petrox-red mb-2" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p>Chargement des données...</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Recent Transactions and Stock Alerts -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Recent Transactions -->
+    <!-- Recent Transactions - LIMIT TO 5 -->
     <div class="bg-white shadow-sm rounded-lg border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Transactions Récentes</h3>
+            <p class="text-xs text-gray-500 mt-1">5 dernières transactions</p>
         </div>
         <div class="overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réf</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branche</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
                     </tr>
                 </thead>
                 <tbody id="recent-transactions" class="bg-white divide-y divide-gray-200">
@@ -404,37 +417,61 @@
         </div>
     </div>
 </div>
+
+<!-- Custom Date Range Modal -->
+<div id="custom-date-modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('custom-date-modal')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Période Personnalisée</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+                        <input type="date" id="custom-start-date" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+                        <input type="date" id="custom-end-date" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <button type="button" onclick="applyCustomDateRange()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:w-auto sm:text-sm">Appliquer</button>
+                <button type="button" onclick="closeModal('custom-date-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+// NOTE: csrfToken is already declared in base.html - DO NOT redeclare it here
+
 // Global state
 let currentPeriod = 'month';
 let currentCurrency = 'USD';
 let currentBranch = 'all';
+let customStartDate = null;
+let customEndDate = null;
 let salesExpensesChart = null;
-let forexImpactChart = null;
+let forexFuelChart = null;
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
     initializeCharts();
-    setupEventListeners();
 });
-
-// Setup event listeners
-function setupEventListeners() {
-    const exportPdfBtn = document.getElementById('export-pdf-btn');
-    const exportExcelBtn = document.getElementById('export-excel-btn');
-    
-    if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPDF);
-    if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
-}
 
 // Update period filter
 function updatePeriod(period) {
     currentPeriod = period;
+    customStartDate = null;
+    customEndDate = null;
     
     // Update button states
     document.querySelectorAll('[data-period]').forEach(btn => {
@@ -445,6 +482,35 @@ function updatePeriod(period) {
     event.target.classList.remove('text-gray-600', 'hover:bg-gray-50');
     event.target.classList.add('bg-petrox-red', 'text-white');
     
+    loadDashboardData();
+}
+
+// Apply custom date range
+function applyCustomDateRange() {
+    const startDate = document.getElementById('custom-start-date').value;
+    const endDate = document.getElementById('custom-end-date').value;
+    
+    if (!startDate || !endDate) {
+        showNotification('Veuillez sélectionner les deux dates', 'error');
+        return;
+    }
+    
+    if (new Date(startDate) > new Date(endDate)) {
+        showNotification('La date de début doit être antérieure à la date de fin', 'error');
+        return;
+    }
+    
+    customStartDate = startDate;
+    customEndDate = endDate;
+    currentPeriod = 'custom';
+    
+    // Update period buttons
+    document.querySelectorAll('[data-period]').forEach(btn => {
+        btn.classList.remove('bg-petrox-red', 'text-white');
+        btn.classList.add('text-gray-600', 'hover:bg-gray-50');
+    });
+    
+    closeModal('custom-date-modal');
     loadDashboardData();
 }
 
@@ -467,7 +533,8 @@ function updateCurrency(currency) {
 
 // Update currency symbols in UI
 function updateCurrencySymbols(currency) {
-    const symbol = currency === 'USD' ? '$' : 'FC';
+    const symbol = currency === 'USD' ? '$' : '';
+    const suffix = currency === 'FC' ? ' FC' : '';
     document.querySelectorAll('.currency-symbol').forEach(el => {
         el.textContent = symbol;
     });
@@ -489,31 +556,40 @@ function refreshDashboard() {
 function loadDashboardData() {
     showLoading(true);
     
-    const url = `/dashboard/api/stats/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    let url = `/dashboard/api/stats/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    
+    // Add custom dates if period is custom
+    if (currentPeriod === 'custom' && customStartDate && customEndDate) {
+        url += `&start_date=${customStartDate}&end_date=${customEndDate}`;
+    }
     
     fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Dashboard data received:', data); // Debug log
+        
         if (data.success) {
             updateKPIs(data);
             updateCharts(data);
             updateForexImpact(data);
+            updateSalesByFuel(data.sales_by_fuel || []);
             updateRecentTransactions(data.recent_transactions || []);
             updateStockAlerts(data.stock_alerts || []);
-            updateSalesByFuel(data.sales_by_fuel || []);
         } else {
+            console.error('API returned error:', data.message);
             showNotification('Erreur: ' + (data.message || 'Erreur de chargement des données'), 'error');
         }
     })
     .catch(error => {
         console.error('Error loading dashboard:', error);
-        showNotification('Erreur de connexion', 'error');
+        showNotification('Erreur de connexion au serveur', 'error');
     })
     .finally(() => {
         showLoading(false);
@@ -522,49 +598,58 @@ function loadDashboardData() {
 
 // Update KPI cards
 function updateKPIs(data) {
-    const symbol = currentCurrency === 'USD' ? '$' : 'FC';
+    const symbol = currentCurrency === 'USD' ? '$' : '';
+    const suffix = currentCurrency === 'FC' ? ' FC' : '';
     
     // Total Sales
-    updateKPICard('total-sales', data.total_sales || 0, data.sales_trend || 0, symbol);
+    const salesValue = parseFloat(data.total_sales) || 0;
+    const salesTrend = parseFloat(data.sales_trend) || 0;
+    updateKPICard('total-sales', salesValue, salesTrend, symbol, suffix);
     
     // Total Expenses
-    updateKPICard('total-expenses', data.total_expenses || 0, data.expenses_trend || 0, symbol);
+    const expensesValue = parseFloat(data.total_expenses) || 0;
+    const expensesTrend = parseFloat(data.expenses_trend) || 0;
+    updateKPICard('total-expenses', expensesValue, expensesTrend, symbol, suffix);
     
     // Net Profit
-    const netProfit = (data.total_sales || 0) - (data.total_expenses || 0);
-    const profitMargin = data.total_sales > 0 ? (netProfit / data.total_sales * 100) : 0;
-    updateKPICard('net-profit', netProfit, profitMargin, symbol, true);
+    const netProfit = salesValue - expensesValue;
+    const profitMargin = salesValue > 0 ? (netProfit / salesValue * 100) : 0;
+    updateKPICard('net-profit', netProfit, profitMargin, symbol, suffix, true);
     
-    // Active Branches
-    const activeBranches = document.getElementById('active-branches');
-    if (activeBranches) {
-        activeBranches.textContent = data.active_branches || 0;
-    }
+    // Active Branches - already set in template
 }
 
-// Update individual KPI card
-function updateKPICard(cardId, value, trend, symbol, isProfit = false) {
+// Update individual KPI card - FIXED VERSION
+function updateKPICard(cardId, value, trend, symbol, suffix = '', isProfit = false) {
     const card = document.getElementById(cardId);
     if (!card) return;
     
     // Update value
     const valueEl = card.querySelector('.kpi-value');
     if (valueEl) {
-        valueEl.textContent = `${symbol} ${formatNumber(value)}`;
+        const numValue = parseFloat(value) || 0;
+        valueEl.textContent = `${symbol}${formatNumber(numValue)}${suffix}`;
         
         // Update color for profit
         if (isProfit) {
-            valueEl.classList.remove('text-green-600', 'text-red-600');
-            valueEl.classList.add(value >= 0 ? 'text-green-600' : 'text-red-600');
+            valueEl.classList.remove('text-green-600', 'text-red-600', 'text-gray-900');
+            valueEl.classList.add(numValue >= 0 ? 'text-green-600' : 'text-red-600');
         }
     }
     
-    // Update trend
+    // Update trend - FIXED: Convert to number first
     const trendEl = card.querySelector('.kpi-trend');
-    if (trendEl && trend !== null && trend !== undefined) {
-        trendEl.textContent = `${trend >= 0 ? '+' : ''}${trend.toFixed(1)}%`;
-        trendEl.classList.remove('text-green-600', 'text-red-600');
-        trendEl.classList.add(trend >= 0 ? 'text-green-600' : 'text-red-600');
+    if (trendEl) {
+        const trendValue = parseFloat(trend) || 0;
+        
+        // For profit card, trend shows margin percentage
+        if (isProfit) {
+            trendEl.textContent = `${trendValue.toFixed(1)}%`;
+        } else {
+            trendEl.textContent = `${trendValue >= 0 ? '+' : ''}${trendValue.toFixed(1)}%`;
+            trendEl.classList.remove('text-green-600', 'text-red-600');
+            trendEl.classList.add(trendValue >= 0 ? 'text-green-600' : 'text-red-600');
+        }
     }
 }
 
@@ -575,36 +660,52 @@ function updateForexImpact(data) {
     // Update total impact
     const totalImpactEl = document.getElementById('forex-total-impact');
     if (totalImpactEl) {
-        const total = forexData.total || 0;
+        const total = parseFloat(forexData.total_impact) || 0;
         totalImpactEl.textContent = `$${formatNumber(total)}`;
-        totalImpactEl.classList.remove('text-green-600', 'text-red-600');
+        totalImpactEl.classList.remove('text-green-600', 'text-red-600', 'text-gray-900');
         totalImpactEl.classList.add(total >= 0 ? 'text-green-600' : 'text-red-600');
     }
     
     // Update gains
     const gainsEl = document.getElementById('forex-gains');
     if (gainsEl) {
-        gainsEl.textContent = `$${formatNumber(forexData.gains || 0)}`;
+        gainsEl.textContent = `$${formatNumber(parseFloat(forexData.gains) || 0)}`;
     }
     
     // Update losses
     const lossesEl = document.getElementById('forex-losses');
     if (lossesEl) {
-        lossesEl.textContent = `$${formatNumber(Math.abs(forexData.losses || 0))}`;
+        lossesEl.textContent = `$${formatNumber(Math.abs(parseFloat(forexData.losses) || 0))}`;
+    }
+    
+    // Update average rate
+    const avgRateEl = document.getElementById('forex-avg-rate');
+    if (avgRateEl) {
+        avgRateEl.textContent = formatNumber(parseFloat(forexData.avg_rate) || 0);
     }
     
     // Update by fuel type chart
     if (forexData.by_fuel && forexData.by_fuel.length > 0) {
         updateForexByFuelChart(forexData.by_fuel);
+        document.getElementById('forex-chart-container').classList.remove('hidden');
     } else {
+        // Hide chart if no data
+        if (forexFuelChart) {
+            forexFuelChart.destroy();
+            forexFuelChart = null;
+        }
         // Show empty state
-        const canvas = document.getElementById('forex-fuel-chart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            if (forexImpactChart) {
-                forexImpactChart.destroy();
-                forexImpactChart = null;
-            }
+        const chartContainer = document.getElementById('forex-chart-container');
+        if (chartContainer) {
+            chartContainer.innerHTML = `
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Impact par Type de Carburant</h4>
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <p class="mt-2">Aucun impact forex pour cette période</p>
+                </div>
+            `;
         }
     }
 }
@@ -617,14 +718,14 @@ function updateForexByFuelChart(forexByFuel) {
     const ctx = canvas.getContext('2d');
     
     // Destroy existing chart
-    if (forexImpactChart) {
-        forexImpactChart.destroy();
+    if (forexFuelChart) {
+        forexFuelChart.destroy();
     }
     
-    const fuelNames = forexByFuel.map(f => f.fuel_type);
-    const impacts = forexByFuel.map(f => f.impact);
+    const fuelNames = forexByFuel.map(f => f.fuel_type || f.fuel || 'Inconnu');
+    const impacts = forexByFuel.map(f => parseFloat(f.impact) || 0);
     
-    forexImpactChart = new Chart(ctx, {
+    forexFuelChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: fuelNames,
@@ -691,8 +792,9 @@ function initializeCharts() {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const symbol = currentCurrency === 'USD' ? '$' : 'FC';
-                                return `${context.dataset.label}: ${symbol}${formatNumber(context.parsed.y)}`;
+                                const symbol = currentCurrency === 'USD' ? '$' : '';
+                                const suffix = currentCurrency === 'FC' ? ' FC' : '';
+                                return `${context.dataset.label}: ${symbol}${formatNumber(context.parsed.y)}${suffix}`;
                             }
                         }
                     }
@@ -702,8 +804,9 @@ function initializeCharts() {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                const symbol = currentCurrency === 'USD' ? '$' : 'FC';
-                                return symbol + formatNumber(value);
+                                const symbol = currentCurrency === 'USD' ? '$' : '';
+                                const suffix = currentCurrency === 'FC' ? ' FC' : '';
+                                return symbol + formatNumber(value) + suffix;
                             }
                         }
                     }
@@ -715,15 +818,26 @@ function initializeCharts() {
 
 // Update charts with new data
 function updateCharts(data) {
-    if (!salesExpensesChart || !data.chart_data) return;
+    if (!salesExpensesChart) return;
     
-    const chartData = data.chart_data;
+    const chartData = data.chart_data || {};
+    const labels = chartData.labels || [];
+    const salesData = chartData.sales || [];
+    const expensesData = chartData.expenses || [];
     
-    salesExpensesChart.data.labels = chartData.labels || [];
+    if (labels.length === 0) {
+        // No data - show empty chart
+        salesExpensesChart.data.labels = [];
+        salesExpensesChart.data.datasets = [];
+        salesExpensesChart.update();
+        return;
+    }
+    
+    salesExpensesChart.data.labels = labels;
     salesExpensesChart.data.datasets = [
         {
             label: 'Ventes',
-            data: chartData.sales || [],
+            data: salesData,
             borderColor: 'rgb(34, 197, 94)',
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             tension: 0.4,
@@ -731,7 +845,7 @@ function updateCharts(data) {
         },
         {
             label: 'Dépenses',
-            data: chartData.expenses || [],
+            data: expensesData,
             borderColor: 'rgb(220, 38, 38)',
             backgroundColor: 'rgba(220, 38, 38, 0.1)',
             tension: 0.4,
@@ -747,7 +861,7 @@ function updateSalesByFuel(salesByFuel) {
     const container = document.getElementById('sales-by-fuel');
     if (!container) return;
     
-    if (salesByFuel.length === 0) {
+    if (!salesByFuel || salesByFuel.length === 0) {
         container.innerHTML = `
             <div class="text-center py-8 text-gray-500">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -759,19 +873,23 @@ function updateSalesByFuel(salesByFuel) {
         return;
     }
     
-    const symbol = currentCurrency === 'USD' ? '$' : 'FC';
-    const total = salesByFuel.reduce((sum, f) => sum + f.amount, 0);
+    const symbol = currentCurrency === 'USD' ? '$' : '';
+    const suffix = currentCurrency === 'FC' ? ' FC' : '';
+    const total = salesByFuel.reduce((sum, f) => sum + (parseFloat(f.amount) || 0), 0);
     
     container.innerHTML = salesByFuel.map(fuel => {
-        const percentage = total > 0 ? (fuel.amount / total * 100) : 0;
+        const amount = parseFloat(fuel.amount) || 0;
+        const quantity = parseFloat(fuel.quantity) || 0;
+        const percentage = total > 0 ? (amount / total * 100) : 0;
+        
         return `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-900">${fuel.fuel_type}</p>
-                    <p class="text-xs text-gray-500">${formatNumber(fuel.quantity)} L</p>
+                    <p class="text-sm font-medium text-gray-900">${fuel.fuel_type || 'Inconnu'}</p>
+                    <p class="text-xs text-gray-500">${formatNumber(quantity)} L</p>
                 </div>
                 <div class="text-right ml-4">
-                    <p class="text-sm font-bold text-petrox-red">${symbol} ${formatNumber(fuel.amount)}</p>
+                    <p class="text-sm font-bold text-petrox-red">${symbol}${formatNumber(amount)}${suffix}</p>
                     <p class="text-xs text-gray-500">${percentage.toFixed(1)}%</p>
                 </div>
             </div>
@@ -779,17 +897,20 @@ function updateSalesByFuel(salesByFuel) {
     }).join('');
 }
 
-// Update recent transactions
+// Update recent transactions - LIMIT TO 5
 function updateRecentTransactions(transactions) {
     const tbody = document.getElementById('recent-transactions');
     if (!tbody) return;
-    
-    if (transactions.length === 0) {
+
+    const limitedTransactions = (transactions || []).slice(0, 5);
+
+    if (limitedTransactions.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" class="px-6 py-8 text-center text-gray-500">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <p class="mt-2">Aucune transaction récente</p>
                 </td>
@@ -797,17 +918,35 @@ function updateRecentTransactions(transactions) {
         `;
         return;
     }
-    
-    const symbol = currentCurrency === 'USD' ? '$' : 'FC';
-    
-    tbody.innerHTML = transactions.map(tx => {
+
+    const symbol = currentCurrency === 'USD' ? '$' : '';
+    const suffix = currentCurrency === 'FC' ? ' FC' : '';
+
+    tbody.innerHTML = limitedTransactions.map(tx => {
+        const amount = Math.abs(parseFloat(tx.amount) || 0);
+        const type = (tx.type || '').toLowerCase();
+        const isVente = type === 'vente';
+
         return `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${tx.reference || 'N/A'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tx.date || 'N/A'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${tx.type || 'N/A'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold ${(tx.amount || 0) >= 0 ? 'text-green-600' : 'text-red-600'}">
-                    ${symbol} ${formatNumber(Math.abs(tx.amount || 0))}
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${tx.date || 'N/A'}
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full
+                        ${isVente ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${tx.type || 'N/A'}
+                    </span>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${tx.branche || tx.branch || 'N/A'}
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-right
+                    ${isVente ? 'text-green-600' : 'text-red-600'}">
+                    ${isVente ? '+' : '-'}${symbol}${formatNumber(amount)}${suffix}
                 </td>
             </tr>
         `;
@@ -822,15 +961,15 @@ function updateStockAlerts(alerts) {
     if (!alertsList) return;
     
     if (alertsBadge) {
-        alertsBadge.textContent = alerts.length;
-        if (alerts.length > 0) {
+        alertsBadge.textContent = (alerts || []).length;
+        if ((alerts || []).length > 0) {
             alertsBadge.classList.remove('hidden');
         } else {
             alertsBadge.classList.add('hidden');
         }
     }
     
-    if (alerts.length === 0) {
+    if (!alerts || alerts.length === 0) {
         alertsList.innerHTML = `
             <li class="px-6 py-8 text-center text-gray-500">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -843,7 +982,7 @@ function updateStockAlerts(alerts) {
     }
     
     alertsList.innerHTML = alerts.map(alert => `
-        <li class="px-6 py-4 hover:bg-gray-50">
+        <li class="px-6 py-4 hover:bg-gray-50 transition-colors">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -854,13 +993,13 @@ function updateStockAlerts(alerts) {
                         </div>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-900">${alert.fuel_type}</p>
-                        <p class="text-sm text-gray-500">${alert.branche}</p>
+                        <p class="text-sm font-medium text-gray-900">${alert.fuel_type || alert.fuel || 'Inconnu'}</p>
+                        <p class="text-sm text-gray-500">${alert.branche || alert.branch || 'N/A'}</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-sm font-bold text-red-600">${formatNumber(alert.current_stock)} L</p>
-                    <p class="text-xs text-gray-500">Seuil: ${formatNumber(alert.threshold)} L</p>
+                    <p class="text-sm font-bold text-red-600">${formatNumber(parseFloat(alert.current_stock) || 0)} L</p>
+                    <p class="text-xs text-gray-500">Seuil: ${formatNumber(parseFloat(alert.threshold) || 0)} L</p>
                 </div>
             </div>
         </li>
@@ -871,7 +1010,11 @@ function updateStockAlerts(alerts) {
 function exportToPDF() {
     showLoading(true);
     
-    const url = `/dashboard/api/dashboard/export/pdf/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    let url = `/dashboard/api/dashboard/export/pdf/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    
+    if (currentPeriod === 'custom' && customStartDate && customEndDate) {
+        url += `&start_date=${customStartDate}&end_date=${customEndDate}`;
+    }
     
     window.location.href = url;
     
@@ -885,7 +1028,11 @@ function exportToPDF() {
 function exportToExcel() {
     showLoading(true);
     
-    const url = `/dashboard/api/dashboard/export/excel/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    let url = `/dashboard/api/dashboard/export/excel/?branche_id=${currentBranch}&period=${currentPeriod}&devise=${currentCurrency}`;
+    
+    if (currentPeriod === 'custom' && customStartDate && customEndDate) {
+        url += `&start_date=${customStartDate}&end_date=${customEndDate}`;
+    }
     
     window.location.href = url;
     
@@ -895,29 +1042,15 @@ function exportToExcel() {
     }, 1000);
 }
 
-// Utility: Format number
+// Utility: Format number - IMPROVED
 function formatNumber(num) {
-    if (num === null || num === undefined || isNaN(num)) return '0.00';
-    return parseFloat(num).toLocaleString('fr-FR', {
+    const value = parseFloat(num);
+    if (isNaN(value) || value === null || value === undefined) return '0.00';
+    
+    return value.toLocaleString('fr-FR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
-}
-
-// Utility: Get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
 }
 
 // Utility: Show loading state
@@ -934,7 +1067,6 @@ function showLoading(show) {
 
 // Utility: Show notification
 function showNotification(message, type = 'info') {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transition-opacity ${
         type === 'success' ? 'bg-green-500' : 
@@ -945,11 +1077,28 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Auto remove after 3 seconds
     setTimeout(() => {
         notification.style.opacity = '0';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
+}
+
+// Utility: Open modal
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Utility: Close modal
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
 </script>
 

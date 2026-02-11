@@ -42,11 +42,11 @@
     </svg>
     <span class="text-xs mt-1">Abonnés</span>
 </a>
-<a href="#" onclick="openModal('add-fuel-type-modal'); return false;" class="flex flex-col items-center justify-center text-gray-600">
+<a href="{% url 'admin_module:deliveries' %}" class="flex flex-col items-center justify-center text-gray-600">
     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
     </svg>
-    <span class="text-xs mt-1">Ajouter</span>
+    <span class="text-xs mt-1">Livraisons</span>
 </a>
 {% endblock %}
 
@@ -62,17 +62,23 @@
         </p>
     </div>
     <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
-        <button onclick="openModal('add-fuel-type-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petrox-red">
+        <button onclick="openModal('add-fuel-type-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Nouveau Type
         </button>
-        <button onclick="viewDeliveries()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+        <button onclick="window.location.href='{% url 'admin_module:partners' %}'" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Partenaires
+        </button>
+        <button onclick="window.location.href='{% url 'admin_module:deliveries' %}'" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            Historique Livraisons
+            Gérer Livraisons
         </button>
     </div>
 </div>
@@ -92,12 +98,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Types de Carburant
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ fuel_types_count }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Types de Carburant</dt>
+                        <dd class="text-2xl font-semibold text-gray-900">{{ fuel_types_count }}</dd>
                     </dl>
                 </div>
             </div>
@@ -117,12 +119,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Branches Actives
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ branches_count }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Branches Actives</dt>
+                        <dd class="text-2xl font-semibold text-gray-900">{{ branches_count }}</dd>
                     </dl>
                 </div>
             </div>
@@ -146,12 +144,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Alertes Stock
-                        </dt>
-                        <dd class="text-2xl font-semibold {% if alerts_count > 0 %}text-red-600{% else %}text-green-600{% endif %}">
-                            {{ alerts_count }}
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Alertes Stock</dt>
+                        <dd class="text-2xl font-semibold {% if alerts_count > 0 %}text-red-600{% else %}text-green-600{% endif %}">{{ alerts_count }}</dd>
                     </dl>
                 </div>
             </div>
@@ -171,12 +165,8 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">
-                            Taux de Remplissage
-                        </dt>
-                        <dd class="text-2xl font-semibold text-gray-900">
-                            {{ fill_percentage|floatformat:1 }}%
-                        </dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Taux de Remplissage</dt>
+                        <dd class="text-2xl font-semibold text-gray-900">{{ fill_percentage|floatformat:1 }}%</dd>
                     </dl>
                 </div>
             </div>
@@ -186,15 +176,11 @@
 
 <!-- Two Column Layout -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    <!-- Fuel Types List (Left Column) -->
+    <!-- Fuel Types List -->
     <div class="lg:col-span-1 bg-white shadow-sm rounded-lg border border-gray-100">
         <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium leading-6 text-gray-900">
-                Types de Carburant
-            </h3>
-            <p class="mt-1 text-sm text-gray-500">
-                {{ fuel_types_count }} type{{ fuel_types_count|pluralize }}
-            </p>
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Types de Carburant</h3>
+            <p class="mt-1 text-sm text-gray-500">{{ fuel_types_count }} type{{ fuel_types_count|pluralize }}</p>
         </div>
         
         <div class="px-4 py-4 space-y-3 max-h-[600px] overflow-y-auto">
@@ -217,13 +203,9 @@
                 </div>
                 
                 {% if fuel.is_active %}
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mt-2">
-                    Actif
-                </span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mt-2">Actif</span>
                 {% else %}
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 mt-2">
-                    Inactif
-                </span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 mt-2">Inactif</span>
                 {% endif %}
                 
                 <div class="flex gap-2 mt-3">
@@ -249,17 +231,13 @@
         </div>
     </div>
     
-    <!-- Stock by Branch (Right Column) -->
+    <!-- Stock by Branch -->
     <div class="lg:col-span-2 bg-white shadow-sm rounded-lg border border-gray-100">
         <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">
-                        Stock par Branche
-                    </h3>
-                    <p id="selected-fuel-info" class="mt-1 text-sm text-gray-500">
-                        Sélectionnez un type de carburant
-                    </p>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Stock par Branche</h3>
+                    <p id="selected-fuel-info" class="mt-1 text-sm text-gray-500">Sélectionnez un type de carburant</p>
                 </div>
                 <select id="branch-filter" onchange="filterStockByBranch()" class="border-gray-300 rounded-md shadow-sm text-sm focus:ring-petrox-red focus:border-petrox-red">
                     <option value="all">Toutes les branches</option>
@@ -304,12 +282,8 @@
                             <div class="text-xs text-gray-500">${{ stock.prix_achat|floatformat:2 }}/L</div>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ stock.capacite_max|floatformat:0 }} L
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ stock.seuil_alerte|floatformat:0 }} L
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ stock.capacite_max|floatformat:0 }} L</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ stock.seuil_alerte|floatformat:0 }} L</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="w-24 bg-gray-200 rounded-full h-2 mb-1">
                                 {% widthratio stock.quantite_actuelle stock.capacite_max 100 as level %}
@@ -318,9 +292,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-medium text-gray-700">{{ level|default:0 }}%</span>
                                 {% if stock.quantite_actuelle <= stock.seuil_alerte %}
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                    ALERTE
-                                </span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">ALERTE</span>
                                 {% endif %}
                             </div>
                         </td>
@@ -356,23 +328,19 @@
     </div>
 </div>
 
-<!-- Stock Management Section -->
+<!-- Stock Management Info Section - UPDATED -->
 <div class="bg-white shadow-sm rounded-lg border border-gray-100 mt-6">
     <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-lg font-medium leading-6 text-gray-900">
-                    Gestion du Stock par Branche
-                </h3>
-                <p class="mt-1 text-sm text-gray-500">
-                    Créer ou modifier les stocks de carburant pour chaque branche
-                </p>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Stock par Branche - Gestion via Livraisons</h3>
+                <p class="mt-1 text-sm text-gray-500">Le stock se met à jour automatiquement via les livraisons confirmées</p>
             </div>
-            <button onclick="openModal('add-stock-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+            <button onclick="window.location.href='{% url 'admin_module:deliveries' %}'" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
                 <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Créer Stock
+                Planifier Livraison
             </button>
         </div>
     </div>
@@ -386,15 +354,24 @@
                     </svg>
                 </div>
                 <div class="ml-3 flex-1">
-                    <h3 class="text-sm font-medium text-blue-800">Information importante</h3>
+                    <h3 class="text-sm font-medium text-blue-800">Nouveau système de gestion</h3>
                     <div class="mt-2 text-sm text-blue-700">
-                        <p>Le stock se met à jour automatiquement via :</p>
-                        <ul class="list-disc list-inside mt-1 space-y-1">
+                        <p class="font-semibold mb-2">Le stock se met à jour automatiquement via :</p>
+                        <ul class="list-disc list-inside space-y-1 ml-2">
+                            <li><strong>Livraisons confirmées</strong> : le manager confirme la réception → stock augmente</li>
                             <li><strong>Ventes</strong> : diminue le stock quand un pompiste vend</li>
-                            <li><strong>Livraisons</strong> : augmente le stock quand le manager confirme une livraison</li>
                             <li><strong>Consommations abonnés</strong> : diminue le stock quand un abonné consomme</li>
                         </ul>
-                        <p class="mt-2"><strong>Vous ne pouvez modifier que :</strong> la capacité maximale, le seuil d'alerte, et le prix d'achat.</p>
+                        <div class="mt-3 p-3 bg-white rounded border border-blue-300">
+                            <p class="font-semibold text-blue-900">Comment ajouter du stock ?</p>
+                            <ol class="list-decimal list-inside space-y-1 mt-1 text-xs">
+                                <li>Admin planifie une livraison (bouton ci-dessus)</li>
+                                <li>Manager de la branche reçoit une notification</li>
+                                <li>À la réception, manager confirme la quantité reçue</li>
+                                <li>Stock mis à jour automatiquement</li>
+                            </ol>
+                        </div>
+                        <p class="mt-2"><strong>Vous pouvez modifier :</strong> capacité maximale, seuil d'alerte, et prix d'achat.</p>
                     </div>
                 </div>
             </div>
@@ -412,34 +389,27 @@
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             <form id="add-fuel-type-form" onsubmit="submitFuelType(event)">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Nouveau Type de Carburant
-                    </h3>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Nouveau Type de Carburant</h3>
                     
                     <div class="space-y-4">
-                        <!-- Nom -->
                         <div>
                             <label for="fuel-nom" class="block text-sm font-medium text-gray-700">Nom du carburant *</label>
                             <input type="text" id="fuel-nom" name="nom" required placeholder="Ex: Diesel, Essence, Premium" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
-                        <!-- Couleur -->
                         <div>
                             <label for="fuel-couleur" class="block text-sm font-medium text-gray-700">Couleur (Hex) *</label>
                             <div class="mt-1 flex gap-2">
                                 <input type="color" id="fuel-couleur-picker" value="#1E40AF" onchange="document.getElementById('fuel-couleur').value = this.value" class="h-10 w-20 rounded border border-gray-300">
                                 <input type="text" id="fuel-couleur" name="couleur_hex" required pattern="^#[0-9A-Fa-f]{6}$" value="#1E40AF" placeholder="#1E40AF" class="flex-1 block border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">Format: #RRGGBB (ex: #1E40AF pour bleu)</p>
                         </div>
                         
-                        <!-- Prix USD -->
                         <div>
                             <label for="fuel-prix-usd" class="block text-sm font-medium text-gray-700">Prix de vente (USD/L) *</label>
                             <input type="number" id="fuel-prix-usd" name="prix_vente_usd" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
-                        <!-- Prix FC -->
                         <div>
                             <label for="fuel-prix-fc" class="block text-sm font-medium text-gray-700">Prix de vente (FC/L) *</label>
                             <input type="number" id="fuel-prix-fc" name="prix_vente_fc" step="1" min="1" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
@@ -448,10 +418,10 @@
                 </div>
                 
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
                         Créer le type
                     </button>
-                    <button type="button" onclick="closeModal('add-fuel-type-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" onclick="closeModal('add-fuel-type-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         Annuler
                     </button>
                 </div>
@@ -469,18 +439,14 @@
             <form id="edit-fuel-type-form" onsubmit="updateFuelType(event)">
                 <input type="hidden" id="edit-fuel-id" name="fuel_id">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Modifier le Type de Carburant
-                    </h3>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Modifier le Type de Carburant</h3>
                     
                     <div class="space-y-4">
-                        <!-- Nom -->
                         <div>
                             <label for="edit-fuel-nom" class="block text-sm font-medium text-gray-700">Nom du carburant *</label>
                             <input type="text" id="edit-fuel-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
-                        <!-- Couleur -->
                         <div>
                             <label for="edit-fuel-couleur" class="block text-sm font-medium text-gray-700">Couleur (Hex) *</label>
                             <div class="mt-1 flex gap-2">
@@ -489,13 +455,11 @@
                             </div>
                         </div>
                         
-                        <!-- Prix USD -->
                         <div>
                             <label for="edit-fuel-prix-usd" class="block text-sm font-medium text-gray-700">Prix de vente (USD/L) *</label>
                             <input type="number" id="edit-fuel-prix-usd" name="prix_vente_usd" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
-                        <!-- Prix FC -->
                         <div>
                             <label for="edit-fuel-prix-fc" class="block text-sm font-medium text-gray-700">Prix de vente (FC/L) *</label>
                             <input type="number" id="edit-fuel-prix-fc" name="prix_vente_fc" step="1" min="1" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
@@ -504,10 +468,10 @@
                 </div>
                 
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
                         Enregistrer
                     </button>
-                    <button type="button" onclick="closeModal('edit-fuel-type-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" onclick="closeModal('edit-fuel-type-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         Annuler
                     </button>
                 </div>
@@ -525,123 +489,38 @@
             <form id="update-stock-settings-form" onsubmit="submitStockSettings(event)">
                 <input type="hidden" id="stock-id" name="stock_id">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Paramètres du Stock
-                    </h3>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Paramètres du Stock</h3>
                     <p id="stock-info" class="text-sm text-gray-500 mb-4"></p>
                     
                     <div class="space-y-4">
-                        <!-- Current stock (read-only) -->
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
                             <p class="text-xs font-medium text-blue-600 mb-1">Stock actuel (automatique)</p>
                             <p id="current-stock-display" class="text-lg font-semibold text-blue-900"></p>
-                            <p class="text-xs text-blue-600 mt-1">Le stock se met à jour automatiquement via les ventes et livraisons</p>
+                            <p class="text-xs text-blue-600 mt-1">Le stock se met à jour via les livraisons et ventes</p>
                         </div>
                         
-                        <!-- Capacité maximale -->
                         <div>
                             <label for="stock-capacite" class="block text-sm font-medium text-gray-700">Capacité maximale (L) *</label>
                             <input type="number" id="stock-capacite" name="capacite_max" step="0.01" min="1" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
-                        <!-- Seuil d'alerte -->
                         <div>
                             <label for="stock-seuil" class="block text-sm font-medium text-gray-700">Seuil d'alerte (L) *</label>
                             <input type="number" id="stock-seuil" name="seuil_alerte" step="0.01" min="0" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                            <p class="mt-1 text-xs text-gray-500">Niveau qui déclenche une alerte</p>
                         </div>
                         
-                        <!-- Prix d'achat -->
                         <div>
                             <label for="stock-prix-achat" class="block text-sm font-medium text-gray-700">Prix d'achat (USD/L)</label>
                             <input type="number" id="stock-prix-achat" name="prix_achat" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                            <p class="mt-1 text-xs text-gray-500">Optionnel - pour calcul de marge</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
                         Enregistrer
                     </button>
-                    <button type="button" onclick="closeModal('update-stock-settings-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Annuler
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Add Stock Modal -->
-<div id="add-stock-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-stock-modal')"></div>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="add-stock-form" onsubmit="submitAddStock(event)">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Créer un Stock
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        <!-- Branche -->
-                        <div>
-                            <label for="add-stock-branche" class="block text-sm font-medium text-gray-700">Branche *</label>
-                            <select id="add-stock-branche" name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                <option value="">Sélectionner une branche...</option>
-                                {% for branch in all_branches %}
-                                <option value="{{ branch.id }}">{{ branch.nom }} ({{ branch.code }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <!-- Type de carburant -->
-                        <div>
-                            <label for="add-stock-fuel" class="block text-sm font-medium text-gray-700">Type de carburant *</label>
-                            <select id="add-stock-fuel" name="type_carburant_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                                <option value="">Sélectionner un type...</option>
-                                {% for fuel in fuel_types %}
-                                <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <!-- Stock initial -->
-                        <div>
-                            <label for="add-stock-initial" class="block text-sm font-medium text-gray-700">Stock initial (L)</label>
-                            <input type="number" id="add-stock-initial" name="quantite_actuelle" step="0.01" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                            <p class="mt-1 text-xs text-gray-500">Quantité actuelle en litres</p>
-                        </div>
-                        
-                        <!-- Capacité maximale -->
-                        <div>
-                            <label for="add-stock-capacity" class="block text-sm font-medium text-gray-700">Capacité maximale (L) *</label>
-                            <input type="number" id="add-stock-capacity" name="capacite_max" step="0.01" min="1" required value="10000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                        </div>
-                        
-                        <!-- Seuil d'alerte -->
-                        <div>
-                            <label for="add-stock-threshold" class="block text-sm font-medium text-gray-700">Seuil d'alerte (L) *</label>
-                            <input type="number" id="add-stock-threshold" name="seuil_alerte" step="0.01" min="0" required value="2000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                            <p class="mt-1 text-xs text-gray-500">Niveau qui déclenche une alerte</p>
-                        </div>
-                        
-                        <!-- Prix d'achat -->
-                        <div>
-                            <label for="add-stock-purchase-price" class="block text-sm font-medium text-gray-700">Prix d'achat (USD/L)</label>
-                            <input type="number" id="add-stock-purchase-price" name="prix_achat" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                            <p class="mt-1 text-xs text-gray-500">Optionnel - pour calcul de marge</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                        Créer le stock
-                    </button>
-                    <button type="button" onclick="closeModal('add-stock-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" onclick="closeModal('update-stock-settings-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         Annuler
                     </button>
                 </div>
@@ -655,7 +534,6 @@
 <script>
 let selectedFuelId = null;
 
-// Select fuel type
 function selectFuelType(fuelId, fuelName, fuelColor) {
     selectedFuelId = fuelId;
     document.getElementById('selected-fuel-info').innerHTML = `
@@ -667,32 +545,20 @@ function selectFuelType(fuelId, fuelName, fuelColor) {
     filterStockByBranch();
 }
 
-// Filter stock by branch
 function filterStockByBranch() {
     const branchId = document.getElementById('branch-filter').value;
     const rows = document.querySelectorAll('.stock-row');
     
     rows.forEach(row => {
         let show = true;
-        
-        // Filter by selected fuel type
-        if (selectedFuelId && row.dataset.fuel != selectedFuelId) {
-            show = false;
-        }
-        
-        // Filter by branch
-        if (branchId !== 'all' && row.dataset.branch != branchId) {
-            show = false;
-        }
-        
+        if (selectedFuelId && row.dataset.fuel != selectedFuelId) show = false;
+        if (branchId !== 'all' && row.dataset.branch != branchId) show = false;
         row.style.display = show ? '' : 'none';
     });
 }
 
-// Submit new fuel type
 function submitFuelType(event) {
     event.preventDefault();
-    
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData.entries());
     
@@ -708,10 +574,10 @@ function submitFuelType(event) {
     .then(data => {
         if (data.success) {
             closeModal('add-fuel-type-modal');
-            showNotification('Type de carburant créé avec succès', 'success');
+            showNotification('Type de carburant créé', 'success');
             setTimeout(() => window.location.reload(), 1000);
         } else {
-            showNotification(data.message || 'Erreur lors de la création', 'error');
+            showNotification(data.message || 'Erreur', 'error');
         }
     })
     .catch(error => {
@@ -720,40 +586,32 @@ function submitFuelType(event) {
     });
 }
 
-// Edit fuel type
 function editFuelType(fuelId) {
     fetch(`/dashboard/api/fuel-types/${fuelId}/`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const fuel = data.fuel_type;
-                
-                // Populate form
                 document.getElementById('edit-fuel-id').value = fuel.id;
                 document.getElementById('edit-fuel-nom').value = fuel.nom;
                 document.getElementById('edit-fuel-couleur').value = fuel.couleur_hex;
                 document.getElementById('edit-fuel-couleur-picker').value = fuel.couleur_hex;
                 document.getElementById('edit-fuel-prix-usd').value = fuel.prix_vente_usd;
                 document.getElementById('edit-fuel-prix-fc').value = fuel.prix_vente_fc;
-                
-                // Open modal
                 openModal('edit-fuel-type-modal');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Erreur lors du chargement', 'error');
+            showNotification('Erreur', 'error');
         });
 }
 
-// Update fuel type
 function updateFuelType(event) {
     event.preventDefault();
-    
     const formData = new FormData(event.target);
     const fuelId = formData.get('fuel_id');
     formData.delete('fuel_id');
-    
     const data = Object.fromEntries(formData.entries());
     
     fetch(`/dashboard/api/fuel-types/${fuelId}/update/`, {
@@ -768,159 +626,91 @@ function updateFuelType(event) {
     .then(data => {
         if (data.success) {
             closeModal('edit-fuel-type-modal');
-            showNotification('Type de carburant modifié avec succès', 'success');
+            showNotification('Type modifié', 'success');
             setTimeout(() => window.location.reload(), 1000);
         } else {
-            showNotification(data.message || 'Erreur lors de la modification', 'error');
+            showNotification(data.message || 'Erreur', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('Erreur de connexion', 'error');
+        showNotification('Erreur', 'error');
     });
 }
 
-// Toggle fuel type status
 function toggleFuelStatus(fuelId, isActive) {
     const action = isActive ? 'désactiver' : 'activer';
-    if (confirm(`Voulez-vous vraiment ${action} ce type de carburant?`)) {
+    if (confirm(`Voulez-vous ${action} ce type?`)) {
         fetch(`/dashboard/api/fuel-types/${fuelId}/toggle-active/`, {
             method: 'PATCH',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 showNotification(data.message, 'success');
                 setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showNotification(data.message || 'Erreur', 'error');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Erreur de connexion', 'error');
         });
     }
 }
 
-// View stock history
 function viewStockHistory(stockId, branchName, fuelName) {
     fetch(`/dashboard/api/stock/${stockId}/history/`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const history = data.history;
+                let html = '<h3 class="text-lg font-medium mb-4">Historique du Stock</h3>';
+                html += `<p class="text-sm text-gray-600 mb-4">${branchName} - ${fuelName}</p>`;
+                html += `<p class="text-sm mb-4">Stock actuel: <strong>${data.stock_info.quantite_actuelle.toFixed(2)} L</strong></p>`;
                 
-                let historyHtml = '';
-                if (history.length > 0) {
-                    historyHtml = `
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Date</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Type</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Quantité</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Acteur</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                    `;
+                if (data.history.length > 0) {
+                    html += '<div class="max-h-96 overflow-y-auto"><table class="min-w-full divide-y divide-gray-200">';
+                    html += '<thead class="bg-gray-50"><tr>';
+                    html += '<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Date</th>';
+                    html += '<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Type</th>';
+                    html += '<th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Quantité</th>';
+                    html += '</tr></thead><tbody>';
                     
-                    history.forEach(item => {
-                        const quantityClass = item.quantity > 0 ? 'text-green-600' : 'text-red-600';
-                        const typeLabel = item.type === 'delivery' ? 'Livraison' : 'Vente';
-                        const typeClass = item.type === 'delivery' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                        
-                        historyHtml += `
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-2 text-xs text-gray-900">${item.date}</td>
-                                <td class="px-4 py-2"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${typeClass}">${typeLabel}</span></td>
-                                <td class="px-4 py-2 text-xs font-semibold ${quantityClass}">${item.quantity > 0 ? '+' : ''}${item.quantity.toFixed(2)} L</td>
-                                <td class="px-4 py-2 text-xs text-gray-500">${item.actor}</td>
-                            </tr>
-                        `;
+                    data.history.forEach(item => {
+                        const color = item.quantity > 0 ? 'text-green-600' : 'text-red-600';
+                        html += `<tr><td class="px-4 py-2 text-xs">${item.date}</td>`;
+                        html += `<td class="px-4 py-2 text-xs">${item.type === 'delivery' ? 'Livraison' : 'Vente'}</td>`;
+                        html += `<td class="px-4 py-2 text-xs font-semibold ${color}">${item.quantity > 0 ? '+' : ''}${item.quantity.toFixed(2)} L</td></tr>`;
                     });
                     
-                    historyHtml += `
-                            </tbody>
-                        </table>
-                    `;
+                    html += '</tbody></table></div>';
                 } else {
-                    historyHtml = '<p class="text-center text-gray-500 py-8">Aucun historique disponible</p>';
+                    html += '<p class="text-center text-gray-500 py-8">Aucun historique</p>';
                 }
                 
-                const content = `
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Historique du Stock</h3>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-xs text-blue-600">Branche</p>
-                                <p class="text-sm font-semibold text-blue-900">${branchName}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-blue-600">Carburant</p>
-                                <p class="text-sm font-semibold text-blue-900">${fuelName}</p>
-                            </div>
-                            <div class="col-span-2">
-                                <p class="text-xs text-blue-600">Stock Actuel</p>
-                                <p class="text-sm font-semibold text-blue-900">${data.stock_info.quantite_actuelle.toFixed(2)} L</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Mouvements (${data.total_records} au total)</h4>
-                    <div class="max-h-96 overflow-y-auto">
-                        ${historyHtml}
-                    </div>
-                `;
-                
-                showDetailModal('Historique du Stock', content);
+                showDetailModal('Historique', html);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Erreur lors du chargement de l\'historique', 'error');
         });
 }
 
-// Update stock settings
 function updateStockSettings(stockId) {
     fetch(`/dashboard/api/stock/${stockId}/`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const stock = data.stock;
-                
-                // Populate form
                 document.getElementById('stock-id').value = stock.id;
                 document.getElementById('stock-info').textContent = `${stock.branche.nom} - ${stock.type_carburant.nom}`;
-                document.getElementById('current-stock-display').textContent = `${stock.quantite_actuelle.toFixed(2)} L (${stock.pourcentage_rempli}% de la capacité)`;
+                document.getElementById('current-stock-display').textContent = `${stock.quantite_actuelle.toFixed(2)} L`;
                 document.getElementById('stock-capacite').value = stock.capacite_max;
                 document.getElementById('stock-seuil').value = stock.seuil_alerte;
                 document.getElementById('stock-prix-achat').value = stock.prix_achat || '';
-                
-                // Open modal
                 openModal('update-stock-settings-modal');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Erreur lors du chargement', 'error');
         });
 }
 
-// Submit stock settings
 function submitStockSettings(event) {
     event.preventDefault();
-    
     const formData = new FormData(event.target);
     const stockId = formData.get('stock_id');
     formData.delete('stock_id');
-    
     const data = Object.fromEntries(formData.entries());
     
     fetch(`/dashboard/api/stock/${stockId}/settings/`, {
@@ -935,88 +725,33 @@ function submitStockSettings(event) {
     .then(data => {
         if (data.success) {
             closeModal('update-stock-settings-modal');
-            showNotification('Paramètres mis à jour avec succès', 'success');
+            showNotification('Paramètres mis à jour', 'success');
             setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showNotification(data.message || 'Erreur lors de la mise à jour', 'error');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Erreur de connexion', 'error');
     });
 }
 
-// Submit add stock
-function submitAddStock(event) {
-    event.preventDefault();
-    
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-    
-    fetch('/dashboard/api/stock/create/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal('add-stock-modal');
-            showNotification('Stock créé avec succès', 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showNotification(data.message || 'Erreur lors de la création', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Erreur de connexion', 'error');
-    });
-}
-
-// View deliveries
-function viewDeliveries() {
-    showNotification('Historique des livraisons - Fonction en développement', 'info');
-}
-
-// Show detail modal
 function showDetailModal(title, content) {
     const modal = document.createElement('div');
     modal.id = 'detail-modal';
     modal.className = 'fixed inset-0 z-50 overflow-y-auto';
     modal.innerHTML = `
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeDetailModal()"></div>
-            
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    ${content}
-                </div>
-                
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="button" onclick="closeDetailModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
-                        Fermer
-                    </button>
-                </div>
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75" onclick="closeDetailModal()"></div>
+            <div class="inline-block bg-white rounded-lg p-6 max-w-4xl w-full relative">
+                ${content}
+                <button onclick="closeDetailModal()" class="mt-4 px-4 py-2 bg-gray-300 rounded">Fermer</button>
             </div>
         </div>
     `;
-    
     document.body.appendChild(modal);
 }
 
 function closeDetailModal() {
     const modal = document.getElementById('detail-modal');
-    if (modal) {
-        modal.remove();
-    }
+    if (modal) modal.remove();
 }
 
-// Modal controls
 function openModal(modalId) {
     document.getElementById(modalId).classList.remove('hidden');
 }
@@ -1024,12 +759,9 @@ function openModal(modalId) {
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
     const form = document.querySelector(`#${modalId} form`);
-    if (form) {
-        form.reset();
-    }
+    if (form) form.reset();
 }
 
-// Get CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -1045,19 +777,14 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Show notification
 function showNotification(message, type, duration = 3000) {
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
         type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
     } text-white max-w-md`;
     notification.textContent = message;
-    
     document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, duration);
+    setTimeout(() => notification.remove(), duration);
 }
 </script>
 {% endblock %}

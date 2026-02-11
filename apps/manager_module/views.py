@@ -10,12 +10,16 @@ from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime, timedelta
 from apps.core.models import (
-    Attendance, User, Branche, TauxChange, TypeCarburant, Vente, Stock, 
+    Attendance, LivraisonCarburant, User, Branche, TauxChange, TypeCarburant, Vente, Stock, 
     Pompiste, Livraison, MoyenPaiement, Abonne, ConsommationAbonne,
     PlanningShift, Document, DocumentCategory, Notification
 )
 from decimal import Decimal
 import json
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+
 
 
 # ============================================
@@ -2197,3 +2201,344 @@ class DownloadDocumentView(ManagerRequiredMixin, View):
             import traceback
             print(f"Error downloading document: {traceback.format_exc()}")
             return HttpResponse(f'Erreur: {str(e)}', status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ConfirmDeliveryView(View):
+    """
+    Manager confirms delivery reception
+    POST /manager/api/deliveries/<id>/confirm/
+    """
+    
+    def post(self, request, delivery_id):
+        try:
+            # Only managers can confirm deliveries
+            if not hasattr(request.user, 'role') or request.user.role != 'manager':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Seuls les gestionnaires peuvent confirmer les livraisons'
+                }, status=403)
+            
+            # Get the delivery
+            try:
+                delivery = LivraisonCarburant.objects.get(id=delivery_id)
+            except LivraisonCarburant.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Livraison introuvable'
+                }, status=404)
+            
+            # Check if delivery is for manager's branch
+            if delivery.branche != request.user.branche:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cette livraison ne concerne pas votre branche'
+                }, status=403)
+            
+            # Check if already confirmed
+            if delivery.statut == 'confirmee':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cette livraison a déjà été confirmée'
+                }, status=400)
+            
+            # Check if cancelled
+            if delivery.statut == 'annulee':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cette livraison a été annulée'
+                }, status=400)
+            
+            # Parse request data
+            data = json.loads(request.body)
+            quantite_recue = Decimal(str(data.get('quantite_recue')))
+            observations = data.get('observations', '')
+            
+            if quantite_recue <= 0:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'La quantité reçue doit être supérieure à 0'
+                }, status=400)
+            
+            # Update delivery with atomic transaction
+            with transaction.atomic():
+                # Update delivery
+                delivery.quantite_recue = quantite_recue
+                delivery.ecart_quantite = quantite_recue - delivery.quantite_prevue
+                delivery.observations_manager = observations
+                delivery.statut = 'confirmee'
+                delivery.confirmee_par = request.user
+                delivery.date_confirmation = timezone.now()
+                delivery.save()
+                
+                # Update stock based on delivery type
+                stock, created = Stock.objects.get_or_create(
+                    branche=delivery.branche,
+                    type_carburant=delivery.type_carburant,
+                    defaults={
+                        'quantite_actuelle': 0,
+                        'capacite_max': 10000,  # Default capacity
+                        'seuil_alerte': 1000     # Default alert threshold
+                    }
+                )
+                
+                if delivery.type_livraison in ['propre', 'partenaire_donne']:
+                    # Increase stock (we receive fuel)
+                    stock.quantite_actuelle += quantite_recue
+                elif delivery.type_livraison == 'partenaire_prend':
+                    # Decrease stock (partner takes fuel)
+                    if stock.quantite_actuelle < quantite_recue:
+                        return JsonResponse({
+                            'success': False,
+                            'message': f'Stock insuffisant. Disponible: {stock.quantite_actuelle}L'
+                        }, status=400)
+                    stock.quantite_actuelle -= quantite_recue
+                
+                stock.save()
+                
+                # Update partner balance if applicable
+                if delivery.partenaire and delivery.prix_unitaire:
+                    montant = quantite_recue * delivery.prix_unitaire
+                    
+                    if delivery.type_livraison == 'partenaire_donne':
+                        # They give us fuel → we owe them (negative balance)
+                        if delivery.devise == 'USD':
+                            delivery.partenaire.solde_usd -= montant
+                        else:
+                            delivery.partenaire.solde_fc -= montant
+                    elif delivery.type_livraison == 'partenaire_prend':
+                        # They take our fuel → they owe us (positive balance)
+                        if delivery.devise == 'USD':
+                            delivery.partenaire.solde_usd += montant
+                        else:
+                            delivery.partenaire.solde_fc += montant
+                    
+                    delivery.partenaire.save()
+                
+                # TODO: Send notification to admin if there's a discrepancy
+                # if delivery.has_ecart:
+                #     send_notification_to_admin(delivery)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Livraison confirmée avec succès',
+                'delivery': {
+                    'id': delivery.id,
+                    'numero': delivery.numero,
+                    'quantite_recue': float(delivery.quantite_recue),
+                    'ecart': float(delivery.ecart_quantite) if delivery.ecart_quantite else 0,
+                    'nouveau_stock': float(stock.quantite_actuelle)
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            }, status=400)
+        except ValueError as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur de validation: {str(e)}'
+            }, status=400)
+        except Exception as e:
+            print(f"Error confirming delivery: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur serveur: {str(e)}'
+            }, status=500)
+
+# ============================================================
+# STOCK API - GET CURRENT STOCK FOR MANAGER'S BRANCH
+# ============================================================
+
+class ManagerStockAPIView(View):
+    """
+    Get stock for manager's branch
+    GET /manager/api/stock/
+    """
+    
+    def get(self, request):
+        try:
+            if not hasattr(request.user, 'branche'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Utilisateur sans branche assignée'
+                }, status=400)
+            
+            stocks = Stock.objects.filter(
+                branche=request.user.branche
+            ).select_related('type_carburant', 'branche')
+            
+            stocks_data = [{
+                'id': stock.id,
+                'type_carburant': {
+                    'id': stock.type_carburant.id,
+                    'nom': stock.type_carburant.nom,
+                    'couleur_hex': stock.type_carburant.couleur_hex
+                },
+                'branche': {
+                    'id': stock.branche.id,
+                    'nom': stock.branche.nom
+                },
+                'quantite_actuelle': float(stock.quantite_actuelle),
+                'capacite_max': float(stock.capacite_max),
+                'seuil_alerte': float(stock.seuil_alerte),
+                'prix_achat': float(stock.prix_achat) if stock.prix_achat else None
+            } for stock in stocks]
+            
+            return JsonResponse({
+                'success': True,
+                'stocks': stocks_data
+            })
+            
+        except Exception as e:
+            print(f"Error loading stock: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================================
+# STOCK MOVEMENTS API
+# ============================================================
+
+class ManagerStockMovementsView(View):
+    """
+    Get stock movements history for manager's branch
+    GET /manager/api/stock/movements/
+    """
+    
+    def get(self, request):
+        try:
+            if not hasattr(request.user, 'branche'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Utilisateur sans branche assignée'
+                }, status=400)
+            
+            # Get deliveries (incoming stock)
+            deliveries = LivraisonCarburant.objects.filter(
+                branche=request.user.branche,
+                statut='confirmee'
+            ).select_related('type_carburant', 'confirmee_par').order_by('-date_confirmation')[:15]
+            
+            movements = []
+            
+            for delivery in deliveries:
+                movements.append({
+                    'date': delivery.date_confirmation.strftime('%d/%m/%Y %H:%M') if delivery.date_confirmation else '-',
+                    'type': 'livraison',
+                    'carburant': delivery.type_carburant.nom,
+                    'quantite': float(delivery.quantite_recue),
+                    'reference': delivery.numero,
+                    'actor': delivery.confirmee_par.get_full_name() if delivery.confirmee_par else '-'
+                })
+            
+            # TODO: Add sales movements here when ventes are linked to stock
+            
+            return JsonResponse({
+                'success': True,
+                'movements': movements,
+                'pagination': {
+                    'total_items': len(movements),
+                    'current_page': 1,
+                    'has_previous': False,
+                    'has_next': False
+                }
+            })
+            
+        except Exception as e:
+            print(f"Error loading movements: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+# ============================================================
+# PENDING DELIVERIES - WITH ALL FIELDS INCLUDING TRANSPORT
+# ============================================================
+
+class ManagerPendingDeliveriesView(View):
+    """
+    Get pending deliveries for manager's branch
+    GET /manager/api/deliveries/pending/
+    """
+    
+    def get(self, request):
+        try:
+            if not hasattr(request.user, 'branche'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Utilisateur sans branche assignée'
+                }, status=400)
+            
+            # Get deliveries that are planned or in transit for this branch
+            deliveries = LivraisonCarburant.objects.filter(
+                branche=request.user.branche,
+                statut__in=['planifiee', 'en_transit', 'livree']
+            ).select_related(
+                'type_carburant', 
+                'branche', 
+                'partenaire', 
+                'planifiee_par'
+            ).order_by('-date_prevue')
+            
+            deliveries_data = []
+            for d in deliveries:
+                deliveries_data.append({
+                    'id': d.id,
+                    'numero': d.numero,
+                    'type_livraison': d.type_livraison,
+                    'statut': d.statut,
+                    'type_carburant': {
+                        'id': d.type_carburant.id,
+                        'nom': d.type_carburant.nom
+                    },
+                    'branche': {
+                        'id': d.branche.id,
+                        'nom': d.branche.nom
+                    },
+                    'partenaire': {
+                        'id': d.partenaire.id,
+                        'nom': d.partenaire.nom
+                    } if d.partenaire else None,
+                    'quantite_prevue': float(d.quantite_prevue),
+                    'quantite_recue': float(d.quantite_recue) if d.quantite_recue else None,
+                    'prix_unitaire': float(d.prix_unitaire) if d.prix_unitaire else None,
+                    'devise': d.devise,
+                    'montant_total': float(d.montant_total) if d.montant_total else 0,
+                    'date_prevue': d.date_prevue.strftime('%d/%m/%Y') if d.date_prevue else None,
+                    'date_livraison': d.date_livraison.strftime('%d/%m/%Y %H:%M') if d.date_livraison else None,
+                    # TRANSPORT INFO - THIS WAS MISSING!
+                    'bon_livraison': d.bon_livraison or None,
+                    'transporteur': d.transporteur or None,
+                    'immatriculation': d.immatriculation or None,
+                    # OBSERVATIONS
+                    'observations_admin': d.observations_admin or None,
+                    'observations_manager': d.observations_manager or None,
+                    # WHO
+                    'planifiee_par': d.planifiee_par.get_full_name() if d.planifiee_par else None,
+                    'can_confirm': True
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'deliveries': deliveries_data
+            })
+            
+        except Exception as e:
+            print(f"Error loading pending deliveries: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)

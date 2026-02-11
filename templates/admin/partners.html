@@ -1,0 +1,712 @@
+{% extends 'base/base.html' %}
+
+{% block title %}PETROX | Partenaires Carburant{% endblock %}
+
+{% block desktop_nav %}
+<a href="{% url 'admin_module:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dashboard</a>
+<a href="{% url 'admin_module:branches' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Branches</a>
+<a href="{% url 'admin_module:ventes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Ventes</a>
+<a href="{% url 'admin_module:depenses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Dépenses</a>
+<a href="{% url 'admin_module:validation_manquants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Manquants</a>
+<a href="{% url 'admin_module:carburants' %}" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-petrox-red">Carburants</a>
+<a href="{% url 'admin_module:abonnes' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Abonnés</a>
+<a href="{% url 'admin_module:utilisateurs' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Utilisateurs</a>
+<a href="{% url 'admin_module:salaires' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Salaires</a>
+<a href="{% url 'admin_module:documents' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Documents</a>
+<a href="{% url 'admin_module:forex' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Forex</a>
+<a href="{% url 'admin_module:rapports' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-petrox-red hover:bg-gray-50">Rapports</a>
+{% endblock %}
+
+{% block content %}
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-petrox-dark sm:text-3xl sm:truncate">
+            Partenaires Carburant
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Gestion des entreprises partenaires pour les échanges de carburant
+        </p>
+    </div>
+    <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
+        <button onclick="window.location.href='{% url 'admin_module:carburants' %}'"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h10v18H3V3zm10 4h2a2 2 0 012 2v8a2 2 0 002 2h1M7 7h2M7 11h2M7 15h2" />
+            </svg>
+            Page Principale Carburants
+        </button>
+
+        
+        <button onclick="window.location.href='{% url 'admin_module:deliveries' %}'" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Gérer Livraisons
+        </button>
+        
+        <button onclick="openModal('add-partner-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nouveau Partenaire
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Partenaires</dt>
+                        <dd class="text-2xl font-semibold text-gray-900">{{ partners_count }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Nous doivent</dt>
+                        <dd class="text-2xl font-semibold text-green-600">{{ partners_with_debt }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Nous devons</dt>
+                        <dd class="text-2xl font-semibold text-red-600">{{ partners_we_owe }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Partners List -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-100">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Liste des Partenaires</h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partenaire</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde USD</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde FC</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for partner in partners %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ partner.nom }}</div>
+                        <div class="text-xs text-gray-500">{{ partner.code }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ partner.contact }}</div>
+                        <div class="text-xs text-gray-500">{{ partner.telephone }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold {% if partner.solde_usd > 0 %}text-green-600{% elif partner.solde_usd < 0 %}text-red-600{% else %}text-gray-900{% endif %}">
+                            ${{ partner.solde_usd|floatformat:2 }}
+                        </div>
+                        {% if partner.solde_usd > 0 %}
+                        <div class="text-xs text-green-600">Ils nous doivent</div>
+                        {% elif partner.solde_usd < 0 %}
+                        <div class="text-xs text-red-600">Nous leur devons</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold {% if partner.solde_fc > 0 %}text-green-600{% elif partner.solde_fc < 0 %}text-red-600{% else %}text-gray-900{% endif %}">
+                            {{ partner.solde_fc|floatformat:2 }} FC
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if partner.is_active %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Actif</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Inactif</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="viewPartner({{ partner.id }})" class="text-blue-600 hover:text-blue-900 mr-3" title="Voir détails">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                        <button onclick="editPartner({{ partner.id }})" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Modifier">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <button onclick="recordPayment({{ partner.id }}, '{{ partner.nom }}')" class="text-green-600 hover:text-green-900" title="Paiement">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <p class="mt-2 text-sm">Aucun partenaire enregistré</p>
+                        <button onclick="openModal('add-partner-modal')" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
+                            Créer le premier partenaire
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add Partner Modal -->
+<div id="add-partner-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('add-partner-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="add-partner-form" onsubmit="submitPartner(event)">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Nouveau Partenaire</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="partner-nom" class="block text-sm font-medium text-gray-700">Nom du partenaire *</label>
+                            <input type="text" id="partner-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="partner-code" class="block text-sm font-medium text-gray-700">Code *</label>
+                            <input type="text" id="partner-code" name="code" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="partner-contact" class="block text-sm font-medium text-gray-700">Personne de contact</label>
+                            <input type="text" id="partner-contact" name="contact" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="partner-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                            <input type="tel" id="partner-telephone" name="telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="partner-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="partner-email" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="partner-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
+                            <textarea id="partner-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
+                        Créer
+                    </button>
+                    <button type="button" onclick="closeModal('add-partner-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Partner Modal -->
+<div id="edit-partner-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('edit-partner-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="edit-partner-form" onsubmit="updatePartner(event)">
+                <input type="hidden" id="edit-partner-id" name="partner_id">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Modifier Partenaire</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="edit-partner-nom" class="block text-sm font-medium text-gray-700">Nom du partenaire *</label>
+                            <input type="text" id="edit-partner-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="edit-partner-code" class="block text-sm font-medium text-gray-700">Code *</label>
+                            <input type="text" id="edit-partner-code" name="code" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="edit-partner-contact" class="block text-sm font-medium text-gray-700">Personne de contact</label>
+                            <input type="text" id="edit-partner-contact" name="contact" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="edit-partner-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                            <input type="tel" id="edit-partner-telephone" name="telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="edit-partner-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="edit-partner-email" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="edit-partner-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
+                            <textarea id="edit-partner-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+
+                        <div>
+                            <label for="edit-partner-notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea id="edit-partner-notes" name="notes" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-petrox-hover sm:ml-3 sm:w-auto sm:text-sm">
+                        Enregistrer
+                    </button>
+                    <button type="button" onclick="closeModal('edit-partner-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Partner Modal -->
+<div id="view-partner-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('view-partner-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Détails du Partenaire</h3>
+                <div id="partner-details-content"></div>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeModal('view-partner-modal')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Record Payment Modal -->
+<div id="payment-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal('payment-modal')"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="payment-form" onsubmit="submitPayment(event)">
+                <input type="hidden" id="payment-partner-id" name="partner_id">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Enregistrer un Paiement</h3>
+                    <p id="payment-partner-name" class="text-sm text-gray-600 mb-4"></p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="type-transaction" class="block text-sm font-medium text-gray-700">Type de transaction *</label>
+                            <select id="type-transaction" name="type_transaction" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="paiement">Paiement (nous payons)</option>
+                                <option value="reception">Réception (nous recevons)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="payment-montant" class="block text-sm font-medium text-gray-700">Montant *</label>
+                                <input type="number" id="payment-montant" name="montant" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            
+                            <div>
+                                <label for="payment-devise" class="block text-sm font-medium text-gray-700">Devise *</label>
+                                <select id="payment-devise" name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <option value="USD">USD</option>
+                                    <option value="FC">FC</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="payment-date" class="block text-sm font-medium text-gray-700">Date de paiement *</label>
+                            <input type="date" id="payment-date" name="date_paiement" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="mode-paiement" class="block text-sm font-medium text-gray-700">Mode de paiement *</label>
+                            <select id="mode-paiement" name="mode_paiement" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <option value="espece">Espèces</option>
+                                <option value="virement">Virement bancaire</option>
+                                <option value="cheque">Chèque</option>
+                                <option value="mobile_money">Mobile Money</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="payment-reference" class="block text-sm font-medium text-gray-700">Référence</label>
+                            <input type="text" id="payment-reference" name="reference" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="payment-notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea id="payment-notes" name="notes" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:ml-3 sm:w-auto sm:text-sm">
+                        Enregistrer
+                    </button>
+                    <button type="button" onclick="closeModal('payment-modal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+// Set today's date as default
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('payment-date');
+    if (dateInput) {
+        dateInput.value = today;
+    }
+});
+
+function submitPartner(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/dashboard/api/partners/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('add-partner-modal');
+            showNotification('Partenaire créé avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur lors de la création', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+    
+    return false;
+}
+
+function viewPartner(partnerId) {
+    fetch(`/dashboard/api/partners/${partnerId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const partner = data.partner;
+                const deliveries = data.deliveries || [];
+                const payments = data.payments || [];
+                
+                let html = `
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Informations</h4>
+                            <dl class="space-y-2">
+                                <div><dt class="text-xs text-gray-500">Nom:</dt><dd class="text-sm font-medium">${partner.nom}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Code:</dt><dd class="text-sm">${partner.code}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Contact:</dt><dd class="text-sm">${partner.contact || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Téléphone:</dt><dd class="text-sm">${partner.telephone || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Email:</dt><dd class="text-sm">${partner.email || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Adresse:</dt><dd class="text-sm">${partner.adresse || '-'}</dd></div>
+                            </dl>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Soldes</h4>
+                            <div class="p-4 bg-${partner.solde_usd > 0 ? 'green' : partner.solde_usd < 0 ? 'red' : 'gray'}-50 rounded-lg mb-3">
+                                <p class="text-xs text-gray-600">Solde USD</p>
+                                <p class="text-2xl font-bold text-${partner.solde_usd > 0 ? 'green' : partner.solde_usd < 0 ? 'red' : 'gray'}-600">$${partner.solde_usd.toFixed(2)}</p>
+                                ${partner.solde_usd > 0 ? '<p class="text-xs text-green-600">Ils nous doivent</p>' : partner.solde_usd < 0 ? '<p class="text-xs text-red-600">Nous leur devons</p>' : ''}
+                            </div>
+                            <div class="p-4 bg-${partner.solde_fc > 0 ? 'green' : partner.solde_fc < 0 ? 'red' : 'gray'}-50 rounded-lg">
+                                <p class="text-xs text-gray-600">Solde FC</p>
+                                <p class="text-2xl font-bold text-${partner.solde_fc > 0 ? 'green' : partner.solde_fc < 0 ? 'red' : 'gray'}-600">${partner.solde_fc.toFixed(2)} FC</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Livraisons récentes</h4>
+                        ${deliveries.length > 0 ? `
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Numéro</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Type</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Carburant</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Quantité</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Date</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${deliveries.map(d => `
+                                        <tr>
+                                            <td class="px-4 py-2 text-xs">${d.numero}</td>
+                                            <td class="px-4 py-2 text-xs">${d.type}</td>
+                                            <td class="px-4 py-2 text-xs">${d.carburant} - ${d.branche}</td>
+                                            <td class="px-4 py-2 text-xs">${d.quantite}L</td>
+                                            <td class="px-4 py-2 text-xs">${d.date}</td>
+                                            <td class="px-4 py-2 text-xs">${d.statut}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        ` : '<p class="text-sm text-gray-500">Aucune livraison</p>'}
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Paiements récents</h4>
+                        ${payments.length > 0 ? `
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Numéro</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Type</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Montant</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${payments.map(p => `
+                                        <tr>
+                                            <td class="px-4 py-2 text-xs">${p.numero}</td>
+                                            <td class="px-4 py-2 text-xs">${p.type}</td>
+                                            <td class="px-4 py-2 text-xs font-semibold">${p.montant} ${p.devise}</td>
+                                            <td class="px-4 py-2 text-xs">${p.date}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        ` : '<p class="text-sm text-gray-500">Aucun paiement</p>'}
+                    </div>
+                `;
+                
+                document.getElementById('partner-details-content').innerHTML = html;
+                openModal('view-partner-modal');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur lors du chargement', 'error');
+        });
+}
+
+function editPartner(partnerId) {
+    fetch(`/dashboard/api/partners/${partnerId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const partner = data.partner;
+                document.getElementById('edit-partner-id').value = partner.id;
+                document.getElementById('edit-partner-nom').value = partner.nom;
+                document.getElementById('edit-partner-code').value = partner.code;
+                document.getElementById('edit-partner-contact').value = partner.contact || '';
+                document.getElementById('edit-partner-telephone').value = partner.telephone || '';
+                document.getElementById('edit-partner-email').value = partner.email || '';
+                document.getElementById('edit-partner-adresse').value = partner.adresse || '';
+                document.getElementById('edit-partner-notes').value = partner.notes || '';
+                openModal('edit-partner-modal');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Erreur lors du chargement', 'error');
+        });
+}
+
+function updatePartner(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const formData = new FormData(event.target);
+    const partnerId = formData.get('partner_id');
+    formData.delete('partner_id');
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch(`/dashboard/api/partners/${partnerId}/update/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('edit-partner-modal');
+            showNotification('Partenaire modifié avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+    
+    return false;
+}
+
+function recordPayment(partnerId, partnerName) {
+    document.getElementById('payment-partner-id').value = partnerId;
+    document.getElementById('payment-partner-name').textContent = `Paiement pour: ${partnerName}`;
+    openModal('payment-modal');
+}
+
+function submitPayment(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const formData = new FormData(event.target);
+    const partnerId = formData.get('partner_id');
+    formData.delete('partner_id');
+    const data = Object.fromEntries(formData.entries());
+    
+    // Remove empty optional fields
+    Object.keys(data).forEach(key => {
+        if (data[key] === '') delete data[key];
+    });
+    
+    fetch(`/dashboard/api/partners/${partnerId}/payment/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('payment-modal');
+            showNotification('Paiement enregistré avec succès', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Erreur', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Erreur de connexion', 'error');
+    });
+    
+    return false;
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    const form = document.querySelector(`#${modalId} form`);
+    if (form) form.reset();
+}
+
+function showNotification(message, type, duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    } text-white max-w-md`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), duration);
+}
+</script>
+{% endblock %}

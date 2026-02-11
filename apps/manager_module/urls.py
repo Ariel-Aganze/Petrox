@@ -12,6 +12,12 @@ MANAGER MODULE SCOPE:
 
 from django.urls import path
 from . import views
+from .views import (
+    ManagerStockAPIView,
+    ManagerStockMovementsView,
+    ManagerPendingDeliveriesView,
+    ConfirmDeliveryView
+)
 
 app_name = 'manager_module'
 
@@ -63,6 +69,13 @@ urlpatterns = [
     path('api/stock/', views.StockListAPIView.as_view(), name='stock_api'),
     path('api/deliveries/confirm/', views.ConfirmDeliveryAPIView.as_view(), name='confirm_delivery'),
     path('api/stock/movements/', views.StockMovementsAPIView.as_view(), name='stock_movements'),
+
+    path('api/stock/', ManagerStockAPIView.as_view(), name='stock_api'),
+    path('api/stock/movements/', ManagerStockMovementsView.as_view(), name='stock_movements'),
+
+    # Deliveries
+    path('api/deliveries/pending/', ManagerPendingDeliveriesView.as_view(), name='pending_deliveries'),
+    path('api/deliveries/<int:delivery_id>/confirm/', ConfirmDeliveryView.as_view(), name='confirm_delivery'),
     
     # ---------- Subscribers (Abonnés) APIs ----------
     path('api/abonnes/', views.AbonnesListAPIView.as_view(), name='abonnes_api'),
