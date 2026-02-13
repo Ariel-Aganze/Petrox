@@ -1103,18 +1103,20 @@ class ParametresView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         return context
     
 class DocumentsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
-    """Documents management page"""
+    """Documents management page - COMPLETE WORKING VERSION"""
     template_name = 'admin/documents.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Get filters
+        print("DEBUG: DocumentsView called")  # Debug line
+        
+        # Get filters from URL parameters
         search = self.request.GET.get('search', '')
         category_id = self.request.GET.get('category_id', '')
         visibility = self.request.GET.get('visibility', '')
         
-        # Base queryset
+        # Base queryset for documents
         documents = Document.objects.select_related('categorie', 'uploaded_by').order_by('-created_at')
         
         # Apply filters
@@ -1129,37 +1131,50 @@ class DocumentsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
         if visibility:
             documents = documents.filter(visibilite=visibility)
         
-        # Add readable file size
+        # Convert to list with formatted data
         documents_list = []
         for doc in documents:
             doc_data = {
                 'id': doc.id,
                 'titre': doc.titre,
                 'description': doc.description,
-                'categorie': doc.categorie,
+                'categorie': doc.categorie,  # Pass the full object
                 'visibilite': doc.visibilite,
                 'type_fichier': doc.type_fichier,
                 'uploaded_by': doc.uploaded_by.get_full_name() if doc.uploaded_by else 'N/A',
                 'created_at': doc.created_at,
-                'taille_lisible': self._format_file_size(doc.taille_fichier)
+                'taille_lisible': self._format_file_size(doc.taille_fichier) if doc.taille_fichier else '0 B'
             }
             documents_list.append(doc_data)
         
         context['documents'] = documents_list
         
-        # Categories
-        context['categories'] = DocumentCategory.objects.filter(is_active=True).order_by('nom')
-        context['total_categories'] = context['categories'].count()
+        # Categories for filters and modals
+        categories = DocumentCategory.objects.filter(is_active=True).order_by('nom')
+        context['categories'] = categories
+        print(f"DEBUG: Categories count = {categories.count()}")  # Debug line
         
-        # Statistics
+        # BRANCHES - THIS IS CRITICAL
+        branches = Branche.objects.filter(is_active=True).order_by('nom')
+        context['branches'] = branches
+        print(f"DEBUG: Branches count = {branches.count()}")  # Debug line
+        print(f"DEBUG: Branches = {list(branches.values_list('nom', flat=True))}")  # Debug line
+        
+        # STATISTICS
         context['total_documents'] = Document.objects.count()
         context['public_documents'] = Document.objects.filter(visibilite='public').count()
         context['confidential_documents'] = Document.objects.filter(visibilite='confidentiel').count()
+        context['total_categories'] = DocumentCategory.objects.filter(is_active=True).count()
+        
+        print(f"DEBUG: Stats - Total={context['total_documents']}, Public={context['public_documents']}, Conf={context['confidential_documents']}, Categories={context['total_categories']}")
         
         return context
     
     def _format_file_size(self, size_bytes):
         """Format file size to human readable format"""
+        if not size_bytes:
+            return '0 B'
+            
         if size_bytes < 1024:
             return f"{size_bytes} B"
         elif size_bytes < 1024 * 1024:
@@ -1168,6 +1183,7 @@ class DocumentsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
             return f"{size_bytes / (1024 * 1024):.1f} MB"
         else:
             return f"{size_bytes / (1024 * 1024 * 1024):.1f} GB"
+
         
 
 class ParametresView(AdminRequiredMixin, AdminContextMixin, TemplateView):

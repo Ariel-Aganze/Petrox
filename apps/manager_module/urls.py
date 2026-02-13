@@ -1,15 +1,3 @@
-# apps/manager_module/urls.py
-"""
-URL Configuration for Manager Module
-Handles both template-based views (HTML pages) and API endpoints (JSON responses)
-
-MANAGER MODULE SCOPE:
-- Branch-specific operations only
-- Cannot access other branches
-- Cannot validate sales (Caissier role)
-- Cannot manage users or global settings
-"""
-
 from django.urls import path
 from . import views
 from .views import (
@@ -66,13 +54,10 @@ urlpatterns = [
     path('api/ventes/<int:vente_id>/', views.VenteDetailAPIView.as_view(), name='vente_detail'),
     
     # ---------- Stock & Deliveries APIs ----------
-    path('api/stock/', views.StockListAPIView.as_view(), name='stock_api'),
-    path('api/deliveries/confirm/', views.ConfirmDeliveryAPIView.as_view(), name='confirm_delivery'),
-    path('api/stock/movements/', views.StockMovementsAPIView.as_view(), name='stock_movements'),
-
+    # FIXED: Using only ManagerStockAPIView (removed StockListAPIView duplicate)
     path('api/stock/', ManagerStockAPIView.as_view(), name='stock_api'),
     path('api/stock/movements/', ManagerStockMovementsView.as_view(), name='stock_movements'),
-
+    
     # Deliveries
     path('api/deliveries/pending/', ManagerPendingDeliveriesView.as_view(), name='pending_deliveries'),
     path('api/deliveries/<int:delivery_id>/confirm/', ConfirmDeliveryView.as_view(), name='confirm_delivery'),
@@ -80,22 +65,9 @@ urlpatterns = [
     # ---------- Subscribers (Abonnés) APIs ----------
     path('api/abonnes/', views.AbonnesListAPIView.as_view(), name='abonnes_api'),
     path('api/abonnes/<int:abonne_id>/', views.AbonneDetailAPIView.as_view(), name='abonne_detail'),
-    path('api/abonnes/consumption/', views.RecordConsumptionView.as_view(), name='record_consumption'),  # NEW
-
+    path('api/abonnes/consumption/', views.RecordConsumptionView.as_view(), name='record_consumption'),
     
     # ---------- Planning APIs ----------
-    path('api/planning/', views.PlanningAPIView.as_view(), name='planning_api'),
-    path('api/planning/assign/', views.AssignShiftAPIView.as_view(), name='assign_shift'),
-
-    # Planning (Shifts) URLs
-    path('planning/', views.PlanningView.as_view(), name='planning'),
-    path('api/planning/', views.PlanningAPIView.as_view(), name='planning_api'),
-    path('api/planning/create/', views.CreateShiftView.as_view(), name='create_shift'),
-    path('api/planning/<int:shift_id>/update/', views.UpdateShiftView.as_view(), name='update_shift'),
-    path('api/planning/<int:shift_id>/delete/', views.DeleteShiftView.as_view(), name='delete_shift'),
-
-    # Planning & Attendance URLs
-    path('planning/', views.PlanningView.as_view(), name='planning'),
     path('api/planning/', views.PlanningAPIView.as_view(), name='planning_api'),
     path('api/planning/create/', views.CreateShiftView.as_view(), name='create_shift'),
     path('api/planning/<int:shift_id>/update/', views.UpdateShiftView.as_view(), name='update_shift'),
@@ -107,8 +79,7 @@ urlpatterns = [
     # ---------- Pompistes APIs ----------
     path('api/pompistes/', views.PompistesListAPIView.as_view(), name='pompistes_api'),
 
-    # Documents URLs
-    path('documents/', views.DocumentsView.as_view(), name='documents'),
+    # ---------- Documents APIs ----------
     path('api/documents/', views.DocumentsAPIView.as_view(), name='documents_api'),
     path('api/documents/upload/', views.UploadDocumentView.as_view(), name='upload_document'),
     path('api/documents/<int:document_id>/view/', views.ViewDocumentView.as_view(), name='view_document'),

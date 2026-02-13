@@ -226,9 +226,14 @@
 
 <!-- Payments History -->
 <div class="bg-white shadow-sm rounded-lg border border-gray-100">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">Historique des Paiements</h3>
-        <p class="text-sm text-gray-500 mt-1">Derniers paiements effectués</p>
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-medium text-gray-900">Historique des Paiements</h3>
+            <p class="text-sm text-gray-500 mt-1">Derniers paiements effectués</p>
+        </div>
+        <div class="text-sm text-gray-500" id="history-count">
+            <!-- Will show count -->
+        </div>
     </div>
     
     <div class="overflow-x-auto">
@@ -245,61 +250,24 @@
                 </tr>
             </thead>
             <tbody id="payments-history-body" class="bg-white divide-y divide-gray-200">
-                {% for payment in payments %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">
-                            {% if payment.pompiste %}
-                                {{ payment.pompiste.get_full_name }}
-                            {% elif payment.employe_user %}
-                                {{ payment.employe_user.get_full_name }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </div>
-                        <div class="text-xs text-gray-500">
-                            {% if payment.pompiste %}
-                                Pompiste
-                            {% else %}
-                                {{ payment.employe_user.get_role_display }}
-                            {% endif %}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ payment.branche.nom }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ payment.mois_paiement|date:"m/Y" }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-semibold {% if payment.devise_paiement == 'USD' %}text-green-600{% else %}text-purple-600{% endif %}">
-                            {% if payment.devise_paiement == 'USD' %}${% endif %}{{ payment.montant_paye|floatformat:2 }}{% if payment.devise_paiement == 'FC' %} FC{% endif %}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ payment.caissier.get_full_name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ payment.date_paiement|date:"d/m/Y H:i" }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick="viewPaymentDetail({{ payment.id }})" class="text-petrox-red hover:text-petrox-hover">
-                            Détails
-                        </button>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p class="mt-2 text-sm">Aucun paiement enregistré</p>
-                    </td>
-                </tr>
-                {% endfor %}
+                <!-- Will be populated by JavaScript -->
             </tbody>
         </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div id="pagination-controls" class="hidden bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+        <div class="text-sm text-gray-700">
+            Page <span id="current-page">1</span> sur <span id="total-pages">1</span>
+        </div>
+        <div class="flex gap-2">
+            <button id="prev-page" onclick="changePage('prev')" class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                Précédent
+            </button>
+            <button id="next-page" onclick="changePage('next')" class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                Suivant
+            </button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -476,7 +444,10 @@
 <script>
 // Global variables
 let allEmployees = [];
-let currentFilters = {
+let allPayments = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let salariesFilters = {
     branche: 'all',
     employee_type: 'all',
     status: 'all'
@@ -484,77 +455,102 @@ let currentFilters = {
 
 // Load data on page load
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, initializing...');
+    
     // Set current month as default
     const today = new Date();
     const currentMonth = today.toISOString().substring(0, 7);
     document.getElementById('payment-periode').value = currentMonth;
     
+    // Load initial data
     loadStatistics();
     loadEmployees();
+    loadPaymentHistory();
 });
 
-// Load statistics
+// ============================================
+// STATISTICS
+// ============================================
 function loadStatistics() {
-    const branche_id = document.getElementById('filter-branche').value;
-    const period = document.getElementById('filter-period').value;
+    const branche_id = document.getElementById('filter-branche').value || 'all';
+    const period = document.getElementById('filter-period').value || 'month';
+    
+    console.log(`Loading statistics: branche=${branche_id}, period=${period}`);
     
     fetch(`/dashboard/api/salaries/statistics/?branche_id=${branche_id}&period=${period}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Statistics response:', data);
             if (data.success) {
                 updateStatistics(data.statistics);
+            } else {
+                console.error('Statistics error:', data.message);
             }
         })
-        .catch(error => console.error('Error loading statistics:', error));
+        .catch(error => {
+            console.error('Error loading statistics:', error);
+        });
 }
 
-// Update statistics display
 function updateStatistics(stats) {
-    document.getElementById('stat-total-usd').textContent = '$' + stats.total_usd.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('stat-total-fc').textContent = stats.total_fc.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' FC';
-    document.getElementById('stat-employees-paid').textContent = stats.employees_paid;
-    document.getElementById('stat-pending').textContent = stats.pending_payments;
+    console.log('Updating statistics:', stats);
+    
+    document.getElementById('stat-total-usd').textContent = '$' + (stats.total_usd || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('stat-total-fc').textContent = (stats.total_fc || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' FC';
+    document.getElementById('stat-employees-paid').textContent = stats.employees_paid || 0;
+    document.getElementById('stat-pending').textContent = stats.pending_payments || 0;
 }
 
-// Load employees
+// ============================================
+// EMPLOYEES
+// ============================================
 function loadEmployees() {
-    const branche_id = document.getElementById('filter-branche').value;
-    const employee_type = document.getElementById('filter-employee-type').value;
+    const branche_id = document.getElementById('filter-branche').value || 'all';
+    const employee_type = document.getElementById('filter-employee-type').value || 'all';
+    
+    console.log(`Loading employees: branche=${branche_id}, type=${employee_type}`);
     
     fetch(`/dashboard/api/salaries/employees/?branche_id=${branche_id}&employee_type=${employee_type}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Employees response:', data);
             if (data.success) {
-                allEmployees = data.employees;
+                allEmployees = data.employees || [];
+                console.log(`Loaded ${allEmployees.length} employees`);
                 applyFilters();
+            } else {
+                console.error('Employees error:', data.message);
             }
         })
-        .catch(error => console.error('Error loading employees:', error));
+        .catch(error => {
+            console.error('Error loading employees:', error);
+        });
 }
 
-// Apply filters
 function applyFilters() {
-    currentFilters.branche = document.getElementById('filter-branche').value;
-    currentFilters.employee_type = document.getElementById('filter-employee-type').value;
-    currentFilters.status = document.getElementById('filter-status').value;
+    salariesFilters.branche = document.getElementById('filter-branche').value || 'all';
+    salariesFilters.employee_type = document.getElementById('filter-employee-type').value || 'all';
+    salariesFilters.status = document.getElementById('filter-status').value || 'all';
+    
+    console.log('Applying filters:', currentFilters);
     
     let filtered = allEmployees.filter(emp => {
-        if (currentFilters.branche !== 'all' && emp.branche_id != currentFilters.branche) return false;
-        if (currentFilters.employee_type !== 'all' && emp.type !== currentFilters.employee_type) return false;
-        if (currentFilters.status === 'paid' && !emp.paid_this_month) return false;
-        if (currentFilters.status === 'pending' && emp.paid_this_month) return false;
+        if (salariesFilters.branche !== 'all' && emp.branche_id != salariesFilters.branche) return false;
+        if (salariesFilters.employee_type !== 'all' && emp.type !== salariesFilters.employee_type) return false;
+        if (salariesFilters.status === 'paid' && !emp.paid_this_month) return false;
+        if (salariesFilters.status === 'pending' && emp.paid_this_month) return false;
         return true;
     });
     
+    console.log(`Filtered to ${filtered.length} employees`);
     displayEmployees(filtered);
-    loadEmployees(); // Reload to get fresh data
-    loadStatistics(); // Reload statistics
 }
 
-// Display employees
 function displayEmployees(employees) {
     const tbody = document.getElementById('employees-table-body');
     const emptyState = document.getElementById('employees-empty-state');
+    
+    console.log(`Displaying ${employees.length} employees`);
     
     if (employees.length === 0) {
         tbody.innerHTML = '';
@@ -570,17 +566,17 @@ function displayEmployees(employees) {
             : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">En attente</span>';
         
         const salaryDisplay = emp.devise === 'USD' 
-            ? `$${parseFloat(emp.salaire).toFixed(2)}`
-            : `${parseFloat(emp.salaire).toFixed(2)} FC`;
+            ? `$${parseFloat(emp.salaire || 0).toFixed(2)}`
+            : `${parseFloat(emp.salaire || 0).toFixed(2)} FC`;
         
         return `
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">${emp.name}</div>
-                    <div class="text-xs text-gray-500">${emp.type === 'pompiste' ? emp.quart : emp.role}</div>
+                    <div class="text-sm font-medium text-gray-900">${emp.name || 'N/A'}</div>
+                    <div class="text-xs text-gray-500">${emp.type === 'pompiste' ? (emp.quart || 'Pompiste') : (emp.role || 'Utilisateur')}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${emp.branche}
+                    ${emp.branche || 'N/A'}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-semibold ${emp.devise === 'USD' ? 'text-green-600' : 'text-purple-600'}">
@@ -588,7 +584,7 @@ function displayEmployees(employees) {
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${emp.last_payment_date}
+                    ${emp.last_payment_date || 'Jamais'}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     ${statusBadge}
@@ -598,7 +594,7 @@ function displayEmployees(employees) {
                         Historique
                     </button>
                     ${!emp.paid_this_month ? `
-                        <button onclick="quickPay('${emp.type}', ${emp.id}, '${emp.name}', ${emp.salaire}, '${emp.devise}', ${emp.branche_id})" class="text-petrox-red hover:text-petrox-hover">
+                        <button onclick="quickPay('${emp.type}', ${emp.id}, '${(emp.name || '').replace(/'/g, "\\'")}', ${emp.salaire || 0}, '${emp.devise}', ${emp.branche_id || 0})" class="text-petrox-red hover:text-petrox-hover">
                             Payer
                         </button>
                     ` : ''}
@@ -608,7 +604,121 @@ function displayEmployees(employees) {
     }).join('');
 }
 
-// Load employees for payment modal
+// ============================================
+// PAYMENT HISTORY
+// ============================================
+function loadPaymentHistory() {
+    console.log('Loading payment history...');
+    
+    fetch('/dashboard/api/payments/history/')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Payment history response:', data);
+            if (data.success) {
+                allPayments = data.payments || [];
+                console.log(`Loaded ${allPayments.length} payments`);
+                displayPaymentHistory();
+            } else {
+                console.error('Payment history error:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading payment history:', error);
+        });
+}
+
+function displayPaymentHistory() {
+    const tbody = document.getElementById('payments-history-body');
+    const historyCount = document.getElementById('history-count');
+    const paginationControls = document.getElementById('pagination-controls');
+    
+    console.log(`Displaying ${allPayments.length} payments, page ${currentPage}`);
+    
+    if (allPayments.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="mt-2 text-sm">Aucun paiement enregistré</p>
+                </td>
+            </tr>
+        `;
+        historyCount.textContent = '';
+        paginationControls.classList.add('hidden');
+        return;
+    }
+    
+    // Calculate pagination
+    const totalPages = Math.ceil(allPayments.length / itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pagePayments = allPayments.slice(start, end);
+    
+    console.log(`Page ${currentPage}/${totalPages}, showing ${pagePayments.length} payments`);
+    
+    // Update counter
+    historyCount.textContent = `${allPayments.length} paiement${allPayments.length > 1 ? 's' : ''}`;
+    
+    // Display payments
+    tbody.innerHTML = pagePayments.map(payment => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${payment.employee || 'N/A'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${payment.branche || 'N/A'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${payment.periode || 'N/A'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold ${payment.devise === 'USD' ? 'text-green-600' : 'text-purple-600'}">
+                    ${payment.devise === 'USD' ? '$' : ''}${payment.montant || '0.00'}${payment.devise === 'FC' ? ' FC' : ''}
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${payment.paid_by || 'N/A'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${payment.date || 'N/A'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="viewPaymentDetail(${payment.id})" class="text-petrox-red hover:text-petrox-hover">
+                    Détails
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update pagination controls
+    if (totalPages > 1) {
+        paginationControls.classList.remove('hidden');
+        document.getElementById('current-page').textContent = currentPage;
+        document.getElementById('total-pages').textContent = totalPages;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages;
+    } else {
+        paginationControls.classList.add('hidden');
+    }
+}
+
+function changePage(direction) {
+    const totalPages = Math.ceil(allPayments.length / itemsPerPage);
+    
+    if (direction === 'prev' && currentPage > 1) {
+        currentPage--;
+    } else if (direction === 'next' && currentPage < totalPages) {
+        currentPage++;
+    }
+    
+    displayPaymentHistory();
+}
+
+// ============================================
+// PAYMENT MODAL
+// ============================================
 function loadEmployeesForPayment() {
     const type = document.getElementById('payment-employee-type').value;
     const select = document.getElementById('payment-employee');
@@ -621,43 +731,44 @@ function loadEmployeesForPayment() {
     const filtered = allEmployees.filter(emp => emp.type === type);
     
     select.innerHTML = '<option value="">Sélectionner un employé...</option>' + 
-        filtered.map(emp => `<option value="${emp.id}" data-salary="${emp.salaire}" data-currency="${emp.devise}" data-branch="${emp.branche_id}">${emp.name} (${emp.branche})</option>`).join('');
+        filtered.map(emp => `<option value="${emp.id}" data-salary="${emp.salaire || 0}" data-currency="${emp.devise}" data-branch="${emp.branche_id || ''}">${emp.name} (${emp.branche})</option>`).join('');
 }
 
-// Update salary amount based on selected employee
 function updateSalaryAmount() {
     const select = document.getElementById('payment-employee');
     const option = select.options[select.selectedIndex];
     
     if (option.value) {
-        document.getElementById('payment-montant').value = option.dataset.salary;
-        document.getElementById('payment-devise').value = option.dataset.currency;
-        document.getElementById('payment-branche').value = option.dataset.branch;
+        document.getElementById('payment-montant').value = option.dataset.salary || '0';
+        document.getElementById('payment-devise').value = option.dataset.currency || 'USD';
+        document.getElementById('payment-branche').value = option.dataset.branch || '';
     }
 }
 
-// Quick pay
 function quickPay(type, id, name, salary, currency, brancheId) {
+    console.log('Quick pay:', {type, id, name, salary, currency, brancheId});
+    
     // Pre-fill the form
     document.getElementById('payment-employee-type').value = type;
     loadEmployeesForPayment();
     
     setTimeout(() => {
         document.getElementById('payment-employee').value = id;
-        document.getElementById('payment-montant').value = salary;
-        document.getElementById('payment-devise').value = currency;
-        document.getElementById('payment-branche').value = brancheId;
+        document.getElementById('payment-montant').value = salary || '0';
+        document.getElementById('payment-devise').value = currency || 'USD';
+        document.getElementById('payment-branche').value = brancheId || '';
     }, 100);
     
     openModal('pay-salary-modal');
 }
 
-// Submit payment
 function submitPayment(event) {
     event.preventDefault();
     
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData.entries());
+    
+    console.log('Submitting payment:', data);
     
     fetch('/dashboard/api/salaries/pay/', {
         method: 'POST',
@@ -669,13 +780,16 @@ function submitPayment(event) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Payment response:', data);
         if (data.success) {
             closeModal('pay-salary-modal');
             showNotification(data.message, 'success');
             event.target.reset();
+            
+            // Reload data
             loadEmployees();
             loadStatistics();
-            setTimeout(() => location.reload(), 1000);
+            loadPaymentHistory();
         } else {
             showNotification(data.message || 'Erreur lors du paiement', 'error');
         }
@@ -686,11 +800,16 @@ function submitPayment(event) {
     });
 }
 
-// View payment detail
+// ============================================
+// PAYMENT DETAILS
+// ============================================
 function viewPaymentDetail(paymentId) {
+    console.log('Viewing payment detail:', paymentId);
+    
     fetch(`/dashboard/api/payments/${paymentId}/`)
         .then(response => response.json())
         .then(data => {
+            console.log('Payment detail response:', data);
             if (data.success) {
                 displayPaymentDetail(data.payment);
                 openModal('payment-detail-modal');
@@ -704,25 +823,24 @@ function viewPaymentDetail(paymentId) {
         });
 }
 
-// Display payment detail
 function displayPaymentDetail(payment) {
     const content = document.getElementById('payment-detail-content');
     content.innerHTML = `
         <div class="border-b border-gray-200 pb-3">
             <dt class="text-sm font-medium text-gray-500">Employé</dt>
-            <dd class="mt-1 text-sm text-gray-900">${payment.employee_name}</dd>
+            <dd class="mt-1 text-sm text-gray-900">${payment.employee_name || 'N/A'}</dd>
         </div>
         <div class="border-b border-gray-200 pb-3">
             <dt class="text-sm font-medium text-gray-500">Branche</dt>
-            <dd class="mt-1 text-sm text-gray-900">${payment.branche}</dd>
+            <dd class="mt-1 text-sm text-gray-900">${payment.branche || 'N/A'}</dd>
         </div>
         <div class="border-b border-gray-200 pb-3">
             <dt class="text-sm font-medium text-gray-500">Période</dt>
-            <dd class="mt-1 text-sm text-gray-900">${payment.periode}</dd>
+            <dd class="mt-1 text-sm text-gray-900">${payment.periode || 'N/A'}</dd>
         </div>
         <div class="border-b border-gray-200 pb-3">
             <dt class="text-sm font-medium text-gray-500">Montant payé</dt>
-            <dd class="mt-1 text-lg font-bold text-gray-900">${payment.montant} ${payment.devise}</dd>
+            <dd class="mt-1 text-lg font-bold text-gray-900">${payment.montant || '0.00'} ${payment.devise || 'USD'}</dd>
         </div>
         <div class="border-b border-gray-200 pb-3">
             <dt class="text-sm font-medium text-gray-500">Méthode de paiement</dt>
@@ -736,11 +854,11 @@ function displayPaymentDetail(payment) {
         ` : ''}
         <div class="border-b border-gray-200 pb-3">
             <dt class="text-sm font-medium text-gray-500">Payé par</dt>
-            <dd class="mt-1 text-sm text-gray-900">${payment.paid_by}</dd>
+            <dd class="mt-1 text-sm text-gray-900">${payment.paid_by || 'N/A'}</dd>
         </div>
         <div class="border-b border-gray-200 pb-3">
             <dt class="text-sm font-medium text-gray-500">Date de paiement</dt>
-            <dd class="mt-1 text-sm text-gray-900">${payment.date_paiement}</dd>
+            <dd class="mt-1 text-sm text-gray-900">${payment.date_paiement || 'N/A'}</dd>
         </div>
         ${payment.notes ? `
         <div>
@@ -751,11 +869,16 @@ function displayPaymentDetail(payment) {
     `;
 }
 
-// View employee history
+// ============================================
+// EMPLOYEE HISTORY
+// ============================================
 function viewEmployeeHistory(type, id) {
+    console.log('Viewing employee history:', {type, id});
+    
     fetch(`/dashboard/api/salaries/employee/${type}/${id}/history/`)
         .then(response => response.json())
         .then(data => {
+            console.log('Employee history response:', data);
             if (data.success) {
                 displayEmployeeHistory(data);
                 openModal('employee-history-modal');
@@ -769,24 +892,23 @@ function viewEmployeeHistory(type, id) {
         });
 }
 
-// Display employee history
 function displayEmployeeHistory(data) {
-    document.getElementById('history-employee-name').textContent = `Historique - ${data.employee.name}`;
+    document.getElementById('history-employee-name').textContent = `Historique - ${data.employee.name || 'N/A'}`;
     
     // Summary
     document.getElementById('history-summary').innerHTML = `
         <div class="grid grid-cols-3 gap-4 text-center">
             <div>
                 <p class="text-xs text-gray-500">Total Paiements</p>
-                <p class="text-lg font-bold text-gray-900">${data.summary.total_payments}</p>
+                <p class="text-lg font-bold text-gray-900">${data.summary.total_payments || 0}</p>
             </div>
             <div>
                 <p class="text-xs text-gray-500">Total USD</p>
-                <p class="text-lg font-bold text-green-600">$${data.summary.total_usd.toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
+                <p class="text-lg font-bold text-green-600">$${(data.summary.total_usd || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
             </div>
             <div>
                 <p class="text-xs text-gray-500">Total FC</p>
-                <p class="text-lg font-bold text-purple-600">${data.summary.total_fc.toLocaleString('en-US', {minimumFractionDigits: 2})} FC</p>
+                <p class="text-lg font-bold text-purple-600">${(data.summary.total_fc || 0).toLocaleString('en-US', {minimumFractionDigits: 2})} FC</p>
             </div>
         </div>
     `;
@@ -794,7 +916,7 @@ function displayEmployeeHistory(data) {
     // History table
     const tbody = document.getElementById('history-table-body');
     
-    if (data.payments.length === 0) {
+    if (!data.payments || data.payments.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" class="px-4 py-8 text-center text-gray-500">
@@ -807,17 +929,19 @@ function displayEmployeeHistory(data) {
     
     tbody.innerHTML = data.payments.map(payment => `
         <tr class="hover:bg-gray-50">
-            <td class="px-4 py-3 text-sm text-gray-900">${payment.periode}</td>
+            <td class="px-4 py-3 text-sm text-gray-900">${payment.periode || 'N/A'}</td>
             <td class="px-4 py-3 text-sm font-semibold ${payment.devise === 'USD' ? 'text-green-600' : 'text-purple-600'}">
-                ${payment.devise === 'USD' ? '$' : ''}${payment.montant}${payment.devise === 'FC' ? ' FC' : ''}
+                ${payment.devise === 'USD' ? '$' : ''}${payment.montant || '0.00'}${payment.devise === 'FC' ? ' FC' : ''}
             </td>
-            <td class="px-4 py-3 text-sm text-gray-500">${payment.methode}</td>
-            <td class="px-4 py-3 text-sm text-gray-500">${payment.date_paiement}</td>
+            <td class="px-4 py-3 text-sm text-gray-500">${payment.methode || 'N/A'}</td>
+            <td class="px-4 py-3 text-sm text-gray-500">${payment.date_paiement || 'N/A'}</td>
         </tr>
     `).join('');
 }
 
-// Modal functions
+// ============================================
+// UTILITIES
+// ============================================
 function openModal(modalId) {
     document.getElementById(modalId).classList.remove('hidden');
 }
@@ -826,7 +950,6 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
 
-// Notification
 function showNotification(message, type) {
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity ${
@@ -844,7 +967,6 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-// Get CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
