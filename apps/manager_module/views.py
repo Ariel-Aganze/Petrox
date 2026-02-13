@@ -2261,9 +2261,14 @@ class ConfirmDeliveryView(View):
             
             # Update delivery with atomic transaction
             with transaction.atomic():
+                # Calculate discrepancy
+                ecart_quantite = quantite_recue - delivery.quantite_prevue
+                ecart_percentage = (ecart_quantite / delivery.quantite_prevue * 100) if delivery.quantite_prevue > 0 else 0
+                has_significant_ecart = abs(ecart_percentage) >= 2  # 2% threshold
+                
                 # Update delivery
                 delivery.quantite_recue = quantite_recue
-                delivery.ecart_quantite = quantite_recue - delivery.quantite_prevue
+                delivery.ecart_quantite = ecart_quantite
                 delivery.observations_manager = observations
                 delivery.statut = 'confirmee'
                 delivery.confirmee_par = request.user
@@ -2314,9 +2319,45 @@ class ConfirmDeliveryView(View):
                     
                     delivery.partenaire.save()
                 
-                # TODO: Send notification to admin if there's a discrepancy
-                # if delivery.has_ecart:
-                #     send_notification_to_admin(delivery)
+                # Send notification to admin if there's a significant discrepancy
+                if has_significant_ecart:
+                    try:
+                        from apps.admin_module.utils import notify_admins
+                        
+                        # Prepare notification details
+                        ecart_sign = '+' if ecart_quantite > 0 else ''
+                        
+                        titre = f"⚠️ Écart de livraison - {delivery.numero}"
+                        
+                        message = (
+                            f"Une différence significative a été détectée lors de la confirmation d'une livraison.\n\n"
+                            f"📦 Livraison: {delivery.numero}\n"
+                            f"🏢 Branche: {delivery.branche.nom}\n"
+                            f"⛽ Carburant: {delivery.type_carburant.nom}\n"
+                            f"📊 Quantité prévue: {delivery.quantite_prevue} L\n"
+                            f"📊 Quantité reçue: {quantite_recue} L\n"
+                            f"📉 Écart: {ecart_sign}{ecart_quantite} L ({ecart_sign}{ecart_percentage:.1f}%)\n"
+                            f"👤 Confirmé par: {request.user.get_full_name()}\n"
+                        )
+                        
+                        if observations:
+                            message += f"\n💬 Observations: {observations}"
+                        
+                        # Send notification to all admins
+                        notify_admins(
+                            titre=titre,
+                            message=message,
+                            type_notification='livraison',
+                            priorite='haute' if abs(ecart_percentage) >= 10 else 'normale',
+                            expediteur=request.user,
+                            objet_id=delivery.id
+                        )
+                        
+                        print(f"✓ Notification sent to admins about delivery discrepancy: {delivery.numero}")
+                        
+                    except Exception as notif_error:
+                        # Log but don't fail the entire operation
+                        print(f"Warning: Failed to send notification: {str(notif_error)}")
             
             return JsonResponse({
                 'success': True,

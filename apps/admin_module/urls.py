@@ -147,7 +147,7 @@ path('api/dashboard/export/excel/', views.ExportDashboardExcelView.as_view(), na
    # Print Single Expense
    path('api/depenses/<int:expense_id>/print/', views.PrintExpenseReceiptView.as_view(), name='print_expense_receipt'),
 
-# Categories APIs
+   # Categories APIs
    path('api/categories/', views.CategoriesListAPIView.as_view(), name='categories_api'),
    path('api/categories/create/', views.CreateCategoryView.as_view(), name='create_category'),
    path('api/categories/<int:category_id>/update/', views.UpdateCategoryView.as_view(), name='update_category'),
@@ -257,6 +257,11 @@ path('api/dashboard/export/excel/', views.ExportDashboardExcelView.as_view(), na
    path('api/documents/<int:document_id>/delete/', views.DeleteDocumentView.as_view(), name='delete_document'),
    path('api/documents/categories/create/', views.CreateDocumentCategoryView.as_view(), name='create_document_category'),
    path('api/documents/list/', views.DocumentsListAPIView.as_view(), name='documents_list_api'),
+
+   # Category Management APIs
+   path('api/documents/categories/', views.CategoryListAPIView.as_view(), name='category_list'),
+   path('api/documents/categories/<int:category_id>/update/', views.UpdateDocumentCategoryView.as_view(), name='update_category'),
+   path('api/documents/categories/<int:category_id>/delete/', views.DeleteDocumentCategoryView.as_view(), name='delete_category'),
     
     # # ---------- Notifications APIs ----------
     # Notifications URLs

@@ -8041,6 +8041,129 @@ class UpdateDocumentView(AdminRequiredMixin, View):
             }, status=500)
 
 
+#=================================================
+## DOCUMENT CATEGORY VIEWS
+#=================================================
+
+class CategoryListAPIView(AdminRequiredMixin, View):
+    """Get list of categories with document counts"""
+    
+    def get(self, request):
+        try:
+            categories = DocumentCategory.objects.filter(is_active=True).annotate(
+                documents_count=Count('document')
+            ).order_by('nom')
+            
+            categories_data = []
+            for cat in categories:
+                categories_data.append({
+                    'id': cat.id,
+                    'nom': cat.nom,
+                    'description': cat.description or '',
+                    'documents_count': cat.documents_count,
+                    'created_at': cat.created_at.strftime('%d/%m/%Y')
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'categories': categories_data,
+                'count': len(categories_data)
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+
+class UpdateDocumentCategoryView(AdminRequiredMixin, View):
+    """Update a document category"""
+    
+    def put(self, request, category_id):
+        try:
+            data = json.loads(request.body)
+            
+            category = DocumentCategory.objects.get(id=category_id, is_active=True)
+            
+            # Update fields
+            if 'nom' in data:
+                # Check if name already exists (excluding current category)
+                if DocumentCategory.objects.filter(nom__iexact=data['nom']).exclude(id=category_id).exists():
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Cette catégorie existe déjà'
+                    }, status=400)
+                category.nom = data['nom']
+            
+            if 'description' in data:
+                category.description = data['description']
+            
+            category.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Catégorie modifiée avec succès',
+                'category': {
+                    'id': category.id,
+                    'nom': category.nom
+                }
+            })
+            
+        except DocumentCategory.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Catégorie introuvable'
+            }, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Données JSON invalides'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur: {str(e)}'
+            }, status=500)
+
+
+class DeleteDocumentCategoryView(AdminRequiredMixin, View):
+    """Delete a document category"""
+    
+    def delete(self, request, category_id):
+        try:
+            category = DocumentCategory.objects.get(id=category_id)
+            
+            # Check if category has documents
+            documents_count = Document.objects.filter(categorie=category).count()
+            if documents_count > 0:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Impossible de supprimer: {documents_count} document(s) utilisent cette catégorie'
+                }, status=400)
+            
+            # Soft delete
+            category.is_active = False
+            category.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Catégorie supprimée avec succès'
+            })
+            
+        except DocumentCategory.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Catégorie introuvable'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Erreur: {str(e)}'
+            }, status=500)
+        
+
+
 # TEMPLATE VIEW
 class RapportsView(AdminRequiredMixin, AdminContextMixin, TemplateView):
     """Reports page"""
@@ -8572,26 +8695,40 @@ class StockReportAPIView(AdminRequiredMixin, View):
 
 # API VIEWS
 class PaymentDetailAPIView(AdminRequiredMixin, View):
-    """Get payment details"""
+    """Get payment details - FIXED to handle both pompiste and employe_user"""
     
     def get(self, request, payment_id):
         try:
             payment = PaiementSalaire.objects.select_related(
-                'pompiste', 'branche', 'caissier'
+                'pompiste', 'employe_user', 'branche', 'caissier'
             ).get(id=payment_id)
+            
+            # FIXED: Check both pompiste and employe_user
+            if payment.pompiste:
+                employee_name = payment.pompiste.get_full_name()
+            elif payment.employe_user:
+                employee_name = payment.employe_user.get_full_name()
+            else:
+                employee_name = 'N/A'
+            
+            # FIXED: Check caissier (who paid)
+            if payment.caissier:
+                paid_by = payment.caissier.get_full_name()
+            else:
+                paid_by = 'N/A'
             
             return JsonResponse({
                 'success': True,
                 'payment': {
                     'id': payment.id,
-                    'employee_name': payment.pompiste.get_full_name() if payment.pompiste else 'N/A',
+                    'employee_name': employee_name,
                     'branche': payment.branche.nom if payment.branche else 'N/A',
                     'periode': payment.mois_paiement.strftime('%m/%Y') if payment.mois_paiement else 'N/A',
                     'montant': str(payment.montant_paye),
                     'devise': payment.devise_paiement,
-                    'methode_paiement': payment.methode_paiement,
+                    'methode_paiement': payment.methode_paiement or 'N/A',
                     'taux_change': str(payment.taux_change) if payment.taux_change else None,
-                    'paid_by': payment.caissier.get_full_name() if payment.caissier else 'N/A',
+                    'paid_by': paid_by,
                     'date_paiement': payment.date_paiement.strftime('%d/%m/%Y %H:%M'),
                     'notes': payment.notes or ''
                 }
@@ -8610,7 +8747,7 @@ class PaymentDetailAPIView(AdminRequiredMixin, View):
 
 
 class SalaryHistoryAPIView(AdminRequiredMixin, View):
-    """Get salary payment history"""
+    """Get salary payment history - FIXED to properly return employee names"""
     
     def get(self, request):
         try:
@@ -8629,50 +8766,60 @@ class SalaryHistoryAPIView(AdminRequiredMixin, View):
             
             # Build filters
             filters = {
-                'date_paiement__date__gte': start_date
+                'date_paiement__date__gte': start_date,
+                'statut': 'paye'  # FIXED: Only show paid salaries
             }
             
-            if branche_id:
+            if branche_id and branche_id != 'all':
                 filters['branche_id'] = branche_id
             
             if employee_id:
+                # This would need employee_type to properly filter
                 filters['pompiste_id'] = employee_id
             
-            # Get payments
+            # Get payments with related objects
             payments = PaiementSalaire.objects.filter(**filters).select_related(
-                'pompiste', 'branche', 'caissier'
+                'pompiste', 'employe_user', 'branche', 'caissier'
             ).order_by('-date_paiement')
             
-            # Format data
+            # Format data - FIXED to handle both pompiste and employe_user
             payments_data = []
             for payment in payments:
+                # FIXED: Check both pompiste and employe_user
+                if payment.pompiste:
+                    employee = payment.pompiste.get_full_name()
+                elif payment.employe_user:
+                    employee = payment.employe_user.get_full_name()
+                else:
+                    employee = 'N/A'
+                
+                # FIXED: Check who paid (caissier)
+                if payment.caissier:
+                    paid_by = payment.caissier.get_full_name()
+                else:
+                    paid_by = 'N/A'
+                
                 payments_data.append({
                     'id': payment.id,
-                    'employee': payment.pompiste.get_full_name() if payment.pompiste else 'N/A',
+                    'employee': employee,
                     'branche': payment.branche.nom if payment.branche else 'N/A',
                     'periode': payment.mois_paiement.strftime('%m/%Y') if payment.mois_paiement else 'N/A',
                     'montant': str(payment.montant_paye),
                     'devise': payment.devise_paiement,
-                    'date': payment.date_paiement.strftime('%d/%m/%Y')
+                    'paid_by': paid_by,
+                    'date': payment.date_paiement.strftime('%d/%m/%Y %H:%M')
                 })
-            
-            # Calculate totals
-            total_usd = float(payments.filter(devise_paiement='USD').aggregate(
-                Sum('montant_paye'))['montant_paye__sum'] or 0)
-            total_fc = float(payments.filter(devise_paiement='FC').aggregate(
-                Sum('montant_paye'))['montant_paye__sum'] or 0)
             
             return JsonResponse({
                 'success': True,
                 'payments': payments_data,
-                'summary': {
-                    'total_payments': payments.count(),
-                    'total_usd': f'${total_usd:,.2f}',
-                    'total_fc': f'{total_fc:,.2f} FC'
-                }
+                'count': len(payments_data)
             })
             
         except Exception as e:
+            print(f"Error in SalaryHistoryAPIView: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return JsonResponse({
                 'success': False,
                 'message': str(e)
