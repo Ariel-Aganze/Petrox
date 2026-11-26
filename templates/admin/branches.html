@@ -151,7 +151,7 @@
     <div class="flex flex-wrap items-center gap-4">
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Filtrer par Province</label>
-            <select onchange="filterByProvince(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+            <select onchange="filterByProvince(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-400 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
                 <option value="all">Toutes les provinces</option>
                 {% for province in provinces %}
                 <option value="{{ province }}">{{ province }}</option>
@@ -161,7 +161,7 @@
         
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-            <select onchange="filterByStatus(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+            <select onchange="filterByStatus(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-400 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
                 <option value="all">Tous les statuts</option>
                 <option value="active">Actives</option>
                 <option value="inactive">Inactives</option>
@@ -170,7 +170,7 @@
         
         <div class="flex-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
-            <input type="text" id="search-input" onkeyup="searchBranches()" placeholder="Nom, code, ville..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <input type="text" id="search-input" onkeyup="searchBranches()" placeholder="Nom, code, ville..." class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
         </div>
         
         <div class="pt-6">
@@ -325,37 +325,37 @@
                                 <!-- Branch Name -->
                                 <div>
                                     <label for="branch-nom" class="block text-sm font-medium text-gray-700">Nom de la station *</label>
-                                    <input type="text" id="branch-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="text" id="branch-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
                                 
                                 <!-- Branch Code -->
                                 <div>
                                     <label for="branch-code" class="block text-sm font-medium text-gray-700">Code de la station *</label>
-                                    <input type="text" id="branch-code" name="code" required maxlength="20" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Ex: STA001">
+                                    <input type="text" id="branch-code" name="code" required maxlength="20" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Ex: STA001">
                                 </div>
                                 
                                 <!-- Address -->
                                 <div>
                                     <label for="branch-adresse" class="block text-sm font-medium text-gray-700">Adresse *</label>
-                                    <textarea id="branch-adresse" name="adresse" rows="2" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                                    <textarea id="branch-adresse" name="adresse" rows="2" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                                 </div>
                                 
                                 <!-- City and Province -->
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label for="branch-ville" class="block text-sm font-medium text-gray-700">Ville *</label>
-                                        <input type="text" id="branch-ville" name="ville" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                        <input type="text" id="branch-ville" name="ville" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     </div>
                                     <div>
                                         <label for="branch-province" class="block text-sm font-medium text-gray-700">Province *</label>
-                                        <input type="text" id="branch-province" name="province" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                        <input type="text" id="branch-province" name="province" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     </div>
                                 </div>
                                 
                                 <!-- Manager Assignment -->
                                 <div>
                                     <label for="branch-responsable" class="block text-sm font-medium text-gray-700">Manager responsable</label>
-                                    <select id="branch-responsable" name="responsable_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <select id="branch-responsable" name="responsable_id" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                         <option value="">Sélectionner un manager</option>
                                     </select>
                                 </div>
@@ -363,7 +363,7 @@
                                 <!-- Service Date -->
                                 <div>
                                     <label for="branch-date" class="block text-sm font-medium text-gray-700">Date de mise en service</label>
-                                    <input type="date" id="branch-date" name="date_mise_en_service" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="date" id="branch-date" name="date_mise_en_service" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
                             </div>
                         </div>
@@ -402,40 +402,40 @@
                             <div class="space-y-4">
                                 <div>
                                     <label for="edit-branch-nom" class="block text-sm font-medium text-gray-700">Nom de la station *</label>
-                                    <input type="text" id="edit-branch-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="text" id="edit-branch-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
                                 
                                 <div>
                                     <label for="edit-branch-code" class="block text-sm font-medium text-gray-700">Code *</label>
-                                    <input type="text" id="edit-branch-code" name="code" required maxlength="20" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="text" id="edit-branch-code" name="code" required maxlength="20" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
                                 
                                 <div>
                                     <label for="edit-branch-adresse" class="block text-sm font-medium text-gray-700">Adresse *</label>
-                                    <textarea id="edit-branch-adresse" name="adresse" rows="2" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                                    <textarea id="edit-branch-adresse" name="adresse" rows="2" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                                 </div>
                                 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label for="edit-branch-ville" class="block text-sm font-medium text-gray-700">Ville *</label>
-                                        <input type="text" id="edit-branch-ville" name="ville" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                        <input type="text" id="edit-branch-ville" name="ville" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     </div>
                                     <div>
                                         <label for="edit-branch-province" class="block text-sm font-medium text-gray-700">Province *</label>
-                                        <input type="text" id="edit-branch-province" name="province" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                        <input type="text" id="edit-branch-province" name="province" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     </div>
                                 </div>
                                 
                                 <div>
                                     <label for="edit-branch-responsable" class="block text-sm font-medium text-gray-700">Manager responsable</label>
-                                    <select id="edit-branch-responsable" name="responsable_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <select id="edit-branch-responsable" name="responsable_id" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                         <option value="">Sélectionner un manager</option>
                                     </select>
                                 </div>
                                 
                                 <div>
                                     <label for="edit-branch-date" class="block text-sm font-medium text-gray-700">Date de mise en service</label>
-                                    <input type="date" id="edit-branch-date" name="date_mise_en_service" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="date" id="edit-branch-date" name="date_mise_en_service" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
                             </div>
                         </div>

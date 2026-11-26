@@ -167,12 +167,12 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label for="search-input" class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
-                <input type="text" id="search-input" name="search" value="{{ request.GET.search }}" placeholder="Titre ou description..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <input type="text" id="search-input" name="search" value="{{ request.GET.search }}" placeholder="Titre ou description..." class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
             </div>
             
             <div>
                 <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                <select id="category-filter" name="category_id" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <select id="category-filter" name="category_id" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                     <option value="">Toutes les catégories</option>
                     {% for category in categories %}
                     <option value="{{ category.id }}" {% if request.GET.category_id == category.id|stringformat:"s" %}selected{% endif %}>{{ category.nom }}</option>
@@ -182,7 +182,7 @@
             
             <div>
                 <label for="visibility-filter" class="block text-sm font-medium text-gray-700 mb-1">Visibilité</label>
-                <select id="visibility-filter" name="visibility" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                <select id="visibility-filter" name="visibility" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                     <option value="">Tous</option>
                     <option value="public" {% if request.GET.visibility == "public" %}selected{% endif %}>Public</option>
                     <option value="prive" {% if request.GET.visibility == "prive" %}selected{% endif %}>Privé</option>
@@ -396,17 +396,17 @@
                     <div class="space-y-4">
                         <div>
                             <label for="doc-titre" class="block text-sm font-medium text-gray-700">Titre *</label>
-                            <input type="text" id="doc-titre" name="titre" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="doc-titre" name="titre" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="doc-description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea id="doc-description" name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea id="doc-description" name="description" rows="3" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                         
                         <div>
                             <label for="doc-categorie" class="block text-sm font-medium text-gray-700">Catégorie *</label>
-                            <select id="doc-categorie" name="categorie_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="doc-categorie" name="categorie_id" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 {% for category in categories %}
                                 <option value="{{ category.id }}">{{ category.nom }}</option>
@@ -416,7 +416,7 @@
                         
                         <div>
                             <label for="doc-visibilite" class="block text-sm font-medium text-gray-700">Visibilité *</label>
-                            <select id="doc-visibilite" name="visibilite" required onchange="toggleBranchSelection()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="doc-visibilite" name="visibilite" required onchange="toggleBranchSelection()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="public">Public - Visible par tous</option>
                                 <option value="prive">Privé - Visible par certaines branches</option>
                                 <option value="confidentiel">Confidentiel - Admin uniquement</option>
@@ -426,7 +426,7 @@
                         <!-- Branch Selection (Multi-select dropdown) -->
                         <div id="branch-selection" class="hidden">
                             <label for="doc-branches" class="block text-sm font-medium text-gray-700">Branches autorisées *</label>
-                            <select id="doc-branches" name="branches" multiple size="5" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="doc-branches" name="branches" multiple size="5" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 {% for branch in branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
                                 {% endfor %}
@@ -472,12 +472,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="cat-nom" class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
-                            <input type="text" id="cat-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="cat-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="cat-description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <input type="text" id="cat-description" name="description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="cat-description" name="description" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                     <div class="mt-3 flex justify-end">
@@ -560,12 +560,12 @@
                     <div class="space-y-4">
                         <div>
                             <label for="edit-cat-nom" class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
-                            <input type="text" id="edit-cat-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-cat-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="edit-cat-description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <input type="text" id="edit-cat-description" name="description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-cat-description" name="description" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                 </div>
@@ -599,17 +599,17 @@
                     <div class="space-y-4">
                         <div>
                             <label for="edit-doc-titre" class="block text-sm font-medium text-gray-700">Titre *</label>
-                            <input type="text" id="edit-doc-titre" name="titre" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-doc-titre" name="titre" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="edit-doc-description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea id="edit-doc-description" name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea id="edit-doc-description" name="description" rows="3" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                         
                         <div>
                             <label for="edit-doc-categorie" class="block text-sm font-medium text-gray-700">Catégorie *</label>
-                            <select id="edit-doc-categorie" name="categorie_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-doc-categorie" name="categorie_id" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 {% for category in categories %}
                                 <option value="{{ category.id }}">{{ category.nom }}</option>
@@ -619,7 +619,7 @@
                         
                         <div>
                             <label for="edit-doc-visibilite" class="block text-sm font-medium text-gray-700">Visibilité *</label>
-                            <select id="edit-doc-visibilite" name="visibilite" required onchange="toggleEditBranchSelection()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-doc-visibilite" name="visibilite" required onchange="toggleEditBranchSelection()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="public">Public - Visible par tous</option>
                                 <option value="prive">Privé - Visible par certaines branches</option>
                                 <option value="confidentiel">Confidentiel - Admin uniquement</option>
@@ -629,7 +629,7 @@
                         <!-- Branch Selection for Edit (Multi-select dropdown) -->
                         <div id="edit-branch-selection" class="hidden">
                             <label for="edit-doc-branches" class="block text-sm font-medium text-gray-700">Branches autorisées *</label>
-                            <select id="edit-doc-branches" name="branches" multiple size="5" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-doc-branches" name="branches" multiple size="5" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 {% for branch in branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
                                 {% endfor %}

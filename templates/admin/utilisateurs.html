@@ -63,7 +63,7 @@
     </div>
     <div class="mt-4 flex gap-3 md:mt-0 md:ml-4">
         <!-- Branch Filter -->
-        <select id="branche-filter" onchange="filterUsers()" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
+        <select id="branche-filter" onchange="filterUsers()" class="block w-full pl-3 pr-10 py-2 text-base border-gray-400 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md">
             <option value="all">Toutes les branches</option>
             {% for branch in all_branches %}
             <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -566,31 +566,31 @@
                         <!-- Username -->
                         <div class="sm:col-span-2">
                             <label for="user-username" class="block text-sm font-medium text-gray-700">Nom d'utilisateur *</label>
-                            <input type="text" id="user-username" name="username" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="user-username" name="username" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Email -->
                         <div class="sm:col-span-2">
                             <label for="user-email" class="block text-sm font-medium text-gray-700">Email *</label>
-                            <input type="email" id="user-email" name="email" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="email" id="user-email" name="email" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Prenom -->
                         <div>
                             <label for="user-prenom" class="block text-sm font-medium text-gray-700">Prénom *</label>
-                            <input type="text" id="user-prenom" name="prenom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="user-prenom" name="prenom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Nom -->
                         <div>
                             <label for="user-nom" class="block text-sm font-medium text-gray-700">Nom *</label>
-                            <input type="text" id="user-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="user-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Role -->
                         <div>
                             <label for="user-role" class="block text-sm font-medium text-gray-700">Rôle *</label>
-                            <select id="user-role" name="role" required onchange="toggleBranchField()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="user-role" name="role" required onchange="toggleBranchField()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 <option value="admin">Administrateur</option>
                                 <option value="manager">Manager</option>
@@ -601,7 +601,7 @@
                         <!-- Branch (only for manager/caissier) -->
                         <div id="user-branche-field" class="hidden">
                             <label for="user-branche" class="block text-sm font-medium text-gray-700">Branche *</label>
-                            <select id="user-branche" name="branche_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="user-branche" name="branche_id" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 {% for branch in all_branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -612,25 +612,25 @@
                         <!-- Telephone -->
                         <div>
                             <label for="user-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
-                            <input type="tel" id="user-telephone" name="telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="tel" id="user-telephone" name="telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Date de naissance -->
                         <div>
                             <label for="user-date-naissance" class="block text-sm font-medium text-gray-700">Date de naissance</label>
-                            <input type="date" id="user-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="date" id="user-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Salaire -->
                         <div>
                             <label for="user-salaire" class="block text-sm font-medium text-gray-700">Salaire</label>
-                            <input type="number" id="user-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="user-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Devise Salaire -->
                         <div>
                             <label for="user-devise-salaire" class="block text-sm font-medium text-gray-700">Devise</label>
-                            <select id="user-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="user-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="USD">USD ($)</option>
                                 <option value="FC">FC</option>
                             </select>
@@ -639,7 +639,7 @@
                         <!-- Adresse -->
                         <div class="sm:col-span-2">
                             <label for="user-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <textarea id="user-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea id="user-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                         
                         <!-- Password Info -->
@@ -684,38 +684,38 @@
                         <!-- Username -->
                         <div class="sm:col-span-2">
                             <label for="edit-user-username" class="block text-sm font-medium text-gray-700">Nom d'utilisateur *</label>
-                            <input type="text" id="edit-user-username" name="username" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-user-username" name="username" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Email -->
                         <div class="sm:col-span-2">
                             <label for="edit-user-email" class="block text-sm font-medium text-gray-700">Email *</label>
-                            <input type="email" id="edit-user-email" name="email" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="email" id="edit-user-email" name="email" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Prenom -->
                         <div>
                             <label for="edit-user-prenom" class="block text-sm font-medium text-gray-700">Prénom *</label>
-                            <input type="text" id="edit-user-prenom" name="prenom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-user-prenom" name="prenom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Nom -->
                         <div>
                             <label for="edit-user-nom" class="block text-sm font-medium text-gray-700">Nom *</label>
-                            <input type="text" id="edit-user-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-user-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Role (display only) -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Rôle</label>
-                            <input type="text" id="edit-user-role-display" readonly class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 sm:text-sm">
+                            <input type="text" id="edit-user-role-display" readonly class="mt-1 block w-full border-gray-400 rounded-md shadow-sm bg-gray-50 sm:text-sm">
                             <input type="hidden" id="edit-user-role" name="role">
                         </div>
                         
                         <!-- Branch (only for manager/caissier) -->
                         <div id="edit-user-branche-field">
                             <label for="edit-user-branche" class="block text-sm font-medium text-gray-700">Branche</label>
-                            <select id="edit-user-branche" name="branche_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-user-branche" name="branche_id" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 {% for branch in all_branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -726,25 +726,25 @@
                         <!-- Telephone -->
                         <div>
                             <label for="edit-user-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
-                            <input type="tel" id="edit-user-telephone" name="telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="tel" id="edit-user-telephone" name="telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Date de naissance -->
                         <div>
                             <label for="edit-user-date-naissance" class="block text-sm font-medium text-gray-700">Date de naissance</label>
-                            <input type="date" id="edit-user-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="date" id="edit-user-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Salaire -->
                         <div>
                             <label for="edit-user-salaire" class="block text-sm font-medium text-gray-700">Salaire</label>
-                            <input type="number" id="edit-user-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="edit-user-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Devise Salaire -->
                         <div>
                             <label for="edit-user-devise-salaire" class="block text-sm font-medium text-gray-700">Devise</label>
-                            <select id="edit-user-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-user-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="USD">USD ($)</option>
                                 <option value="FC">FC</option>
                             </select>
@@ -753,7 +753,7 @@
                         <!-- Adresse -->
                         <div class="sm:col-span-2">
                             <label for="edit-user-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <textarea id="edit-user-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea id="edit-user-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                     </div>
                 </div>
@@ -788,19 +788,19 @@
                         <!-- Prenom -->
                         <div>
                             <label for="edit-pompiste-prenom" class="block text-sm font-medium text-gray-700">Prénom *</label>
-                            <input type="text" id="edit-pompiste-prenom" name="prenom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-pompiste-prenom" name="prenom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Nom -->
                         <div>
                             <label for="edit-pompiste-nom" class="block text-sm font-medium text-gray-700">Nom *</label>
-                            <input type="text" id="edit-pompiste-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-pompiste-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Branch -->
                         <div>
                             <label for="edit-pompiste-branche" class="block text-sm font-medium text-gray-700">Branche *</label>
-                            <select id="edit-pompiste-branche" name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-pompiste-branche" name="branche_id" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 {% for branch in all_branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -811,7 +811,7 @@
                         <!-- Quart -->
                         <div>
                             <label for="edit-pompiste-quart" class="block text-sm font-medium text-gray-700">Quart *</label>
-                            <select id="edit-pompiste-quart" name="quart" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-pompiste-quart" name="quart" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="jour">Jour</option>
                                 <option value="nuit">Nuit</option>
                             </select>
@@ -820,25 +820,25 @@
                         <!-- Telephone -->
                         <div>
                             <label for="edit-pompiste-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
-                            <input type="tel" id="edit-pompiste-telephone" name="telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="tel" id="edit-pompiste-telephone" name="telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Date de naissance -->
                         <div>
                             <label for="edit-pompiste-date-naissance" class="block text-sm font-medium text-gray-700">Date de naissance</label>
-                            <input type="date" id="edit-pompiste-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="date" id="edit-pompiste-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Salaire -->
                         <div>
                             <label for="edit-pompiste-salaire" class="block text-sm font-medium text-gray-700">Salaire</label>
-                            <input type="number" id="edit-pompiste-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="edit-pompiste-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Devise Salaire -->
                         <div>
                             <label for="edit-pompiste-devise-salaire" class="block text-sm font-medium text-gray-700">Devise</label>
-                            <select id="edit-pompiste-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-pompiste-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="USD">USD ($)</option>
                                 <option value="FC">FC</option>
                             </select>
@@ -847,7 +847,7 @@
                         <!-- Adresse -->
                         <div class="sm:col-span-2">
                             <label for="edit-pompiste-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <textarea id="edit-pompiste-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea id="edit-pompiste-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                     </div>
                 </div>
@@ -881,19 +881,19 @@
                         <!-- Prenom -->
                         <div>
                             <label for="pompiste-prenom" class="block text-sm font-medium text-gray-700">Prénom *</label>
-                            <input type="text" id="pompiste-prenom" name="prenom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="pompiste-prenom" name="prenom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Nom -->
                         <div>
                             <label for="pompiste-nom" class="block text-sm font-medium text-gray-700">Nom *</label>
-                            <input type="text" id="pompiste-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="pompiste-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Branch -->
                         <div>
                             <label for="pompiste-branche" class="block text-sm font-medium text-gray-700">Branche *</label>
-                            <select id="pompiste-branche" name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="pompiste-branche" name="branche_id" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 {% for branch in all_branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -904,7 +904,7 @@
                         <!-- Quart -->
                         <div>
                             <label for="pompiste-quart" class="block text-sm font-medium text-gray-700">Quart *</label>
-                            <select id="pompiste-quart" name="quart" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="pompiste-quart" name="quart" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 <option value="jour">Jour</option>
                                 <option value="nuit">Nuit</option>
@@ -914,25 +914,25 @@
                         <!-- Telephone -->
                         <div>
                             <label for="pompiste-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
-                            <input type="tel" id="pompiste-telephone" name="telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="tel" id="pompiste-telephone" name="telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Date de naissance -->
                         <div>
                             <label for="pompiste-date-naissance" class="block text-sm font-medium text-gray-700">Date de naissance</label>
-                            <input type="date" id="pompiste-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="date" id="pompiste-date-naissance" name="date_naissance" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Salaire -->
                         <div>
                             <label for="pompiste-salaire" class="block text-sm font-medium text-gray-700">Salaire</label>
-                            <input type="number" id="pompiste-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="pompiste-salaire" name="salaire" step="0.01" min="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Devise Salaire -->
                         <div>
                             <label for="pompiste-devise-salaire" class="block text-sm font-medium text-gray-700">Devise</label>
-                            <select id="pompiste-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="pompiste-devise-salaire" name="devise_salaire" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="USD">USD ($)</option>
                                 <option value="FC">FC</option>
                             </select>
@@ -941,7 +941,7 @@
                         <!-- Adresse -->
                         <div class="sm:col-span-2">
                             <label for="pompiste-adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <textarea id="pompiste-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea id="pompiste-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                     </div>
                 </div>

@@ -154,7 +154,7 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
             <label for="filter-branche" class="block text-sm font-medium text-gray-700">Branche</label>
-            <select id="filter-branche" onchange="applyFilters()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-branche" onchange="applyFilters()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toutes les branches</option>
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -164,7 +164,7 @@
         
         <div>
             <label for="filter-employee-type" class="block text-sm font-medium text-gray-700">Type d'employé</label>
-            <select id="filter-employee-type" onchange="applyFilters()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-employee-type" onchange="applyFilters()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Tous</option>
                 <option value="pompiste">Pompistes</option>
                 <option value="user">Utilisateurs système</option>
@@ -173,7 +173,7 @@
         
         <div>
             <label for="filter-status" class="block text-sm font-medium text-gray-700">Statut</label>
-            <select id="filter-status" onchange="applyFilters()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-status" onchange="applyFilters()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Tous</option>
                 <option value="paid">Payés ce mois</option>
                 <option value="pending">En attente</option>
@@ -182,7 +182,7 @@
         
         <div>
             <label for="filter-period" class="block text-sm font-medium text-gray-700">Période stats</label>
-            <select id="filter-period" onchange="loadStatistics()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-period" onchange="loadStatistics()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="month">Mois en cours</option>
                 <option value="year">Année en cours</option>
             </select>
@@ -294,7 +294,7 @@
                         <!-- Employee Type Selection -->
                         <div>
                             <label for="payment-employee-type" class="block text-sm font-medium text-gray-700">Type d'employé *</label>
-                            <select id="payment-employee-type" name="employee_type" required onchange="loadEmployeesForPayment()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="payment-employee-type" name="employee_type" required onchange="loadEmployeesForPayment()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 <option value="pompiste">Pompiste</option>
                                 <option value="user">Utilisateur système</option>
@@ -304,7 +304,7 @@
                         <!-- Employee Selection -->
                         <div>
                             <label for="payment-employee" class="block text-sm font-medium text-gray-700">Employé *</label>
-                            <select id="payment-employee" name="employee_id" required onchange="updateSalaryAmount()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="payment-employee" name="employee_id" required onchange="updateSalaryAmount()" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner un employé...</option>
                             </select>
                         </div>
@@ -312,7 +312,7 @@
                         <!-- Branch -->
                         <div>
                             <label for="payment-branche" class="block text-sm font-medium text-gray-700">Branche *</label>
-                            <select id="payment-branche" name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="payment-branche" name="branche_id" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 {% for branch in branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -323,19 +323,19 @@
                         <!-- Period -->
                         <div>
                             <label for="payment-periode" class="block text-sm font-medium text-gray-700">Période (mois) *</label>
-                            <input type="month" id="payment-periode" name="periode" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="month" id="payment-periode" name="periode" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <!-- Amount and Currency -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="payment-montant" class="block text-sm font-medium text-gray-700">Montant *</label>
-                                <input type="number" id="payment-montant" name="montant" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
+                                <input type="number" id="payment-montant" name="montant" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
                             </div>
                             
                             <div>
                                 <label for="payment-devise" class="block text-sm font-medium text-gray-700">Devise *</label>
-                                <select id="payment-devise" name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <select id="payment-devise" name="devise" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     <option value="USD">USD</option>
                                     <option value="FC">FC</option>
                                 </select>
@@ -345,7 +345,7 @@
                         <!-- Payment Method -->
                         <div>
                             <label for="payment-methode" class="block text-sm font-medium text-gray-700">Méthode de paiement *</label>
-                            <select id="payment-methode" name="methode_paiement" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="payment-methode" name="methode_paiement" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="cash">Espèces</option>
                                 <option value="mobile_money">Mobile Money</option>
                                 <option value="bank">Virement Bancaire</option>
@@ -355,7 +355,7 @@
                         <!-- Notes -->
                         <div>
                             <label for="payment-notes" class="block text-sm font-medium text-gray-700">Notes (optionnel)</label>
-                            <textarea id="payment-notes" name="notes" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Notes additionnelles..."></textarea>
+                            <textarea id="payment-notes" name="notes" rows="2" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Notes additionnelles..."></textarea>
                         </div>
                     </div>
                 </div>

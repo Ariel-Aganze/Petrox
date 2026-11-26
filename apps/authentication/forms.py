@@ -14,7 +14,7 @@ class CustomAuthenticationForm(AuthenticationForm):
         max_length=254,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Nom d\'utilisateur ou email',
+            'placeholder': 'Nom d\'utilisateur',
             'autofocus': True
         }),
         label="Nom d'utilisateur"

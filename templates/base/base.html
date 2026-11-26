@@ -7,7 +7,7 @@
     <title>{% block title %}PETROX{% endblock %}</title>
     
     <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -123,7 +123,7 @@
                     <!-- Branch Selector (Admin only) -->
                     {% if user.role == 'admin' %}
                     <div class="hidden sm:block">
-                        <!-- <select id="branch-selector" class="block w-full pl-3 pr-10 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md shadow-sm text-gray-700 bg-gray-50" onchange="switchBranch(this.value)">
+                        <!-- <select id="branch-selector" class="block w-full pl-3 pr-10 py-1.5 text-base border-gray-400 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md shadow-sm text-gray-700 bg-gray-50" onchange="switchBranch(this.value)">
                             <option value="all">Toutes les branches</option>
                             {% for branch in all_branches %}
                             <option value="{{ branch.id }}" {% if selected_branch_id == branch.id %}selected{% endif %}>{{ branch.nom }}</option>
@@ -207,7 +207,7 @@
             {% if user.role == 'admin' %}
             <div class="px-3 py-2 border-t border-gray-200">
                 <label class="block text-sm font-medium text-gray-700">Branche Active</label>
-                <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md" onchange="switchBranch(this.value)">
+                <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-400 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm rounded-md" onchange="switchBranch(this.value)">
                     <option value="all">Toutes les branches</option>
                     {% for branch in all_branches %}
                     <option value="{{ branch.id }}" {% if selected_branch_id == branch.id %}selected{% endif %}>{{ branch.nom }}</option>

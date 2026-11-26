@@ -70,19 +70,19 @@
             <!-- Date Début -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Date Début</label>
-                <input type="date" id="filter-start-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                <input type="date" id="filter-start-date" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
             </div>
             
             <!-- Date Fin -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Date Fin</label>
-                <input type="date" id="filter-end-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                <input type="date" id="filter-end-date" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
             </div>
             
             <!-- Type de Carburant -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Carburant</label>
-                <select id="filter-fuel" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                <select id="filter-fuel" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
                     <option value="">Tous</option>
                     {% for fuel in types_carburant %}
                     <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
@@ -93,7 +93,7 @@
             <!-- Pompiste -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Pompiste</label>
-                <select id="filter-pompiste" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                <select id="filter-pompiste" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
                     <option value="">Tous</option>
                     {% for pompiste in pompistes %}
                     <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
@@ -104,7 +104,7 @@
             <!-- Statut -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                <select id="filter-status" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
                     <option value="">Tous</option>
                     <option value="en_attente">En attente</option>
                     <option value="validee">Validée</option>
@@ -209,7 +209,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Pompiste <span class="text-red-600">*</span>
                     </label>
-                    <select id="sale-pompiste" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <select id="sale-pompiste" required class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
                         <option value="">Sélectionner un pompiste</option>
                         {% for pompiste in pompistes %}
                         <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
@@ -222,7 +222,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Type de Carburant <span class="text-red-600">*</span>
                     </label>
-                    <select id="sale-fuel-type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <select id="sale-fuel-type" required class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
                         <option value="">Sélectionner un carburant</option>
                         {% for fuel in types_carburant %}
                         <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
@@ -236,7 +236,7 @@
                         Quantité (Litres) <span class="text-red-600">*</span>
                     </label>
                     <input type="number" id="sale-quantity" step="0.01" min="0.01" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
+                           class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
                            placeholder="0.00">
                 </div>
 
@@ -245,7 +245,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Moyen de Paiement <span class="text-red-600">*</span>
                     </label>
-                    <select id="sale-payment-method" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <select id="sale-payment-method" required class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
                         <option value="">Sélectionner</option>
                         {% for method in moyens_paiement %}
                         <option value="{{ method.id }}">{{ method.nom }}</option>
@@ -263,7 +263,7 @@
                             <span class="text-gray-500 sm:text-sm">$</span>
                         </div>
                         <input type="number" id="sale-amount-usd" step="0.01" min="0" 
-                               class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
+                               class="pl-7 w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
                                placeholder="0.00">
                     </div>
                 </div>
@@ -278,7 +278,7 @@
                             <span class="text-gray-500 sm:text-sm">FC</span>
                         </div>
                         <input type="number" id="sale-amount-fc" step="0.01" min="0" 
-                               class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
+                               class="pl-10 w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red" 
                                placeholder="0.00">
                     </div>
                 </div>
@@ -288,7 +288,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Abonné (optionnel)
                     </label>
-                    <select id="sale-subscriber" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                    <select id="sale-subscriber" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
                         <option value="">Client standard (pas d'abonné)</option>
                         <!-- Will be populated via AJAX -->
                     </select>

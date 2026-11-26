@@ -236,7 +236,7 @@
         <!-- Branch Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Branche</label>
-            <select onchange="applyFilters()" id="filter-branch" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select onchange="applyFilters()" id="filter-branch" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toutes les branches</option>
                 {% for branch in all_branches %}
                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -247,7 +247,7 @@
         <!-- Category Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-            <select onchange="applyFilters()" id="filter-category" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select onchange="applyFilters()" id="filter-category" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toutes les catégories</option>
                 {% for cat in categories %}
                 <option value="{{ cat.id }}">{{ cat.nom }}</option>
@@ -258,7 +258,7 @@
         <!-- Currency Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
-            <select onchange="applyFilters()" id="filter-currency" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select onchange="applyFilters()" id="filter-currency" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toutes les devises</option>
                 <option value="USD">USD</option>
                 <option value="FC">FC</option>
@@ -268,7 +268,7 @@
         <!-- Period Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Période</label>
-            <select onchange="applyFilters()" id="filter-period" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select onchange="applyFilters()" id="filter-period" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toute la période</option>
                 <option value="today">Aujourd'hui</option>
                 <option value="week">7 derniers jours</option>
@@ -279,7 +279,7 @@
         <!-- Search -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
-            <input type="text" id="search-input" onkeyup="searchExpenses()" placeholder="Description..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <input type="text" id="search-input" onkeyup="searchExpenses()" placeholder="Description..." class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
         </div>
     </div>
 </div>
@@ -326,7 +326,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Branche *</label>
-                            <select name="branche_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select name="branche_id" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner une branche</option>
                                 {% for branch in all_branches %}
                                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -336,7 +336,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Catégorie *</label>
-                            <select name="categorie_id" required id="expense-category-select" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select name="categorie_id" required id="expense-category-select" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner une catégorie</option>
                                 <!-- Will be populated by JavaScript -->
                             </select>
@@ -344,18 +344,18 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Description *</label>
-                            <textarea name="description" rows="3" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Description de la dépense..."></textarea>
+                            <textarea name="description" rows="3" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Description de la dépense..."></textarea>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Montant *</label>
-                                <input type="number" name="montant" step="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
+                                <input type="number" name="montant" step="0.01" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Devise *</label>
-                                <select name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <select name="devise" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     <option value="USD">USD</option>
                                     <option value="FC">FC</option>
                                 </select>
@@ -364,7 +364,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Bénéficiaire (optionnel)</label>
-                            <input type="text" name="beneficiaire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Nom du bénéficiaire">
+                            <input type="text" name="beneficiaire" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Nom du bénéficiaire">
                         </div>
                     </div>
                 </div>
@@ -418,7 +418,7 @@
                     <h4 class="text-sm font-semibold text-gray-700 mb-3">Nouvelle Catégorie</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="md:col-span-2">
-                            <input type="text" name="nom" required placeholder="Nom de la catégorie" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" name="nom" required placeholder="Nom de la catégorie" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         <div>
                             <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-petrox-red hover:bg-petrox-hover">
@@ -477,7 +477,7 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Nom de la catégorie *</label>
-                        <input type="text" name="nom" id="edit-category-name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                        <input type="text" name="nom" id="edit-category-name" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                     </div>
                 </div>
                 

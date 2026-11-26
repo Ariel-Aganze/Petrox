@@ -239,7 +239,7 @@
                     <h3 class="text-lg font-medium leading-6 text-gray-900">Stock par Branche</h3>
                     <p id="selected-fuel-info" class="mt-1 text-sm text-gray-500">Sélectionnez un type de carburant</p>
                 </div>
-                <select id="branch-filter" onchange="filterStockByBranch()" class="border-gray-300 rounded-md shadow-sm text-sm focus:ring-petrox-red focus:border-petrox-red">
+                <select id="branch-filter" onchange="filterStockByBranch()" class="border-gray-400 rounded-md shadow-sm text-sm focus:ring-petrox-red focus:border-petrox-red">
                     <option value="all">Toutes les branches</option>
                     {% for branch in all_branches %}
                     <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -394,25 +394,25 @@
                     <div class="space-y-4">
                         <div>
                             <label for="fuel-nom" class="block text-sm font-medium text-gray-700">Nom du carburant *</label>
-                            <input type="text" id="fuel-nom" name="nom" required placeholder="Ex: Diesel, Essence, Premium" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="fuel-nom" name="nom" required placeholder="Ex: Diesel, Essence, Premium" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="fuel-couleur" class="block text-sm font-medium text-gray-700">Couleur (Hex) *</label>
                             <div class="mt-1 flex gap-2">
-                                <input type="color" id="fuel-couleur-picker" value="#1E40AF" onchange="document.getElementById('fuel-couleur').value = this.value" class="h-10 w-20 rounded border border-gray-300">
-                                <input type="text" id="fuel-couleur" name="couleur_hex" required pattern="^#[0-9A-Fa-f]{6}$" value="#1E40AF" placeholder="#1E40AF" class="flex-1 block border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <input type="color" id="fuel-couleur-picker" value="#1E40AF" onchange="document.getElementById('fuel-couleur').value = this.value" class="h-10 w-20 rounded border border-gray-400">
+                                <input type="text" id="fuel-couleur" name="couleur_hex" required pattern="^#[0-9A-Fa-f]{6}$" value="#1E40AF" placeholder="#1E40AF" class="flex-1 block border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                             </div>
                         </div>
                         
                         <div>
                             <label for="fuel-prix-usd" class="block text-sm font-medium text-gray-700">Prix de vente (USD/L) *</label>
-                            <input type="number" id="fuel-prix-usd" name="prix_vente_usd" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="fuel-prix-usd" name="prix_vente_usd" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="fuel-prix-fc" class="block text-sm font-medium text-gray-700">Prix de vente (FC/L) *</label>
-                            <input type="number" id="fuel-prix-fc" name="prix_vente_fc" step="1" min="1" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="fuel-prix-fc" name="prix_vente_fc" step="1" min="1" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                 </div>
@@ -444,25 +444,25 @@
                     <div class="space-y-4">
                         <div>
                             <label for="edit-fuel-nom" class="block text-sm font-medium text-gray-700">Nom du carburant *</label>
-                            <input type="text" id="edit-fuel-nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-fuel-nom" name="nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="edit-fuel-couleur" class="block text-sm font-medium text-gray-700">Couleur (Hex) *</label>
                             <div class="mt-1 flex gap-2">
-                                <input type="color" id="edit-fuel-couleur-picker" onchange="document.getElementById('edit-fuel-couleur').value = this.value" class="h-10 w-20 rounded border border-gray-300">
-                                <input type="text" id="edit-fuel-couleur" name="couleur_hex" required pattern="^#[0-9A-Fa-f]{6}$" class="flex-1 block border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <input type="color" id="edit-fuel-couleur-picker" onchange="document.getElementById('edit-fuel-couleur').value = this.value" class="h-10 w-20 rounded border border-gray-400">
+                                <input type="text" id="edit-fuel-couleur" name="couleur_hex" required pattern="^#[0-9A-Fa-f]{6}$" class="flex-1 block border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                             </div>
                         </div>
                         
                         <div>
                             <label for="edit-fuel-prix-usd" class="block text-sm font-medium text-gray-700">Prix de vente (USD/L) *</label>
-                            <input type="number" id="edit-fuel-prix-usd" name="prix_vente_usd" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="edit-fuel-prix-usd" name="prix_vente_usd" step="0.01" min="0.01" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="edit-fuel-prix-fc" class="block text-sm font-medium text-gray-700">Prix de vente (FC/L) *</label>
-                            <input type="number" id="edit-fuel-prix-fc" name="prix_vente_fc" step="1" min="1" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="edit-fuel-prix-fc" name="prix_vente_fc" step="1" min="1" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                 </div>
@@ -501,17 +501,17 @@
                         
                         <div>
                             <label for="stock-capacite" class="block text-sm font-medium text-gray-700">Capacité maximale (L) *</label>
-                            <input type="number" id="stock-capacite" name="capacite_max" step="0.01" min="1" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="stock-capacite" name="capacite_max" step="0.01" min="1" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="stock-seuil" class="block text-sm font-medium text-gray-700">Seuil d'alerte (L) *</label>
-                            <input type="number" id="stock-seuil" name="seuil_alerte" step="0.01" min="0" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="stock-seuil" name="seuil_alerte" step="0.01" min="0" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label for="stock-prix-achat" class="block text-sm font-medium text-gray-700">Prix d'achat (USD/L)</label>
-                            <input type="number" id="stock-prix-achat" name="prix_achat" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="stock-prix-achat" name="prix_achat" step="0.01" min="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                 </div>

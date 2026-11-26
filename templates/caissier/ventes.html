@@ -166,7 +166,7 @@
         <!-- Period Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Période</label>
-            <select id="filter-period" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-period" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="today">Aujourd'hui</option>
                 <option value="week">7 derniers jours</option>
                 <option value="month" selected>30 derniers jours</option>
@@ -177,7 +177,7 @@
         <!-- Status Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-            <select id="filter-status" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-status" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Tous les statuts</option>
                 <option value="en_attente">En attente</option>
                 <option value="validee">Validées</option>
@@ -188,7 +188,7 @@
         <!-- Fuel Type Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Type de carburant</label>
-            <select id="filter-fuel" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-fuel" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Tous</option>
                 {% for fuel in types_carburant %}
                 <option value="{{ fuel.id }}">{{ fuel.nom }}</option>
@@ -199,7 +199,7 @@
         <!-- Pompiste Filter -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Pompiste</label>
-            <select id="filter-pompiste" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="filter-pompiste" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Tous</option>
                 {% for pompiste in pompistes %}
                 <option value="{{ pompiste.id }}">{{ pompiste.prenom }} {{ pompiste.nom }}</option>
@@ -210,7 +210,7 @@
         <!-- Search -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
-            <input type="text" id="search-input" placeholder="Rechercher..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <input type="text" id="search-input" placeholder="Rechercher..." class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
         </div>
     </div>
     
@@ -353,16 +353,16 @@
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">USD Manquant</label>
-                                    <input type="number" step="0.01" id="manquant-usd" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
+                                    <input type="number" step="0.01" id="manquant-usd" class="block w-full border border-gray-400 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0.00">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">FC Manquant</label>
-                                    <input type="number" step="1" id="manquant-fc" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0">
+                                    <input type="number" step="1" id="manquant-fc" class="block w-full border border-gray-400 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="0">
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Raison du manquant</label>
-                                <textarea id="manquant-raison" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Expliquez la raison du manquant (obligatoire si montant > 0)"></textarea>
+                                <textarea id="manquant-raison" rows="3" class="block w-full border border-gray-400 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm" placeholder="Expliquez la raison du manquant (obligatoire si montant > 0)"></textarea>
                             </div>
                         </div>
                     </div>

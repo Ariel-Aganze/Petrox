@@ -91,37 +91,37 @@
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div>
                                     <label for="prenom" class="block text-sm font-medium text-gray-700">Prénom *</label>
-                                    <input type="text" id="prenom" name="prenom" value="{{ user.prenom }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="text" id="prenom" name="prenom" value="{{ user.prenom }}" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
 
                                 <div>
                                     <label for="nom" class="block text-sm font-medium text-gray-700">Nom *</label>
-                                    <input type="text" id="nom" name="nom" value="{{ user.nom }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="text" id="nom" name="nom" value="{{ user.nom }}" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
 
                                 <div>
                                     <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
-                                    <input type="email" id="email" name="email" value="{{ user.email }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="email" id="email" name="email" value="{{ user.email }}" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
 
                                 <div>
                                     <label for="telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
-                                    <input type="tel" id="telephone" name="telephone" value="{{ user.telephone }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="tel" id="telephone" name="telephone" value="{{ user.telephone }}" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
 
                                 <div>
                                     <label for="date_naissance" class="block text-sm font-medium text-gray-700">Date de naissance</label>
-                                    <input type="date" id="date_naissance" name="date_naissance" value="{{ user.date_naissance|date:'Y-m-d' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="date" id="date_naissance" name="date_naissance" value="{{ user.date_naissance|date:'Y-m-d' }}" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
 
                                 <div>
                                     <label for="role" class="block text-sm font-medium text-gray-700">Rôle</label>
-                                    <input type="text" id="role" value="{{ user.get_role_display }}" disabled class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm">
+                                    <input type="text" id="role" value="{{ user.get_role_display }}" disabled class="mt-1 block w-full border-gray-400 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm">
                                 </div>
 
                                 <div class="sm:col-span-2">
                                     <label for="adresse" class="block text-sm font-medium text-gray-700">Adresse</label>
-                                    <textarea id="adresse" name="adresse" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">{{ user.adresse }}</textarea>
+                                    <textarea id="adresse" name="adresse" rows="3" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">{{ user.adresse }}</textarea>
                                 </div>
                             </div>
 
@@ -140,18 +140,18 @@
                             <div class="space-y-4">
                                 <div>
                                     <label for="old_password" class="block text-sm font-medium text-gray-700">Mot de passe actuel *</label>
-                                    <input type="password" id="old_password" name="old_password" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="password" id="old_password" name="old_password" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
 
                                 <div>
                                     <label for="new_password" class="block text-sm font-medium text-gray-700">Nouveau mot de passe *</label>
-                                    <input type="password" id="new_password" name="new_password" required minlength="8" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="password" id="new_password" name="new_password" required minlength="8" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     <p class="mt-1 text-xs text-gray-500">Minimum 8 caractères</p>
                                 </div>
 
                                 <div>
                                     <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirmer le mot de passe *</label>
-                                    <input type="password" id="confirm_password" name="confirm_password" required minlength="8" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                    <input type="password" id="confirm_password" name="confirm_password" required minlength="8" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 </div>
                             </div>
 

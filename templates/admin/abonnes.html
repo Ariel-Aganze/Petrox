@@ -168,11 +168,11 @@
 <div class="bg-white shadow-sm rounded-lg border border-gray-100 p-4 mb-6">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="sm:col-span-1">
-            <input type="text" id="search-input" onkeyup="searchAbonnes()" placeholder="Rechercher par nom, code client..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <input type="text" id="search-input" onkeyup="searchAbonnes()" placeholder="Rechercher par nom, code client..." class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
         </div>
         
         <div>
-            <select id="type-filter" onchange="filterAbonnes()" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="type-filter" onchange="filterAbonnes()" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Tous les types</option>
                 <option value="prepaye">Prépayé</option>
                 <option value="postpaye">Postpayé</option>
@@ -237,17 +237,17 @@
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
-                            <input type="text" name="nom_entreprise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" name="nom_entreprise" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Code Client *</label>
-                            <input type="text" name="code_client" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" name="code_client" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Type d'abonnement *</label>
-                            <select name="type_abonnement" required onchange="toggleCreditLimit(this)" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select name="type_abonnement" required onchange="toggleCreditLimit(this)" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="">Sélectionner...</option>
                                 <option value="prepaye">Prépayé (Solde positif requis)</option>
                                 <option value="postpaye">Postpayé (Paiement différé)</option>
@@ -257,37 +257,37 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Nom du contact *</label>
-                            <input type="text" name="contact_nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" name="contact_nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Téléphone *</label>
-                            <input type="tel" name="contact_telephone" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="tel" name="contact_telephone" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" name="contact_email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="email" name="contact_email" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <textarea name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea name="adresse" rows="2" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Solde initial USD</label>
-                            <input type="number" name="solde_usd" step="0.01" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" name="solde_usd" step="0.01" value="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Solde initial FC</label>
-                            <input type="number" name="solde_fc" step="0.01" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" name="solde_fc" step="0.01" value="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div id="credit-limit-field" class="sm:col-span-2 hidden">
                             <label class="block text-sm font-medium text-gray-700">Limite de crédit (USD) *</label>
-                            <input type="number" name="limite_credit" step="0.01" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" name="limite_credit" step="0.01" value="0" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                 </div>
@@ -321,17 +321,17 @@
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
-                            <input type="text" id="edit-nom-entreprise" name="nom_entreprise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-nom-entreprise" name="nom_entreprise" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Code Client *</label>
-                            <input type="text" id="edit-code-client" name="code_client" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-code-client" name="code_client" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Type d'abonnement *</label>
-                            <select id="edit-type-abonnement" name="type_abonnement" required onchange="toggleEditCreditLimit(this)" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select id="edit-type-abonnement" name="type_abonnement" required onchange="toggleEditCreditLimit(this)" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="prepaye">Prépayé</option>
                                 <option value="postpaye">Postpayé</option>
                                 <option value="credit">Crédit</option>
@@ -340,27 +340,27 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Nom du contact *</label>
-                            <input type="text" id="edit-contact-nom" name="contact_nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="text" id="edit-contact-nom" name="contact_nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Téléphone *</label>
-                            <input type="tel" id="edit-contact-telephone" name="contact_telephone" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="tel" id="edit-contact-telephone" name="contact_telephone" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" id="edit-contact-email" name="contact_email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="email" id="edit-contact-email" name="contact_email" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <textarea id="edit-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
+                            <textarea id="edit-adresse" name="adresse" rows="2" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></textarea>
                         </div>
                         
                         <div id="edit-credit-limit-field" class="sm:col-span-2 hidden">
                             <label class="block text-sm font-medium text-gray-700">Limite de crédit (USD) *</label>
-                            <input type="number" id="edit-limite-credit" name="limite_credit" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <input type="number" id="edit-limite-credit" name="limite_credit" step="0.01" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                     </div>
                 </div>
@@ -396,12 +396,12 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Montant *</label>
-                                <input type="number" name="montant" step="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <input type="number" name="montant" step="0.01" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Devise *</label>
-                                <select name="devise" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                                <select name="devise" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                     <option value="USD">USD</option>
                                     <option value="FC">FC</option>
                                 </select>
@@ -410,7 +410,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Méthode de Paiement *</label>
-                            <select name="methode_paiement" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <select name="methode_paiement" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                                 <option value="cash">Cash</option>
                                 <option value="mobile_money">Mobile Money</option>
                                 <option value="bank">Virement Bancaire</option>

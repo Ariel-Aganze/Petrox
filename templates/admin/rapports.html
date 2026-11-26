@@ -72,7 +72,7 @@
         <!-- Period -->
         <div>
             <label for="period-select" class="block text-sm font-medium text-gray-700 mb-1">Période</label>
-            <select id="period-select" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="period-select" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="today">Aujourd'hui</option>
                 <option value="week">Cette semaine</option>
                 <option value="month" selected>Ce mois</option>
@@ -84,7 +84,7 @@
         <!-- Branch -->
         <div>
             <label for="branch-select" class="block text-sm font-medium text-gray-700 mb-1">Branche</label>
-            <select id="branch-select" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="branch-select" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="all">Toutes les branches</option>
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.nom }}</option>
@@ -95,7 +95,7 @@
         <!-- Currency -->
         <div>
             <label for="currency-select" class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
-            <select id="currency-select" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="currency-select" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="both">USD & FC</option>
                 <option value="USD">USD uniquement</option>
                 <option value="FC">FC uniquement</option>
@@ -105,7 +105,7 @@
         <!-- Report Type -->
         <div>
             <label for="report-type-select" class="block text-sm font-medium text-gray-700 mb-1">Type de rapport</label>
-            <select id="report-type-select" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <select id="report-type-select" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                 <option value="financial">Financier</option>
                 <option value="sales">Ventes</option>
                 <option value="expenses">Dépenses</option>
@@ -120,11 +120,11 @@
     <div id="custom-date-range" class="hidden mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
-            <input type="date" id="start-date" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+            <input type="date" id="start-date" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
         </div>
         <div>
             <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
-            <input type="date" id="end-date" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red">
+            <input type="date" id="end-date" class="block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red">
         </div>
     </div>
     
