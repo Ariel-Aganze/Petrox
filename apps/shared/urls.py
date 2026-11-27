@@ -30,6 +30,9 @@ urlpatterns = [
     path('abonnes/<int:abonne_id>/history/', views.AbonneConsumptionHistoryView.as_view(), name='abonne_history'),
     path('abonnes/<int:abonne_id>/payment/', views.RegisterAbonnePaymentView.as_view(), name='register_payment'),
     
+    # Sale receipts (factures) - same layout for single and multiple prints
+    path('ventes/print/', views.PrintSalesReceiptsView.as_view(), name='print_sales'),
+
     # Notifications
     path('notifications/', views.NotificationListView.as_view(), name='notifications_list'),
     path('notifications/<int:notification_id>/read/', views.MarkNotificationReadView.as_view(), name='mark_notification_read'),

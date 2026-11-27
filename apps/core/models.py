@@ -357,14 +357,16 @@ class Vente(models.Model):
     manager = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='ventes_enregistrees', verbose_name="Manager")
     caissier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='ventes_validees', verbose_name="Caissier")
     abonne = models.ForeignKey(Abonne, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Abonné")
+    partenaire = models.ForeignKey('Partenaire', on_delete=models.SET_NULL, null=True, blank=True, related_name='ventes', verbose_name="Partenaire")
+    regle_comptant = models.BooleanField(default=False, verbose_name="Réglé comptant (abonné ayant payé sur place)")
     
     # Détails de la vente - FIXED: Made nullable and added defaults
     type_carburant = models.ForeignKey(TypeCarburant, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Type de carburant")
-    quantite = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0.00'), verbose_name="Quantité (L)")
+    quantite = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Quantité (L)")
     moyen_paiement = models.ForeignKey(MoyenPaiement, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Moyen de paiement")
     
     # Montants - FIXED: Already have defaults
-    montant_usd = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant USD")
+    montant_usd = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant USD")
     montant_fc = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant FC")
     
     # Taux de change au moment de la transaction - FIXED: Added default
@@ -424,7 +426,7 @@ class Depense(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Créé par")
     
     description = models.CharField(max_length=200, default='Dépense', verbose_name="Description")
-    montant = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant")
+    montant = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant")
     devise = models.CharField(max_length=3, choices=[('USD', 'USD'), ('FC', 'FC')], default='USD', verbose_name="Devise")
     methode_paiement = models.CharField(max_length=20, choices=METHODE_PAIEMENT_CHOICES, default='cash', verbose_name="Méthode de paiement")
     beneficiaire = models.CharField(max_length=100, blank=True, default='', verbose_name="Bénéficiaire")
@@ -489,9 +491,9 @@ class ConsommationAbonne(models.Model):
     branche = models.ForeignKey(Branche, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Branche")
     type_carburant = models.ForeignKey(TypeCarburant, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Type de carburant")
     
-    quantite = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('0.00'), verbose_name="Quantité (L)")
+    quantite = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Quantité (L)")
     # FIXED: Added defaults to avoid migration prompts
-    montant = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant")
+    montant = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'), verbose_name="Montant")
     devise = models.CharField(max_length=3, choices=[('USD', 'USD'), ('FC', 'FC')], default='USD', verbose_name="Devise")
     
     # FIXED: Use default instead of auto_now_add for existing table
@@ -871,6 +873,9 @@ class Partenaire(models.Model):
     nom = models.CharField(max_length=200, verbose_name="Nom du partenaire")
     code = models.CharField(max_length=50, unique=True, verbose_name="Code partenaire")
     contact = models.CharField(max_length=100, blank=True, verbose_name="Personne de contact")
+    contact_fonction = models.CharField(max_length=100, blank=True, default='', verbose_name="Fonction du contact")
+    contact_telephone = models.CharField(max_length=20, blank=True, default='', verbose_name="Téléphone du contact")
+    contact_email = models.EmailField(blank=True, default='', verbose_name="Email du contact")
     telephone = models.CharField(max_length=20, blank=True, verbose_name="Téléphone")
     email = models.EmailField(blank=True, verbose_name="Email")
     adresse = models.TextField(blank=True, verbose_name="Adresse")

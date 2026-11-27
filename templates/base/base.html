@@ -72,6 +72,20 @@
         }
     </style>
     
+    <script>
+        // Globals shared by every page (defined early so page scripts can use them)
+        var csrfToken = '{{ csrf_token }}';
+        var API_BASE = '/dashboard/api';
+        // Fallback used by pages that call showNotification() without defining it
+        window.showNotification = function (message, type) {
+            if (typeof showToast === 'function') {
+                showToast(message, type === 'error' ? 'error' : 'success');
+            } else {
+                alert(message);
+            }
+        };
+    </script>
+
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-petrox-bg text-gray-800 antialiased font-sans">
@@ -270,11 +284,6 @@
 
     <!-- ================= JAVASCRIPT ================= -->
     <script>
-        // CSRF Token for AJAX
-        const csrfToken = '{{ csrf_token }}';
-        
-        // API Base URLs
-        const API_BASE = '/dashboard/api';
         
         // Current filters
         let currentFilters = {

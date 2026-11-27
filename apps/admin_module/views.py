@@ -9933,205 +9933,12 @@ class ExportSalesExcelView(AdminRequiredMixin, View):
 # ============================================
 
 class PrintSaleReceiptView(AdminRequiredMixin, View):
-    """
-    Generate printable receipt for a single sale
-    Returns HTML that can be printed
-    """
-    
+    """Printable receipt for a single sale (shared layout, see apps/shared/receipts.py)"""
+
     def get(self, request, vente_id):
-        try:
-            vente = get_object_or_404(
-                Vente.objects.select_related(
-                    'branche', 'pompiste', 'manager', 'caissier',
-                    'type_carburant', 'moyen_paiement', 'abonne'
-                ),
-                id=vente_id
-            )
-            
-            # Get abonne name correctly
-            abonne_name = vente.abonne.nom_entreprise if vente.abonne else None
-            
-            # CORRECT: Use prix_vente_usd (not prix_unitaire_usd)
-            prix_unitaire = float(vente.type_carburant.prix_vente_usd) if vente.type_carburant and vente.type_carburant.prix_vente_usd else 0
-            
-            # Generate HTML receipt
-            html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Reçu de Vente - {vente.id}</title>
-                <style>
-                    @media print {{
-                        @page {{ margin: 0.5cm; }}
-                        body {{ margin: 0; padding: 20px; }}
-                    }}
-                    body {{
-                        font-family: 'Arial', sans-serif;
-                        max-width: 80mm;
-                        margin: 0 auto;
-                        padding: 10px;
-                    }}
-                    .header {{
-                        text-align: center;
-                        border-bottom: 2px solid #DC2626;
-                        padding-bottom: 10px;
-                        margin-bottom: 15px;
-                    }}
-                    .logo {{
-                        font-size: 24px;
-                        font-weight: bold;
-                        color: #DC2626;
-                        margin-bottom: 5px;
-                    }}
-                    .branch {{
-                        font-size: 14px;
-                        color: #555;
-                    }}
-                    .section {{
-                        margin-bottom: 15px;
-                    }}
-                    .label {{
-                        font-size: 11px;
-                        color: #666;
-                        margin-bottom: 2px;
-                    }}
-                    .value {{
-                        font-size: 13px;
-                        font-weight: bold;
-                        margin-bottom: 8px;
-                    }}
-                    .amount {{
-                        text-align: center;
-                        border: 2px solid #DC2626;
-                        padding: 15px;
-                        margin: 15px 0;
-                    }}
-                    .amount-label {{
-                        font-size: 12px;
-                        color: #666;
-                        margin-bottom: 5px;
-                    }}
-                    .amount-value {{
-                        font-size: 24px;
-                        font-weight: bold;
-                        color: #DC2626;
-                    }}
-                    .footer {{
-                        text-align: center;
-                        font-size: 10px;
-                        color: #999;
-                        border-top: 1px solid #ddd;
-                        padding-top: 10px;
-                        margin-top: 15px;
-                    }}
-                    .status {{
-                        display: inline-block;
-                        padding: 4px 8px;
-                        border-radius: 4px;
-                        font-size: 11px;
-                        font-weight: bold;
-                    }}
-                    .status-validee {{ background-color: #10B981; color: white; }}
-                    .status-en_attente {{ background-color: #F59E0B; color: white; }}
-                    .status-manquant {{ background-color: #EF4444; color: white; }}
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <div class="logo">PETROX</div>
-                    <div class="branch">{vente.branche.nom}</div>
-                    <div style="font-size: 10px; color: #999;">
-                        {vente.branche.adresse if hasattr(vente.branche, 'adresse') and vente.branche.adresse else ''}<br>
-                        {vente.branche.ville if hasattr(vente.branche, 'ville') and vente.branche.ville else ''}{', ' + vente.branche.province if hasattr(vente.branche, 'province') and vente.branche.province else ''}
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="label">Numéro de Transaction</div>
-                    <div class="value">VTE-{vente.id:06d}</div>
-                    
-                    <div class="label">Date et Heure</div>
-                    <div class="value">{vente.created_at.strftime('%d/%m/%Y à %H:%M')}</div>
-                    
-                    <div class="label">Pompiste</div>
-                    <div class="value">{vente.pompiste.prenom} {vente.pompiste.nom}</div>
-                    
-                    {f'<div class="label">Client Abonné</div><div class="value">{abonne_name}</div>' if abonne_name else ''}
-                </div>
-                
-                <div class="section">
-                    <div class="label">Type de Carburant</div>
-                    <div class="value">{vente.type_carburant.nom}</div>
-                    
-                    <div class="label">Quantité</div>
-                    <div class="value">{float(vente.quantite):.2f} Litres</div>
-                    
-                    <div class="label">Prix Unitaire</div>
-                    <div class="value">${prix_unitaire:.2f} / L</div>
-                    
-                    <div class="label">Moyen de Paiement</div>
-                    <div class="value">{vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A'}</div>
-                </div>
-                
-                <div class="amount">
-                    <div class="amount-label">MONTANT TOTAL</div>
-                    <div class="amount-value">${float(vente.montant_usd):.2f}</div>
-                    <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                        {float(vente.montant_fc):.0f} FC
-                    </div>
-                    <div style="font-size: 10px; color: #999; margin-top: 5px;">
-                        Taux: {float(vente.taux_change):.2f} FC
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="label">Statut</div>
-                    <div class="status status-{vente.statut}">{vente.get_statut_display()}</div>
-                </div>
-                
-                {f'''
-                <div class="section" style="background-color: #FEE2E2; padding: 10px; border-radius: 4px;">
-                    <div class="label" style="color: #DC2626;">MANQUANT SIGNALÉ</div>
-                    <div class="value" style="color: #DC2626;">
-                        ${float(vente.manquant_usd):.2f} / {float(vente.manquant_fc):.0f} FC
-                    </div>
-                    {f'<div style="font-size: 10px; color: #991B1B;">{vente.raison_manquant}</div>' if hasattr(vente, 'raison_manquant') and vente.raison_manquant else ''}
-                </div>
-                ''' if vente.statut == 'manquant' else ''}
-                
-                <div class="footer">
-                    <div>Merci de votre visite!</div>
-                    <div>PETROX - Gestion de Stations</div>
-                    <div>Imprimé le {timezone.now().strftime('%d/%m/%Y à %H:%M')}</div>
-                </div>
-                
-                <script>
-                    window.onload = function() {{
-                        window.print();
-                    }};
-                </script>
-            </body>
-            </html>
-            """
-            
-            return HttpResponse(html_content, content_type='text/html')
-            
-        except Exception as e:
-            import traceback
-            error_trace = traceback.format_exc()
-            print(f"Error in PrintSaleReceiptView: {error_trace}")
-            return HttpResponse(
-                f'''<html><body style="font-family: Arial; padding: 20px;">
-                <h3 style="color: #DC2626;">Erreur lors de l'impression</h3>
-                <p><strong>Message:</strong> {str(e)}</p>
-                <details>
-                    <summary>Détails techniques</summary>
-                    <pre style="background: #f5f5f5; padding: 10px; overflow: auto;">{error_trace}</pre>
-                </details>
-                </body></html>''', 
-                status=500
-            )
+        from apps.shared.receipts import receipts_queryset, render_receipts_response
+        ventes = receipts_queryset(request.user, [vente_id])
+        return render_receipts_response(ventes, title=f'Reçu de vente VTE-{vente_id:06d}')
 
 
 # ============================================
@@ -10139,77 +9946,14 @@ class PrintSaleReceiptView(AdminRequiredMixin, View):
 # ============================================
 
 class BulkPrintSalesView(AdminRequiredMixin, View):
-    """
-    Print multiple sales receipts in one document
-    """
-    
+    """Print several sales with exactly the same layout as a single receipt"""
+
     def get(self, request):
-        try:
-            # Get selected IDs
-            ids_param = request.GET.get('ids', '')
-            if not ids_param:
-                return HttpResponse('<html><body><h3>Aucune vente sélectionnée</h3></body></html>')
-            
-            sale_ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
-            
-            # Get sales
-            ventes = Vente.objects.filter(
-                id__in=sale_ids
-            ).select_related(
-                'branche', 'pompiste', 'manager', 'type_carburant', 'moyen_paiement', 'abonne'
-            ).order_by('-created_at')
-            
-            if not ventes.exists():
-                return HttpResponse('<html><body><h3>Aucune vente trouvée</h3></body></html>')
-            
-            # Generate combined HTML
-            receipts_html = ''
-            for idx, vente in enumerate(ventes):
-                page_break = 'page-break-after: always;' if idx < len(ventes) - 1 else ''
-                receipts_html += f'''
-                <div style="{page_break}">
-                    <!-- Receipt content similar to single receipt -->
-                    <div style="border: 2px solid #DC2626; padding: 20px; margin-bottom: 20px;">
-                        <h2 style="text-align: center; color: #DC2626;">PETROX</h2>
-                        <p style="text-align: center;">{vente.branche.nom}</p>
-                        <hr>
-                        <p><strong>Transaction:</strong> VTE-{vente.id:06d}</p>
-                        <p><strong>Date:</strong> {vente.created_at.strftime('%d/%m/%Y %H:%M')}</p>
-                        <p><strong>Pompiste:</strong> {vente.pompiste.prenom} {vente.pompiste.nom}</p>
-                        <p><strong>Carburant:</strong> {vente.type_carburant.nom}</p>
-                        <p><strong>Quantité:</strong> {float(vente.quantite):.2f} L</p>
-                        <h3 style="text-align: center; color: #DC2626;">TOTAL: ${float(vente.montant_usd):.2f}</h3>
-                        <p style="text-align: center;">{float(vente.montant_fc):.0f} FC</p>
-                    </div>
-                </div>
-                '''
-            
-            html_content = f'''
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Reçus de Ventes - Impression Multiple</title>
-                <style>
-                    @media print {{
-                        @page {{ margin: 1cm; }}
-                    }}
-                    body {{ font-family: Arial, sans-serif; }}
-                </style>
-            </head>
-            <body>
-                {receipts_html}
-                <script>
-                    window.onload = function() {{ window.print(); }};
-                </script>
-            </body>
-            </html>
-            '''
-            
-            return HttpResponse(html_content, content_type='text/html')
-            
-        except Exception as e:
-            return HttpResponse(f'<html><body><h3>Erreur: {str(e)}</h3></body></html>')
+        from apps.shared.receipts import parse_ids, receipts_queryset, render_receipts_response
+        ids = parse_ids(request.GET.get('ids', ''))
+        if not ids:
+            return HttpResponse('<html><body><h3>Aucune vente sélectionnée</h3></body></html>')
+        return render_receipts_response(receipts_queryset(request.user, ids), title='Reçus de ventes')
 
 # ============================================
 # NEW VIEW 1: Manquants Report with Analysis
@@ -11169,6 +10913,9 @@ class PartnerCreateAPIView(AdminRequiredMixin, View):
                 nom=data['nom'],
                 code=data['code'],
                 contact=data.get('contact', ''),
+                contact_fonction=data.get('contact_fonction', ''),
+                contact_telephone=data.get('contact_telephone', ''),
+                contact_email=data.get('contact_email', ''),
                 telephone=data.get('telephone', ''),
                 email=data.get('email', ''),
                 adresse=data.get('adresse', ''),
@@ -11218,6 +10965,9 @@ class PartnerDetailAPIView(AdminRequiredMixin, View):
                     'nom': partner.nom,
                     'code': partner.code,
                     'contact': partner.contact,
+                    'contact_fonction': partner.contact_fonction,
+                    'contact_telephone': partner.contact_telephone,
+                    'contact_email': partner.contact_email,
                     'telephone': partner.telephone,
                     'email': partner.email,
                     'adresse': partner.adresse,
@@ -11706,7 +11456,8 @@ class PartnerUpdateAPIView(AdminRequiredMixin, View):
                     }, status=400)
             
             # Update fields
-            for field in ['nom', 'code', 'contact', 'telephone', 'email', 'adresse', 'notes']:
+            for field in ['nom', 'code', 'contact', 'contact_fonction', 'contact_telephone', 'contact_email',
+                          'telephone', 'email', 'adresse', 'notes']:
                 if field in data:
                     setattr(partner, field, data[field])
             

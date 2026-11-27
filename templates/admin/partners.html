@@ -143,8 +143,9 @@
                         <div class="text-xs text-gray-500">{{ partner.code }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ partner.contact }}</div>
-                        <div class="text-xs text-gray-500">{{ partner.telephone }}</div>
+                        <div class="text-sm text-gray-900">{{ partner.contact|default:"-" }}{% if partner.contact_fonction %} <span class="text-xs text-gray-500">({{ partner.contact_fonction }})</span>{% endif %}</div>
+                        <div class="text-xs text-gray-500">{{ partner.contact_telephone|default:partner.telephone }}</div>
+                        {% if partner.contact_email %}<div class="text-xs text-gray-500">{{ partner.contact_email }}</div>{% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-semibold {% if partner.solde_usd > 0 %}text-green-600{% elif partner.solde_usd < 0 %}text-red-600{% else %}text-gray-900{% endif %}">
@@ -228,18 +229,34 @@
                             <input type="text" id="partner-code" name="code" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
+                        <fieldset class="border border-gray-200 rounded-md p-3">
+                            <legend class="px-1 text-sm font-semibold text-gray-800">Personne de contact</legend>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="partner-contact" class="block text-sm font-medium text-gray-700">Nom complet</label>
+                                <input type="text" id="partner-contact" name="contact" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="partner-contact-fonction" class="block text-sm font-medium text-gray-700">Fonction / Poste</label>
+                                <input type="text" id="partner-contact-fonction" name="contact_fonction" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="partner-contact-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                                <input type="tel" id="partner-contact-telephone" name="contact_telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="partner-contact-email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" id="partner-contact-email" name="contact_email" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            </div>
+                        </fieldset>
                         <div>
-                            <label for="partner-contact" class="block text-sm font-medium text-gray-700">Personne de contact</label>
-                            <input type="text" id="partner-contact" name="contact" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                        </div>
-                        
-                        <div>
-                            <label for="partner-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                            <label for="partner-telephone" class="block text-sm font-medium text-gray-700">Téléphone de l'entreprise</label>
                             <input type="tel" id="partner-telephone" name="telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
-                            <label for="partner-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <label for="partner-email" class="block text-sm font-medium text-gray-700">Email de l'entreprise</label>
                             <input type="email" id="partner-email" name="email" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
@@ -285,18 +302,34 @@
                             <input type="text" id="edit-partner-code" name="code" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
+                        <fieldset class="border border-gray-200 rounded-md p-3">
+                            <legend class="px-1 text-sm font-semibold text-gray-800">Personne de contact</legend>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="edit-partner-contact" class="block text-sm font-medium text-gray-700">Nom complet</label>
+                                <input type="text" id="edit-partner-contact" name="contact" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="edit-partner-contact-fonction" class="block text-sm font-medium text-gray-700">Fonction / Poste</label>
+                                <input type="text" id="edit-partner-contact-fonction" name="contact_fonction" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="edit-partner-contact-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                                <input type="tel" id="edit-partner-contact-telephone" name="contact_telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="edit-partner-contact-email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" id="edit-partner-contact-email" name="contact_email" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            </div>
+                            </div>
+                        </fieldset>
                         <div>
-                            <label for="edit-partner-contact" class="block text-sm font-medium text-gray-700">Personne de contact</label>
-                            <input type="text" id="edit-partner-contact" name="contact" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
-                        </div>
-                        
-                        <div>
-                            <label for="edit-partner-telephone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                            <label for="edit-partner-telephone" class="block text-sm font-medium text-gray-700">Téléphone de l'entreprise</label>
                             <input type="tel" id="edit-partner-telephone" name="telephone" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
-                            <label for="edit-partner-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <label for="edit-partner-email" class="block text-sm font-medium text-gray-700">Email de l'entreprise</label>
                             <input type="email" id="edit-partner-email" name="email" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
@@ -498,9 +531,13 @@ function viewPartner(partnerId) {
                             <dl class="space-y-2">
                                 <div><dt class="text-xs text-gray-500">Nom:</dt><dd class="text-sm font-medium">${partner.nom}</dd></div>
                                 <div><dt class="text-xs text-gray-500">Code:</dt><dd class="text-sm">${partner.code}</dd></div>
-                                <div><dt class="text-xs text-gray-500">Contact:</dt><dd class="text-sm">${partner.contact || '-'}</dd></div>
-                                <div><dt class="text-xs text-gray-500">Téléphone:</dt><dd class="text-sm">${partner.telephone || '-'}</dd></div>
-                                <div><dt class="text-xs text-gray-500">Email:</dt><dd class="text-sm">${partner.email || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Téléphone entreprise:</dt><dd class="text-sm">${partner.telephone || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Email entreprise:</dt><dd class="text-sm">${partner.email || '-'}</dd></div>
+                                <div class="pt-2 mt-2 border-t border-gray-100"><dt class="text-xs font-semibold text-gray-700">Personne de contact</dt></div>
+                                <div><dt class="text-xs text-gray-500">Nom:</dt><dd class="text-sm">${partner.contact || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Fonction:</dt><dd class="text-sm">${partner.contact_fonction || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Téléphone:</dt><dd class="text-sm">${partner.contact_telephone || '-'}</dd></div>
+                                <div><dt class="text-xs text-gray-500">Email:</dt><dd class="text-sm">${partner.contact_email || '-'}</dd></div>
                                 <div><dt class="text-xs text-gray-500">Adresse:</dt><dd class="text-sm">${partner.adresse || '-'}</dd></div>
                             </dl>
                         </div>
@@ -595,6 +632,9 @@ function editPartner(partnerId) {
                 document.getElementById('edit-partner-nom').value = partner.nom;
                 document.getElementById('edit-partner-code').value = partner.code;
                 document.getElementById('edit-partner-contact').value = partner.contact || '';
+                document.getElementById('edit-partner-contact-fonction').value = partner.contact_fonction || '';
+                document.getElementById('edit-partner-contact-telephone').value = partner.contact_telephone || '';
+                document.getElementById('edit-partner-contact-email').value = partner.contact_email || '';
                 document.getElementById('edit-partner-telephone').value = partner.telephone || '';
                 document.getElementById('edit-partner-email').value = partner.email || '';
                 document.getElementById('edit-partner-adresse').value = partner.adresse || '';

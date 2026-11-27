@@ -129,8 +129,19 @@
 <div class="bg-white shadow-sm rounded-lg border border-gray-100">
     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h3 class="text-lg font-medium text-gray-900">Liste des Ventes</h3>
-        <div class="text-sm text-gray-500">
-            Total: <span id="total-sales" class="font-semibold">0</span> vente(s)
+        <div class="flex items-center gap-3 text-sm text-gray-500">
+            <span>Total: <span id="total-sales" class="font-semibold">0</span> vente(s)</span>
+            <label for="per-page" class="sr-only">Ventes par page</label>
+            <select id="per-page" onchange="changePerPage(this.value)" class="py-1 pl-2 pr-8 border border-gray-400 rounded-md text-sm focus:ring-petrox-red focus:border-petrox-red" title="Ventes par page">
+                <option value="20">20 / page</option>
+                <option value="50" selected>50 / page</option>
+                <option value="100">100 / page</option>
+                <option value="200">200 / page</option>
+            </select>
+            <button onclick="printCurrentPage()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50" title="Imprimer les factures de la page affichée">
+                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Imprimer
+            </button>
         </div>
     </div>
     
@@ -283,16 +294,16 @@
                     </div>
                 </div>
 
-                <!-- Abonné (optionnel) -->
+                <!-- Client -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Abonné (optionnel)
+                    <label for="sale-client" class="block text-sm font-medium text-gray-700 mb-2">
+                        Client
                     </label>
-                    <select id="sale-subscriber" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
-                        <option value="">Client standard (pas d'abonné)</option>
-                        <!-- Will be populated via AJAX -->
+                    <select id="sale-client" class="w-full px-3 py-2 border border-gray-400 rounded-md focus:ring-petrox-red focus:border-petrox-red">
+                        <option value="">Client standard</option>
+                        <!-- Abonnés and partenaires are loaded via AJAX -->
                     </select>
-                    <p class="mt-1 text-xs text-gray-500">Si le client est un abonné, sélectionnez-le dans la liste</p>
+                    <p class="mt-1 text-xs text-gray-500">Client standard, abonné (le montant est imputé à son compte) ou partenaire.</p>
                 </div>
             </div>
 
@@ -336,11 +347,16 @@
     <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center pb-3 border-b border-gray-200">
             <h3 class="text-xl font-semibold text-gray-900">Détails de la Vente</h3>
+            <div class="flex items-center gap-3">
+            <button onclick="printSales([currentSaleId])" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
+                Imprimer la facture
+            </button>
             <button onclick="closeModal('sale-detail-modal')" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
+            </div>
         </div>
         
         <div class="mt-6" id="sale-detail-content">
@@ -357,9 +373,10 @@
 </div>
 
 <script>
-const csrfToken = '{{ csrf_token }}';
 let currentPage = 1;
 let totalPages = 1;
+let perPage = 50;
+let currentSaleId = null;
 let filters = {
     start_date: '',
     end_date: '',
@@ -371,7 +388,7 @@ let filters = {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadSales();
-    loadSubscribers();
+    loadClients();
 });
 
 // Load sales with current filters and pagination
@@ -381,7 +398,7 @@ function loadSales(page = 1) {
     // Build query string
     const params = new URLSearchParams({
         page: currentPage,
-        per_page: 20,
+        per_page: perPage,
         ...filters
     });
     
@@ -431,7 +448,7 @@ function renderSalesTable(sales) {
         };
         
         return `
-            <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewSaleDetail(${sale.id})">
+            <tr class="hover:bg-gray-50 cursor-pointer" data-sale-id="${sale.id}" onclick="viewSaleDetail(${sale.id})">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.date}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.pompiste}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sale.fuel}</td>
@@ -444,6 +461,9 @@ function renderSalesTable(sales) {
                     <button onclick="event.stopPropagation(); viewSaleDetail(${sale.id})" class="text-petrox-red hover:text-petrox-hover font-medium">
                         Voir détails
                     </button>
+                    <button onclick="event.stopPropagation(); printSales([${sale.id}])" class="ml-3 text-gray-600 hover:text-gray-900 font-medium" title="Imprimer la facture">
+                        Imprimer
+                    </button>
                 </td>
             </tr>
         `;
@@ -453,8 +473,9 @@ function renderSalesTable(sales) {
 // Update pagination controls
 function updatePagination(pagination) {
     document.getElementById('total-sales').textContent = pagination.total_items;
-    document.getElementById('page-start').textContent = ((pagination.current_page - 1) * 20) + 1;
-    document.getElementById('page-end').textContent = Math.min(pagination.current_page * 20, pagination.total_items);
+    const size = pagination.per_page || perPage;
+    document.getElementById('page-start').textContent = pagination.total_items ? ((pagination.current_page - 1) * size) + 1 : 0;
+    document.getElementById('page-end').textContent = Math.min(pagination.current_page * size, pagination.total_items);
     document.getElementById('page-total').textContent = pagination.total_items;
     
     totalPages = pagination.total_pages;
@@ -536,22 +557,50 @@ function resetFilters() {
     loadSales(1);
 }
 
-// Load subscribers for dropdown
-function loadSubscribers() {
-    fetch('{% url "manager_module:abonnes_api" %}')
+// Load clients (subscribers + partners) for the sale form
+function loadClients() {
+    fetch('{% url "manager_module:clients_api" %}')
         .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                const select = document.getElementById('sale-subscriber');
-                data.data.forEach(sub => {
+            if (!data.success) return;
+            const select = document.getElementById('sale-client');
+            select.querySelectorAll('optgroup').forEach(g => g.remove());
+            const addGroup = (label, items, prefix, text) => {
+                if (!items.length) return;
+                const group = document.createElement('optgroup');
+                group.label = label;
+                items.forEach(item => {
                     const option = document.createElement('option');
-                    option.value = sub.id;
-                    option.textContent = `${sub.name} (${sub.type})`;
-                    select.appendChild(option);
+                    option.value = `${prefix}:${item.id}`;
+                    option.textContent = text(item);
+                    group.appendChild(option);
                 });
-            }
+                select.appendChild(group);
+            };
+            addGroup('Abonnés', data.abonnes, 'abonne', a => `${a.nom} (${a.code}) - ${a.type}`);
+            addGroup('Partenaires', data.partenaires, 'partenaire', p => `${p.nom} (${p.code})`);
         })
-        .catch(error => console.error('Error loading subscribers:', error));
+        .catch(error => console.error('Error loading clients:', error));
+}
+
+function changePerPage(value) {
+    perPage = parseInt(value, 10) || 50;
+    loadSales(1);
+}
+
+// Print one or several receipts (same layout for one or many)
+function printSales(ids) {
+    const list = (ids || []).filter(Boolean);
+    if (!list.length) {
+        showNotification('Aucune vente à imprimer', 'error');
+        return;
+    }
+    window.open(`/shared/ventes/print/?ids=${list.join(',')}`, '_blank');
+}
+
+function printCurrentPage() {
+    const ids = Array.from(document.querySelectorAll('#sales-table-body tr[data-sale-id]')).map(tr => tr.dataset.saleId);
+    printSales(ids);
 }
 
 // Submit sale form
@@ -574,8 +623,12 @@ function submitSale(e) {
         payment_method_id: document.getElementById('sale-payment-method').value,
         amount_usd: document.getElementById('sale-amount-usd').value || 0,
         amount_fc: document.getElementById('sale-amount-fc').value || 0,
-        abonne_id: document.getElementById('sale-subscriber').value || null
+        abonne_id: null,
+        partenaire_id: null
     };
+    const client = document.getElementById('sale-client').value;
+    if (client.startsWith('abonne:')) data.abonne_id = client.split(':')[1];
+    if (client.startsWith('partenaire:')) data.partenaire_id = client.split(':')[1];
     
     fetch('{% url "manager_module:create_vente" %}', {
         method: 'POST',
@@ -588,10 +641,10 @@ function submitSale(e) {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            showNotification('Vente enregistrée avec succès', 'success');
             closeModal('create-sale-modal');
             document.getElementById('create-sale-form').reset();
             loadSales(1);
+            showNotification('Vente enregistrée avec succès', 'success');
         } else {
             showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
         }
@@ -609,6 +662,7 @@ function submitSale(e) {
 
 // View sale detail
 function viewSaleDetail(saleId) {
+    currentSaleId = saleId;
     openModal('sale-detail-modal');
     
     fetch(`{% url 'manager_module:vente_detail' 0 %}`.replace('0', saleId))
@@ -701,13 +755,11 @@ function renderSaleDetail(sale) {
                 </div>
             </div>
             
-            ${sale.subscriber.id ? `
-            <!-- Subscriber Info -->
+            <!-- Client Info -->
             <div class="border-t border-gray-200 pt-4">
-                <label class="block text-sm font-medium text-gray-500">Abonné</label>
-                <p class="mt-1 text-sm text-gray-900">${sale.subscriber.name}</p>
+                <label class="block text-sm font-medium text-gray-500">Client</label>
+                <p class="mt-1 text-sm text-gray-900">${sale.subscriber.id ? `${sale.subscriber.name} (Abonné)` : sale.partner && sale.partner.id ? `${sale.partner.name} (Partenaire)` : 'Client standard'}${sale.paid_cash ? ' – réglé comptant' : ''}</p>
             </div>
-            ` : ''}
             
             ${sale.missing_usd > 0 || sale.missing_fc > 0 ? `
             <!-- Missing Amounts -->
@@ -727,6 +779,7 @@ function renderSaleDetail(sale) {
                     </div>
                     ` : ''}
                 </div>
+                ${sale.missing_reason ? `<p class="mt-2 text-sm text-red-700">Raison : ${sale.missing_reason}</p>` : ''}
             </div>
             ` : ''}
             

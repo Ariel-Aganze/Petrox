@@ -231,6 +231,10 @@
             Liste des Ventes (<span id="table-count">0</span>)
         </h3>
         <div class="flex items-center space-x-2">
+            <button onclick="printCurrentPage()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50" title="Imprimer les factures de la page affichée">
+                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Imprimer
+            </button>
             <button onclick="exportToExcel()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
                 <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -317,6 +321,9 @@
                 </div>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <button type="button" onclick="printSales([currentSaleId])" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                    Imprimer la facture
+                </button>
                 <button type="button" id="validate-from-detail-btn" onclick="openValidationFromDetail()" class="hidden w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:w-auto sm:text-sm">
                     Valider cette vente
                 </button>
@@ -348,6 +355,24 @@
                             <!-- Sale details will be populated here -->
                         </div>
                         
+                        <div class="mt-6 border-t border-gray-200 pt-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Paiement</h4>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label for="validation-payment-method" class="block text-sm font-medium text-gray-700 mb-1">Moyen de paiement réel</label>
+                                    <select id="validation-payment-method" class="block w-full border border-gray-400 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-petrox-red focus:border-petrox-red sm:text-sm"></select>
+                                    <p class="mt-1 text-xs text-gray-500">Modifiez-le si le client a payé autrement que prévu.</p>
+                                </div>
+                                <div id="cash-settlement-block" class="hidden">
+                                    <label class="flex items-start space-x-2 mt-6 cursor-pointer">
+                                        <input type="checkbox" id="validation-regle-comptant" class="mt-0.5 h-4 w-4 text-petrox-red focus:ring-petrox-red border-gray-400 rounded" onchange="onCashSettlementChange()">
+                                        <span class="text-sm text-gray-700">Le client abonné a finalement <strong>payé comptant</strong> (espèces)</span>
+                                    </label>
+                                    <p class="mt-1 text-xs text-gray-500">Le montant ne sera pas débité de son compte (crédit / solde).</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mt-6 border-t border-gray-200 pt-4">
                             <h4 class="text-sm font-medium text-gray-900 mb-3">Montant Manquant (si applicable)</h4>
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -388,6 +413,34 @@
 <script>
 // Global variables
 let currentSaleId = null;
+let currentValidationSale = null;
+
+/**
+ * Print one or several receipts (same layout for one or many)
+ */
+function printSales(ids) {
+    const list = (ids || []).filter(Boolean);
+    if (!list.length) {
+        showToast('Aucune vente à imprimer', 'error');
+        return;
+    }
+    window.open(`/shared/ventes/print/?ids=${list.join(',')}`, '_blank');
+}
+
+function printCurrentPage() {
+    const ids = Array.from(document.querySelectorAll('#sales-table-body tr[data-sale-id]')).map(tr => tr.dataset.saleId);
+    printSales(ids);
+}
+
+/**
+ * When the subscriber paid cash, preselect the cash payment method
+ */
+function onCashSettlementChange() {
+    if (!document.getElementById('validation-regle-comptant').checked) return;
+    const select = document.getElementById('validation-payment-method');
+    const cash = Array.from(select.options).find(o => (o.dataset.code || '').toUpperCase() === 'CASH' || /esp/i.test(o.textContent));
+    if (cash) select.value = cash.value;
+}
 let currentPage = 1;
 let totalPages = 1;
 let allSales = [];
@@ -506,6 +559,9 @@ function renderSalesTable() {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
+                </button>
+                <button onclick="printSales([${sale.id}])" class="text-gray-600 hover:text-gray-900 mr-3" title="Imprimer la facture">
+                    <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                 </button>
                 ${sale.statut === 'en_attente' ? `
                 <button onclick="openValidationModal(${sale.id})" class="text-green-600 hover:text-green-900" title="Valider">
@@ -632,8 +688,12 @@ function viewSaleDetail(saleId) {
                         <p class="text-sm font-semibold text-gray-900">${formatCurrency(sale.montant_fc, 'FC')}</p>
                     </div>
                     <div>
+                        <p class="text-xs font-medium text-gray-500">Client</p>
+                        <p class="text-sm text-gray-900">${sale.client}</p>
+                    </div>
+                    <div>
                         <p class="text-xs font-medium text-gray-500">Moyen de paiement</p>
-                        <p class="text-sm text-gray-900">${sale.moyen_paiement}</p>
+                        <p class="text-sm text-gray-900">${sale.moyen_paiement}${sale.regle_comptant ? ' <span class="text-xs text-green-700">(réglé comptant)</span>' : ''}</p>
                     </div>
                     <div>
                         <p class="text-xs font-medium text-gray-500">Taux de change</p>
@@ -656,9 +716,10 @@ function viewSaleDetail(saleId) {
                     <p class="text-sm text-gray-700 mt-1">${sale.observations}</p>
                 </div>
                 ` : ''}
-                ${sale.raison_manquant ? `
+                ${(parseFloat(sale.manquant_usd) > 0 || parseFloat(sale.manquant_fc) > 0) ? `
                 <div class="pt-3 border-t border-gray-200">
-                    <p class="text-xs font-medium text-gray-500">Raison du manquant</p>
+                    <p class="text-xs font-medium text-red-600 uppercase">Manquant signalé</p>
+                    <p class="text-xs font-medium text-gray-500 mt-1">Raison du manquant</p>
                     <p class="text-sm text-red-700 mt-1">${sale.raison_manquant}</p>
                     <div class="grid grid-cols-2 gap-4 mt-2">
                         <div>
@@ -677,9 +738,9 @@ function viewSaleDetail(saleId) {
         
         // Show/hide validate button based on status
         const validateBtn = document.getElementById('validate-from-detail-btn');
+        currentSaleId = sale.id;
         if (sale.statut === 'en_attente') {
             validateBtn.classList.remove('hidden');
-            currentSaleId = sale.id;
         } else {
             validateBtn.classList.add('hidden');
         }
@@ -712,6 +773,14 @@ function openValidationModal(saleId) {
     .then(response => response.json())
     .then(data => {
         const sale = data.sale;
+        currentValidationSale = sale;
+        const methodSelect = document.getElementById('validation-payment-method');
+        methodSelect.innerHTML = (data.moyens_paiement || []).map(m =>
+            `<option value="${m.id}" data-code="${m.code}" ${m.id === sale.moyen_paiement_id ? 'selected' : ''}>${m.nom}</option>`
+        ).join('');
+        const cashBlock = document.getElementById('cash-settlement-block');
+        document.getElementById('validation-regle-comptant').checked = false;
+        cashBlock.classList.toggle('hidden', !sale.abonne_id || sale.regle_comptant);
         document.getElementById('validation-details').innerHTML = `
             <div class="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div class="grid grid-cols-2 gap-4">
@@ -730,6 +799,14 @@ function openValidationModal(saleId) {
                     <div>
                         <p class="text-xs font-medium text-gray-500">Carburant</p>
                         <p class="text-sm text-gray-900">${sale.carburant} - ${sale.quantite} L</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Client</p>
+                        <p class="text-sm text-gray-900">${sale.client}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500">Moyen de paiement enregistré</p>
+                        <p class="text-sm text-gray-900">${sale.moyen_paiement}</p>
                     </div>
                     <div>
                         <p class="text-xs font-medium text-gray-500">Montant USD</p>
@@ -775,6 +852,8 @@ function validateSale() {
     const validationData = {
         sale_id: currentSaleId,
         action: 'validate',
+        moyen_paiement_id: document.getElementById('validation-payment-method').value || null,
+        regle_comptant: document.getElementById('validation-regle-comptant').checked,
         manquant_usd: manquantUsd,
         manquant_fc: manquantFc,
         raison_manquant: raison
@@ -827,6 +906,8 @@ function reportMissing() {
     const validationData = {
         sale_id: currentSaleId,
         action: 'report_missing',
+        moyen_paiement_id: document.getElementById('validation-payment-method').value || null,
+        regle_comptant: document.getElementById('validation-regle-comptant').checked,
         manquant_usd: manquantUsd,
         manquant_fc: manquantFc,
         raison_manquant: raison

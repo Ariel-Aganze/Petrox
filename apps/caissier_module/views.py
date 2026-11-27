@@ -15,6 +15,7 @@ from apps.core.models import (
 )
 from decimal import Decimal
 import json
+from django.db import transaction
 
 
 class CaissierRequiredMixin(UserPassesTestMixin):
@@ -451,6 +452,44 @@ class RecentTransactionsAPIView(CaissierRequiredMixin, View):
 # API VIEWS - Sales Validation
 # ============================================
 
+def serialize_sale_for_caissier(sale):
+    """Full sale payload used by the caissier list/detail/validation screens."""
+    if sale.abonne:
+        client = f"{sale.abonne.nom_entreprise} (Abonné - {sale.abonne.get_type_abonnement_display()})"
+    elif sale.partenaire:
+        client = f"{sale.partenaire.nom} (Partenaire)"
+    else:
+        client = 'Client standard'
+    return {
+        'id': sale.id,
+        'created_at': timezone.localtime(sale.created_at).strftime('%d/%m/%Y %H:%M'),
+        'pompiste': sale.pompiste.get_full_name() if sale.pompiste else 'N/A',
+        'manager': sale.manager.get_full_name() if sale.manager else 'N/A',
+        'caissier': sale.caissier.get_full_name() if sale.caissier else '',
+        'carburant': sale.type_carburant.nom if sale.type_carburant else 'N/A',
+        'quantite': str(sale.quantite),
+        'montant_usd': str(sale.montant_usd),
+        'montant_fc': str(sale.montant_fc),
+        'moyen_paiement': sale.moyen_paiement.nom if sale.moyen_paiement else 'N/A',
+        'moyen_paiement_id': sale.moyen_paiement_id,
+        'taux_change': str(sale.taux_change),
+        'observations': sale.observations or '',
+        'statut': sale.statut,
+        'statut_display': sale.get_statut_display(),
+        'manquant_usd': str(sale.manquant_usd or 0),
+        'manquant_fc': str(sale.manquant_fc or 0),
+        'raison_manquant': sale.raison_manquant or '',
+        'client': client,
+        'abonne_id': sale.abonne_id,
+        'abonne_type': sale.abonne.type_abonnement if sale.abonne else None,
+        'partenaire_id': sale.partenaire_id,
+        'regle_comptant': sale.regle_comptant,
+    }
+
+
+SALE_RELATED = ('pompiste', 'manager', 'caissier', 'type_carburant', 'moyen_paiement', 'abonne', 'partenaire', 'branche')
+
+
 class PendingSalesView(CaissierRequiredMixin, View):
     """
     Returns list of pending sales awaiting validation
@@ -462,28 +501,9 @@ class PendingSalesView(CaissierRequiredMixin, View):
         pending_sales = Vente.objects.filter(
             branche=branche,
             statut='en_attente'
-        ).select_related(
-            'pompiste', 'manager', 'type_carburant', 'moyen_paiement'
-        ).order_by('-created_at')
+        ).select_related(*SALE_RELATED).order_by('-created_at')
         
-        sales_data = []
-        for sale in pending_sales:
-            sales_data.append({
-                'id': sale.id,
-                'created_at': sale.created_at.strftime('%d/%m/%Y %H:%M'),
-                'pompiste': sale.pompiste.get_full_name(),
-                'manager': sale.manager.get_full_name() if sale.manager else 'N/A',
-                'carburant': sale.type_carburant.nom,
-                'quantite': str(sale.quantite),
-                'montant_usd': str(sale.montant_usd),
-                'montant_fc': str(sale.montant_fc),
-                'moyen_paiement': sale.moyen_paiement.nom,
-                'taux_change': str(sale.taux_change),
-                'observations': sale.observations or '',
-                'statut': sale.statut,
-                'statut_display': sale.get_statut_display()
-            })
-        
+        sales_data = [serialize_sale_for_caissier(sale) for sale in pending_sales]
         return JsonResponse({'pending_sales': sales_data})
 
 
@@ -496,27 +516,12 @@ class SaleDetailAPIView(CaissierRequiredMixin, View):
         branche = request.user.branche
         
         try:
-            sale = Vente.objects.select_related(
-                'pompiste', 'manager', 'type_carburant', 'moyen_paiement', 'branche'
-            ).get(id=sale_id, branche=branche)
-            
-            sale_data = {
-                'id': sale.id,
-                'created_at': sale.created_at.strftime('%d/%m/%Y %H:%M'),
-                'pompiste': sale.pompiste.get_full_name(),
-                'manager': sale.manager.get_full_name() if sale.manager else 'N/A',
-                'carburant': sale.type_carburant.nom,
-                'quantite': str(sale.quantite),
-                'montant_usd': str(sale.montant_usd),
-                'montant_fc': str(sale.montant_fc),
-                'moyen_paiement': sale.moyen_paiement.nom,
-                'taux_change': str(sale.taux_change),
-                'observations': sale.observations or '',
-                'statut': sale.statut,
-                'statut_display': sale.get_statut_display()
-            }
-            
-            return JsonResponse({'sale': sale_data})
+            sale = Vente.objects.select_related(*SALE_RELATED).get(id=sale_id, branche=branche)
+            moyens = [
+                {'id': m.id, 'nom': m.nom, 'code': m.code}
+                for m in MoyenPaiement.objects.filter(is_active=True).order_by('nom')
+            ]
+            return JsonResponse({'sale': serialize_sale_for_caissier(sale), 'moyens_paiement': moyens})
             
         except Vente.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Vente introuvable'}, status=404)
@@ -524,9 +529,48 @@ class SaleDetailAPIView(CaissierRequiredMixin, View):
 
 class ValidateSaleView(CaissierRequiredMixin, View):
     """
-    Validates a sale or reports missing amount
+    Validates a sale or reports missing amount.
+
+    Optional fields:
+    - moyen_paiement_id: change the payment method recorded by the manager
+    - regle_comptant: the subscriber finally paid on the spot (cash) instead of
+      on account -> the amount charged to the subscriber's balance is reversed.
     """
-    
+
+    def _apply_payment_changes(self, vente, data, user):
+        moyen_id = data.get('moyen_paiement_id')
+        if moyen_id and str(moyen_id) != str(vente.moyen_paiement_id):
+            try:
+                vente.moyen_paiement = MoyenPaiement.objects.get(id=moyen_id)
+            except (MoyenPaiement.DoesNotExist, ValueError):
+                return 'Moyen de paiement invalide'
+
+        if data.get('regle_comptant') and vente.abonne and not vente.regle_comptant:
+            abonne = Abonne.objects.select_for_update().get(pk=vente.abonne_id)
+            if vente.montant_usd:
+                abonne.solde_usd += vente.montant_usd
+                ConsommationAbonne.objects.create(
+                    abonne=abonne, branche=vente.branche, type_carburant=None,
+                    quantite=Decimal('0'), montant=-vente.montant_usd, devise='USD'
+                )
+            if vente.montant_fc:
+                abonne.solde_fc += vente.montant_fc
+                ConsommationAbonne.objects.create(
+                    abonne=abonne, branche=vente.branche, type_carburant=None,
+                    quantite=Decimal('0'), montant=-vente.montant_fc, devise='FC'
+                )
+            abonne.save()
+            vente.regle_comptant = True
+            note = f"Réglé comptant à la caisse par le client (validé par {user.get_full_name()})."
+            vente.observations = f"{vente.observations}\n{note}".strip() if vente.observations else note
+            if not moyen_id:
+                cash = MoyenPaiement.objects.filter(code__iexact='CASH').first() or \
+                    MoyenPaiement.objects.filter(nom__icontains='esp').first()
+                if cash:
+                    vente.moyen_paiement = cash
+        return None
+
+    @transaction.atomic
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -552,6 +596,11 @@ class ValidateSaleView(CaissierRequiredMixin, View):
                     'message': 'Vente introuvable ou déjà traitée'
                 })
             
+            if action in ('validate', 'report_missing'):
+                settle_error = self._apply_payment_changes(vente, data, request.user)
+                if settle_error:
+                    return JsonResponse({'success': False, 'message': settle_error})
+
             if action == 'validate':
                 # Get missing amounts (if any)
                 manquant_usd = Decimal(str(data.get('manquant_usd', 0)))
@@ -758,7 +807,7 @@ class SalesListAPIView(CaissierRequiredMixin, View):
             branche=branche,
             created_at__gte=start_date,
             created_at__lte=end_date
-        ).select_related('pompiste', 'manager', 'caissier', 'type_carburant', 'moyen_paiement')
+        ).select_related(*SALE_RELATED)
         
         # Apply filters
         if status != 'all':
@@ -780,32 +829,17 @@ class SalesListAPIView(CaissierRequiredMixin, View):
         }
         
         # Order and limit
-        sales = sales.order_by('-created_at')[:500]  # Limit to 500 for performance
+        sales = sales.order_by('-created_at')[:3000]  # Upper bound for performance
         
         # Build response
         sales_data = []
         for sale in sales:
-            sales_data.append({
-                'id': sale.id,
-                'created_at': sale.created_at.strftime('%d/%m/%Y %H:%M'),
-                'created_at_date': sale.created_at.strftime('%d/%m/%Y'),
-                'created_at_time': sale.created_at.strftime('%H:%M'),
-                'pompiste': sale.pompiste.get_full_name(),
-                'manager': sale.manager.get_full_name() if sale.manager else 'N/A',
-                'caissier': sale.caissier.get_full_name() if sale.caissier else '-',
-                'carburant': sale.type_carburant.nom,
-                'quantite': str(sale.quantite),
-                'montant_usd': str(sale.montant_usd),
-                'montant_fc': str(sale.montant_fc),
-                'moyen_paiement': sale.moyen_paiement.nom,
-                'taux_change': str(sale.taux_change),
-                'observations': sale.observations or '',
-                'statut': sale.statut,
-                'statut_display': sale.get_statut_display(),
-                'manquant_usd': str(sale.manquant_usd) if sale.manquant_usd else '0.00',
-                'manquant_fc': str(sale.manquant_fc) if sale.manquant_fc else '0',
-                'raison_manquant': sale.raison_manquant or ''
-            })
+            item = serialize_sale_for_caissier(sale)
+            local = timezone.localtime(sale.created_at)
+            item['created_at_date'] = local.strftime('%d/%m/%Y')
+            item['created_at_time'] = local.strftime('%H:%M')
+            item['caissier'] = item['caissier'] or '-'
+            sales_data.append(item)
         
         return JsonResponse({
             'sales': sales_data,
@@ -2025,8 +2059,8 @@ class ExportSalariesExcelView(CaissierRequiredMixin, View):
 
 class AbonnesPageView(CaissierRequiredMixin, CaissierContextMixin, TemplateView):
     """
-    Abonnés (Subscribers with Debt) page template view for Caissier
-    Shows only subscribers who have consumed in this branch and have debt
+    Abonnés page for Caissier: every active subscriber, so the caissier can
+    receive debt payments and prepaid top-ups.
     """
     template_name = 'caissier/abonnes.html'
 
@@ -2061,17 +2095,7 @@ class AbonnesListAPIView(CaissierRequiredMixin, View):
             abonnes = abonnes.filter(type_abonnement=type_filter)
         
         abonnes_data = []
-        for abonne in abonnes:
-            # Check if abonné has consumed in this branch
-            has_consumed_here = ConsommationAbonne.objects.filter(
-                abonne=abonne,
-                branche=branche
-            ).exists()
-            
-            # Only show subscribers who have consumed in this branch
-            if not has_consumed_here:
-                continue
-            
+        for abonne in abonnes.order_by('nom_entreprise'):
             # Calculate debt
             debt_usd = abs(float(abonne.solde_usd)) if abonne.solde_usd < 0 else 0
             debt_fc = abs(float(abonne.solde_fc)) if abonne.solde_fc < 0 else 0
@@ -2083,10 +2107,11 @@ class AbonnesListAPIView(CaissierRequiredMixin, View):
             if status_filter == 'no_debt' and has_debt:
                 continue
             
-            # Get consumption statistics for this branch
+            # Get consumption statistics for this branch (payments are negative rows)
             consumptions = ConsommationAbonne.objects.filter(
                 abonne=abonne,
-                branche=branche
+                branche=branche,
+                montant__gt=0
             )
             
             total_consumed_usd = consumptions.filter(
@@ -2196,7 +2221,9 @@ class RegisterPaymentView(CaissierRequiredMixin, View):
                 })
             
             # Validate payment method
-            if data['methode_paiement'] not in ['cash', 'mobile_money', 'bank_transfer']:
+            if data['methode_paiement'] == 'bank_transfer':
+                data['methode_paiement'] = 'bank'
+            if data['methode_paiement'] not in ['cash', 'mobile_money', 'bank']:
                 return JsonResponse({
                     'success': False,
                     'message': 'Méthode de paiement invalide'

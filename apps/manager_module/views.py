@@ -2,7 +2,7 @@ import os
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib import messages
 from django.views import View
 from django.db.models import Sum, Q, F, Count, Avg
@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from apps.core.models import (
     Attendance, LivraisonCarburant, User, Branche, TauxChange, TypeCarburant, Vente, Stock, 
     Pompiste, Livraison, MoyenPaiement, Abonne, ConsommationAbonne,
-    PlanningShift, Document, DocumentCategory, Notification
+    PlanningShift, Document, DocumentCategory, Notification, Partenaire
 )
 from decimal import Decimal
 import json
@@ -413,7 +413,8 @@ class VentesListAPIView(ManagerRequiredMixin, View):
         try:
             branche = request.user.branche
             page = int(request.GET.get('page', 1))
-            per_page = int(request.GET.get('per_page', 20))
+            per_page = int(request.GET.get('per_page', 50))
+            per_page = max(10, min(per_page, 200))
             
             # Base queryset
             ventes = Vente.objects.filter(branche=branche)
@@ -439,7 +440,7 @@ class VentesListAPIView(ManagerRequiredMixin, View):
             
             # Order by date (newest first)
             ventes = ventes.select_related(
-                'pompiste', 'type_carburant', 'moyen_paiement', 'abonne'
+                'pompiste', 'type_carburant', 'moyen_paiement', 'abonne', 'partenaire'
             ).order_by('-created_at')
             
             # Pagination
@@ -465,6 +466,8 @@ class VentesListAPIView(ManagerRequiredMixin, View):
                     'status': vente.statut,
                     'payment_method': vente.moyen_paiement.nom if vente.moyen_paiement else 'N/A',
                     'subscriber': f"{vente.abonne.nom_entreprise}" if vente.abonne else None,
+                    'client': (vente.abonne.nom_entreprise if vente.abonne
+                               else vente.partenaire.nom if vente.partenaire else 'Client standard'),
                 })
             
             return JsonResponse({
@@ -475,7 +478,8 @@ class VentesListAPIView(ManagerRequiredMixin, View):
                     'total_pages': paginator.num_pages,
                     'total_items': paginator.count,
                     'has_next': page_obj.has_next(),
-                    'has_previous': page_obj.has_previous()
+                    'has_previous': page_obj.has_previous(),
+                    'per_page': per_page
                 }
             })
             
@@ -484,6 +488,55 @@ class VentesListAPIView(ManagerRequiredMixin, View):
                 'success': False,
                 'message': str(e)
             }, status=500)
+
+
+def charge_subscriber_for_sale(abonne, vente, branche):
+    """
+    Record a subscriber's consumption for a sale and update their balance
+    (prepaid: balance decreases, postpaid/credit: debt increases).
+    """
+    abonne = Abonne.objects.select_for_update().get(pk=abonne.pk)
+    first = True
+    for devise, montant in (('USD', vente.montant_usd), ('FC', vente.montant_fc)):
+        if not montant or montant <= 0:
+            continue
+        ConsommationAbonne.objects.create(
+            abonne=abonne,
+            branche=branche,
+            type_carburant=vente.type_carburant,
+            quantite=vente.quantite if first else Decimal('0'),
+            montant=montant,
+            devise=devise,
+        )
+        first = False
+        if devise == 'USD':
+            abonne.solde_usd -= montant
+        else:
+            abonne.solde_fc -= montant
+    abonne.save()
+    return abonne
+
+
+class ClientsListAPIView(ManagerRequiredMixin, View):
+    """Clients available on the sale form: subscribers and fuel partners."""
+
+    def get(self, request):
+        abonnes = Abonne.objects.filter(is_active=True).order_by('nom_entreprise')
+        partenaires = Partenaire.objects.filter(is_active=True).order_by('nom')
+        return JsonResponse({
+            'success': True,
+            'abonnes': [{
+                'id': a.id,
+                'nom': a.nom_entreprise,
+                'code': a.code_client,
+                'type': a.get_type_abonnement_display(),
+            } for a in abonnes],
+            'partenaires': [{
+                'id': p.id,
+                'nom': p.nom,
+                'code': p.code,
+            } for p in partenaires],
+        })
 
 
 class CreateVenteAPIView(ManagerRequiredMixin, View):
@@ -493,130 +546,92 @@ class CreateVenteAPIView(ManagerRequiredMixin, View):
     - Status: "en_attente" (pending validation by Caissier)
     - Stock: Provisionally deducted
     - Exchange rate: Captured at transaction time
+    - Client: standard (none), subscriber (balance updated) or fuel partner
+    Everything is saved atomically: on any error nothing is recorded.
     """
     
     def post(self, request):
         try:
             data = json.loads(request.body)
-            branche = request.user.branche
-            
-            # Validate required fields
-            required_fields = ['pompiste_id', 'fuel_type_id', 'quantity', 'payment_method_id']
-            for field in required_fields:
-                if field not in data:
-                    return JsonResponse({
-                        'success': False,
-                        'message': f'Champ requis manquant: {field}'
-                    }, status=400)
-            
-            # Get related objects
-            pompiste = get_object_or_404(Pompiste, id=data['pompiste_id'], branche=branche)
-            type_carburant = get_object_or_404(TypeCarburant, id=data['fuel_type_id'])
-            moyen_paiement = get_object_or_404(MoyenPaiement, id=data['payment_method_id'])
-            
-            # Get current exchange rate
-            try:
-                taux_change = TauxChange.objects.filter(is_active=True).latest('date_effective')
-            except TauxChange.DoesNotExist:
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Données JSON invalides'}, status=400)
+
+        branche = request.user.branche
+        required_fields = ['pompiste_id', 'fuel_type_id', 'quantity', 'payment_method_id']
+        for field in required_fields:
+            if not data.get(field):
                 return JsonResponse({
                     'success': False,
-                    'message': 'Aucun taux de change configuré'
+                    'message': f'Champ requis manquant: {field}'
                 }, status=400)
-            
-            # Validate stock availability
-            try:
-                stock = Stock.objects.get(branche=branche, type_carburant=type_carburant)
-                if stock.quantite_actuelle < Decimal(str(data['quantity'])):
+
+        try:
+            quantity = Decimal(str(data['quantity']))
+            amount_usd = Decimal(str(data.get('amount_usd') or 0))
+            amount_fc = Decimal(str(data.get('amount_fc') or 0))
+        except Exception:
+            return JsonResponse({'success': False, 'message': 'Quantité ou montant invalide'}, status=400)
+        if quantity <= 0:
+            return JsonResponse({'success': False, 'message': 'La quantité doit être supérieure à 0'}, status=400)
+        if amount_usd < 0 or amount_fc < 0 or (amount_usd == 0 and amount_fc == 0):
+            return JsonResponse({'success': False, 'message': 'Veuillez saisir un montant (USD ou FC)'}, status=400)
+
+        try:
+            with transaction.atomic():
+                pompiste = get_object_or_404(Pompiste, id=data['pompiste_id'], branche=branche)
+                type_carburant = get_object_or_404(TypeCarburant, id=data['fuel_type_id'])
+                moyen_paiement = get_object_or_404(MoyenPaiement, id=data['payment_method_id'])
+
+                taux_change = TauxChange.objects.filter(is_active=True).order_by('-date_effective').first()
+                if not taux_change:
+                    return JsonResponse({'success': False, 'message': 'Aucun taux de change configuré'}, status=400)
+
+                stock = Stock.objects.select_for_update().filter(branche=branche, type_carburant=type_carburant).first()
+                if not stock:
+                    return JsonResponse({'success': False, 'message': 'Stock non configuré pour ce carburant'}, status=400)
+                if stock.quantite_actuelle < quantity:
                     return JsonResponse({
                         'success': False,
                         'message': f'Stock insuffisant. Disponible: {stock.quantite_actuelle} L'
                     }, status=400)
-            except Stock.DoesNotExist:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Stock non configuré pour ce carburant'
-                }, status=400)
-            
-            # Handle subscriber if provided
-            abonne = None
-            if data.get('abonne_id'):
-                abonne = get_object_or_404(Abonne, id=data['abonne_id'])
-            
-            # Create vente
-            vente = Vente.objects.create(
-                branche=branche,
-                pompiste=pompiste,
-                manager=request.user,
-                type_carburant=type_carburant,
-                quantite=Decimal(str(data['quantity'])),
-                montant_usd=Decimal(str(data.get('amount_usd', 0))),
-                montant_fc=Decimal(str(data.get('amount_fc', 0))),
-                moyen_paiement=moyen_paiement,
-                abonne=abonne,
-                taux_change=taux_change.taux_usd_fc,
-                statut='en_attente'  # Pending validation
-            )
-            
-            # Provisionally deduct stock
-            stock.quantite_actuelle -= Decimal(str(data['quantity']))
-            stock.save()
-            
-            # Handle subscriber balance/debt
-            if abonne:
-                ConsommationAbonne.objects.create(
-                    abonne=abonne,
+
+                abonne = None
+                partenaire = None
+                if data.get('abonne_id'):
+                    abonne = get_object_or_404(Abonne, id=data['abonne_id'], is_active=True)
+                elif data.get('partenaire_id'):
+                    partenaire = get_object_or_404(Partenaire, id=data['partenaire_id'], is_active=True)
+
+                vente = Vente.objects.create(
                     branche=branche,
-                    vente=vente,
-                    montant_usd=vente.montant_usd,
-                    montant_fc=vente.montant_fc
+                    pompiste=pompiste,
+                    manager=request.user,
+                    type_carburant=type_carburant,
+                    quantite=quantity,
+                    montant_usd=amount_usd,
+                    montant_fc=amount_fc,
+                    moyen_paiement=moyen_paiement,
+                    abonne=abonne,
+                    partenaire=partenaire,
+                    taux_change=taux_change.taux_usd_fc,
+                    statut='en_attente'
                 )
-                
-                # Update subscriber balance based on type
-                if abonne.type_abonnementment == 'prepaye':
-                    # Check USD balance
-                    if abonne.solde_usd_usd < vente.montant_usd:
-                        return JsonResponse({
-                            'success': False,
-                            'message': 'Solde USD insuffisant pour cet abonné'
-                        }, status=400)
-                    abonne.solde_usd_usd -= vente.montant_usd
-                    abonne.solde_usd_fc -= vente.montant_fc
-                elif abonne.type_abonnementment == 'postpaye':
-                    # Debt is tracked as negative balance
-                    abonne.solde_usd_usd -= vente.montant_usd
-                    abonne.solde_usd_fc -= vente.montant_fc
-                elif abonne.type_abonnementment == 'credit':
-                    # Check credit limit
-                    current_debt = abs(abonne.solde_usd_usd) if abonne.solde_usd_usd < 0 else 0
-                    if abonne.limite_credit - current_debt < vente.montant_usd:
-                        return JsonResponse({
-                            'success': False,
-                            'message': 'Limite de crédit dépassée'
-                        }, status=400)
-                    abonne.solde_usd_usd -= vente.montant_usd
-                    abonne.solde_usd_fc -= vente.montant_fc
-                
-                abonne.save()
-            
+
+                stock.quantite_actuelle -= quantity
+                stock.save()
+
+                if abonne:
+                    charge_subscriber_for_sale(abonne, vente, branche)
+
             return JsonResponse({
                 'success': True,
                 'message': 'Vente enregistrée avec succès',
-                'data': {
-                    'id': vente.id,
-                    'status': vente.statut
-                }
+                'data': {'id': vente.id, 'status': vente.statut}
             })
-            
-        except json.JSONDecodeError:
-            return JsonResponse({
-                'success': False,
-                'message': 'Données JSON invalides'
-            }, status=400)
+        except Http404:
+            return JsonResponse({'success': False, 'message': 'Élément introuvable (pompiste, carburant, client ou moyen de paiement)'}, status=404)
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=500)
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 class VenteDetailAPIView(ManagerRequiredMixin, View):
@@ -626,7 +641,7 @@ class VenteDetailAPIView(ManagerRequiredMixin, View):
         try:
             vente = get_object_or_404(
                 Vente.objects.select_related(
-                    'pompiste', 'type_carburant', 'moyen_paiement', 'abonne', 'manager'
+                    'pompiste', 'type_carburant', 'moyen_paiement', 'abonne', 'manager', 'partenaire'
                 ),
                 id=vente_id,
                 branche=request.user.branche
@@ -651,6 +666,12 @@ class VenteDetailAPIView(ManagerRequiredMixin, View):
                     'id': vente.abonne.id if vente.abonne else None,
                     'name': vente.abonne.nom_entreprise if vente.abonne else None
                 },
+                'partner': {
+                    'id': vente.partenaire.id if vente.partenaire else None,
+                    'name': vente.partenaire.nom if vente.partenaire else None
+                },
+                'missing_reason': vente.raison_manquant or '',
+                'paid_cash': vente.regle_comptant,
                 'exchange_rate': float(vente.taux_change) if vente.taux_change else None,
                 'status': vente.statut,
                 'recorded_by': vente.manager.get_full_name() if vente.manager else 'N/A',
@@ -1044,6 +1065,7 @@ class AbonneDetailAPIView(ManagerRequiredMixin, View):
 class RecordConsumptionView(ManagerRequiredMixin, View):
     """Record subscriber consumption with automatic balance calculation"""
     
+    @method_decorator(transaction.atomic)
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -1905,18 +1927,22 @@ class DownloadPlanningView(ManagerRequiredMixin, View):
 # NOTIFICATIONS VIEWS
 # ============================================
 
-class NotificationsView(ManagerRequiredMixin, TemplateView):
-    """Notifications page"""
-    template_name = 'manager/notifications.html'
+class NotificationsView(ManagerRequiredMixin, View):
+    """Notifications are shown in the header panel; send users back to the dashboard"""
+
+    def get(self, request):
+        return redirect('manager_module:dashboard')
 
 
 # ============================================
 # PROFILE VIEWS
 # ============================================
 
-class ProfilView(ManagerRequiredMixin, TemplateView):
-    """Manager profile page"""
-    template_name = 'manager/profil.html'
+class ProfilView(ManagerRequiredMixin, View):
+    """Manager profile uses the shared profile page"""
+
+    def get(self, request):
+        return redirect('shared:user_profile')
 
 
 # ============================================

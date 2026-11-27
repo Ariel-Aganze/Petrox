@@ -49,6 +49,7 @@ urlpatterns = [
     path('api/forex-impact/', views.ForexImpactAPIView.as_view(), name='forex_impact'),
     
     # ---------- Sales (Ventes) APIs ----------
+    path('api/clients/', views.ClientsListAPIView.as_view(), name='clients_api'),
     path('api/ventes/create/', views.CreateVenteAPIView.as_view(), name='create_vente'),
     path('api/ventes/', views.VentesListAPIView.as_view(), name='ventes_api'),
     path('api/ventes/<int:vente_id>/', views.VenteDetailAPIView.as_view(), name='vente_detail'),

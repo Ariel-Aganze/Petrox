@@ -52,7 +52,7 @@ class CurrentExchangeRateView(LoginRequiredMixin, View):
                 'success': True,
                 'rate': str(current_rate.taux_usd_fc),
                 'date_effective': current_rate.date_effective.strftime('%d/%m/%Y %H:%M'),
-                'created_by': current_rate.created_by.get_full_name()
+                'created_by': current_rate.created_by.get_full_name() if current_rate.created_by else ''
             })
         else:
             return JsonResponse({
@@ -1565,3 +1565,24 @@ class UploadProfilePhotoView(LoginRequiredMixin, View):
                 'success': False,
                 'message': f'Erreur: {str(e)}'
             }, status=500)
+
+# ============================================
+# SALE RECEIPTS (shared by admin, gestionnaire, caissier)
+# ============================================
+
+class PrintSalesReceiptsView(LoginRequiredMixin, View):
+    """
+    Print one or several sale receipts with the shared layout.
+    ?ids=1,2,3  - admins see every branch, others only their own branch.
+    """
+
+    def get(self, request):
+        from apps.shared.receipts import parse_ids, receipts_queryset, render_receipts_response
+        if getattr(request.user, 'role', None) not in ('admin', 'manager', 'caissier'):
+            return HttpResponse('Accès non autorisé', status=403)
+        ids = parse_ids(request.GET.get('ids', ''))
+        if not ids:
+            return HttpResponse('<html><body><h3>Aucune vente sélectionnée</h3></body></html>')
+        ventes = receipts_queryset(request.user, ids)
+        title = f'Reçu de vente VTE-{ids[0]:06d}' if len(ids) == 1 else 'Reçus de ventes'
+        return render_receipts_response(ventes, title=title)
