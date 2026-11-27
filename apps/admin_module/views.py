@@ -2957,7 +2957,7 @@ class CreatePaymentView(LoginRequiredMixin, View):
             categorie, created = CategorieDepense.objects.get_or_create(
                 nom='Paiements Abonnés',
                 defaults={
-                    'description': 'Paiements reçus des abonnés (clients entreprise)',
+                    'description': 'Paiements reçus des abonnés',
                     'created_by': request.user
                 }
             )
@@ -5874,12 +5874,18 @@ class CreateAbonneView(AdminRequiredMixin, View):
             data = json.loads(request.body)
             
             # Required fields
-            required_fields = ['nom_entreprise', 'code_client', 'contact_nom', 'contact_telephone', 'type_abonnement']
+            required_fields = ['nom_entreprise', 'code_client', 'contact_telephone', 'type_abonnement']
+            field_labels = {
+                'nom_entreprise': 'Nom du client',
+                'code_client': 'Code client',
+                'contact_telephone': 'Téléphone',
+                'type_abonnement': "Type d'abonnement",
+            }
             for field in required_fields:
                 if not data.get(field):
                     return JsonResponse({
                         'success': False,
-                        'message': f'Le champ {field} est requis'
+                        'message': f'Le champ « {field_labels.get(field, field)} » est requis'
                     }, status=400)
             
             # Check if code_client already exists
@@ -5943,7 +5949,7 @@ class CreateAbonneView(AdminRequiredMixin, View):
             abonne = Abonne.objects.create(
                 nom_entreprise=data['nom_entreprise'],
                 code_client=data['code_client'],
-                contact_nom=data['contact_nom'],
+                contact_nom=(data.get('contact_nom') or '').strip() or data['nom_entreprise'],
                 contact_telephone=data['contact_telephone'],
                 contact_email=data.get('contact_email', ''),
                 adresse=data.get('adresse', ''),
@@ -6067,8 +6073,8 @@ class UpdateAbonneView(AdminRequiredMixin, View):
             if data.get('nom_entreprise'):
                 abonne.nom_entreprise = data['nom_entreprise']
             
-            if data.get('contact_nom'):
-                abonne.contact_nom = data['contact_nom']
+            if 'contact_nom' in data:
+                abonne.contact_nom = (data.get('contact_nom') or '').strip() or abonne.nom_entreprise
             
             if data.get('contact_telephone'):
                 abonne.contact_telephone = data['contact_telephone']
@@ -6474,7 +6480,7 @@ class ExportAbonnesPDFView(AdminRequiredMixin, View):
             elements.append(Paragraph('Liste Détaillée', styles['Heading2']))
             elements.append(Spacer(1, 0.2*inch))
             
-            data = [['Entreprise', 'Code Client', 'Type', 'Contact', 'Téléphone', 'Solde USD', 'Solde FC']]
+            data = [['Client', 'Code Client', 'Type', 'Contact', 'Téléphone', 'Solde USD', 'Solde FC']]
             
             for abonne in abonnes:
                 data.append([
@@ -6573,7 +6579,7 @@ class ExportAbonnesExcelView(AdminRequiredMixin, View):
             
             # Headers
             headers = [
-                'Entreprise', 'Code Client', 'Type Abonnement', 
+                'Client', 'Code Client', 'Type Abonnement', 
                 'Contact Nom', 'Contact Téléphone', 'Contact Email',
                 'Adresse', 'Solde USD', 'Solde FC', 'Limite Crédit',
                 'Statut', 'Date Création'

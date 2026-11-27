@@ -2438,7 +2438,7 @@ class ExportAbonnesExcelView(CaissierRequiredMixin, View):
             header_font = Font(color="FFFFFF", bold=True)
             
             # Headers
-            headers = ['Code Client', 'Entreprise', 'Type', 'Contact', 'Téléphone', 
+            headers = ['Code Client', 'Client', 'Type', 'Contact', 'Téléphone', 
                       'Solde USD', 'Solde FC', 'Dette USD', 'Dette FC', 'Total Consommé']
             for col, header in enumerate(headers, 1):
                 cell = ws.cell(row=1, column=col, value=header)

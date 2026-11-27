@@ -214,7 +214,7 @@ class Pompiste(models.Model):
 
 
 class Abonne(models.Model):
-    """Clients abonnés (entreprises)"""
+    """Clients abonnés : particuliers ou entreprises"""
     
     TYPE_ABONNEMENT_CHOICES = [
         ('prepaye', 'Prépayé'),
@@ -222,12 +222,12 @@ class Abonne(models.Model):
         ('credit', 'Crédit'),
     ]
     
-    # Informations entreprise - FIXED: Added defaults
-    nom_entreprise = models.CharField(max_length=100, default='Entreprise', verbose_name="Nom de l'entreprise")
+    # Informations client (personne ou entreprise). Field name kept for compatibility.
+    nom_entreprise = models.CharField(max_length=100, default='Client', verbose_name="Nom du client (personne ou entreprise)")
     code_client = models.CharField(max_length=20, unique=True, verbose_name="Code client")
     
     # Contact - FIXED: Added defaults
-    contact_nom = models.CharField(max_length=100, default='Contact', verbose_name="Nom du contact")
+    contact_nom = models.CharField(max_length=100, default='', blank=True, verbose_name="Personne de contact")
     contact_telephone = models.CharField(max_length=20, default='', blank=True, verbose_name="Téléphone")
     contact_email = models.EmailField(blank=True, default='', verbose_name="Email")
     adresse = models.TextField(default='', blank=True, verbose_name="Adresse")

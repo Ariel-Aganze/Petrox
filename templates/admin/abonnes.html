@@ -59,7 +59,7 @@
             Gestion des Abonnés
         </h2>
         <p class="mt-1 text-sm text-gray-500">
-            Clients entreprise - Multi-branches
+            Clients particuliers et entreprises - Multi-branches
         </p>
     </div>
     <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
@@ -79,7 +79,7 @@
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Nouvelle Entreprise
+            Nouvel Abonné
         </button>
     </div>
 </div>
@@ -192,7 +192,7 @@
 <div class="bg-white shadow-sm rounded-lg border border-gray-100">
     <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h3 class="text-lg font-medium leading-6 text-gray-900">
-            Liste des Abonnés (Clients Entreprise)
+            Liste des Abonnés
         </h3>
         <p class="mt-1 text-sm text-gray-500">
             Les abonnés peuvent consommer dans toutes les branches
@@ -236,8 +236,9 @@
                     
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div class="sm:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
+                            <label class="block text-sm font-medium text-gray-700">Nom du client *</label>
                             <input type="text" name="nom_entreprise" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Nom complet de la personne ou nom de l'entreprise</p>
                         </div>
                         
                         <div>
@@ -256,8 +257,8 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Nom du contact *</label>
-                            <input type="text" name="contact_nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label class="block text-sm font-medium text-gray-700">Personne de contact <span class="font-normal text-gray-500">(si entreprise)</span></label>
+                            <input type="text" name="contact_nom" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>
@@ -320,8 +321,9 @@
                     
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div class="sm:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
+                            <label class="block text-sm font-medium text-gray-700">Nom du client *</label>
                             <input type="text" id="edit-nom-entreprise" name="nom_entreprise" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Nom complet de la personne ou nom de l'entreprise</p>
                         </div>
                         
                         <div>
@@ -339,8 +341,8 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Nom du contact *</label>
-                            <input type="text" id="edit-contact-nom" name="contact_nom" required class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
+                            <label class="block text-sm font-medium text-gray-700">Personne de contact <span class="font-normal text-gray-500">(si entreprise)</span></label>
+                            <input type="text" id="edit-contact-nom" name="contact_nom" class="mt-1 block w-full border-gray-400 rounded-md shadow-sm focus:ring-petrox-red focus:border-petrox-red sm:text-sm">
                         </div>
                         
                         <div>

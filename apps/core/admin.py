@@ -87,7 +87,7 @@ class AbonneAdmin(admin.ModelAdmin):
     ordering = ('nom_entreprise',)
     
     fieldsets = (
-        ('Informations Entreprise', {
+        ('Informations Client', {
             'fields': ('nom_entreprise', 'code_client', 'adresse')
         }),
         ('Contact', {
